@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Fonts ---------- */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css");
+
+/* ---------- Design Tokens (mirror of tokens.css) ---------- */
+:root {
+  --color-paper:#f6f1e7; --color-paper-hi:#fbf7ed; --color-paper-sunk:#efe8da; --color-white:#fff;
+  --color-ink:#2a2520; --color-ink-2:#5a5148; --color-ink-3:#8a8178; --color-ink-4:#b8ad9c;
+  --color-rule:#d9d0bd; --color-rule-soft:#ebe3d1;
+  --color-brand:oklch(0.62 0.14 40); --color-brand-hover:oklch(0.56 0.15 40);
+  --color-brand-press:oklch(0.50 0.15 40); --color-brand-tint:oklch(0.95 0.03 40); --color-brand-on:#fff;
+  --color-success:oklch(0.56 0.08 150); --color-success-tint:oklch(0.94 0.03 150); --color-success-ink:oklch(0.38 0.07 150);
+  --color-info:oklch(0.42 0.10 255);    --color-info-tint:oklch(0.94 0.03 255);    --color-info-ink:oklch(0.36 0.09 255);
+  --color-warn:oklch(0.70 0.13 75);     --color-warn-tint:oklch(0.95 0.04 75);     --color-warn-ink:oklch(0.42 0.10 65);
+  --color-danger:oklch(0.55 0.17 25);   --color-danger-tint:oklch(0.94 0.04 25);   --color-danger-ink:oklch(0.42 0.15 25);
+  --color-focus:oklch(0.62 0.14 40 / 0.35);
+
+  --font-sans:"Noto Sans SC","HarmonyOS Sans SC","PingFang SC",-apple-system,system-ui,sans-serif;
+  --font-wenkai:"LXGW WenKai Screen","LXGW WenKai","Songti SC",serif;
+  --font-mono:"JetBrains Mono","SF Mono",ui-monospace,Menlo,monospace;
+  --font-num:"Inter","Noto Sans SC",system-ui,sans-serif;
+
+  --fs-display:48px; --lh-display:1.15;
+  --fs-h1:34px; --lh-h1:1.25;
+  --fs-h2:26px; --lh-h2:1.3;
+  --fs-h3:20px; --lh-h3:1.4;
+  --fs-h4:17px; --lh-h4:1.45;
+  --fs-body:15px; --lh-body:1.7;
+  --fs-body-sm:13px; --lh-body-sm:1.65;
+  --fs-meta:12px; --lh-meta:1.5;
+  --fs-micro:11px; --lh-micro:1.4;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px;
+  --sp-7:32px; --sp-8:40px; --sp-9:48px; --sp-10:64px; --sp-11:80px; --sp-12:120px;
+
+  --radius-xs:4px; --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-pill:999px;
+
+  --shadow-xs:0 1px 0 rgba(60,40,20,.04);
+  --shadow-sm:0 1px 2px rgba(60,40,20,.06),0 1px 0 rgba(60,40,20,.02);
+  --shadow-md:0 1px 3px rgba(60,40,20,.08),0 6px 20px -12px rgba(60,40,20,.18);
+  --shadow-lg:0 4px 12px rgba(60,40,20,.10),0 16px 40px -16px rgba(60,40,20,.22);
+  --shadow-xl:0 8px 24px rgba(60,40,20,.12),0 32px 64px -24px rgba(60,40,20,.28);
+  --shadow-focus:0 0 0 3px var(--color-focus);
+
+  --nav-h-desktop:64px; --nav-h-mobile:56px; --sidenav-w:240px; --tabbar-h-mobile:60px;
+  --container-max:1280px; --content-max:880px;
+  --h-btn-sm:32px; --h-btn-md:40px; --h-btn-lg:48px;
+}
+@media (max-width:640px){
+  :root{
+    --fs-display:34px; --fs-h1:26px; --fs-h2:20px; --fs-h3:17px; --fs-h4:15px;
+    --h-btn-sm:36px; --h-btn-md:44px; --h-btn-lg:52px;
+    --radius-md:10px; --radius-lg:14px;
+  }
+}
+
+html,body{margin:0;background:var(--color-paper);color:var(--color-ink);
+  font-family:var(--font-sans);font-size:var(--fs-body);line-height:var(--lh-body);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+*{box-sizing:border-box}
+:focus{outline:none}
+:focus-visible{outline:none;box-shadow:var(--shadow-focus)}
+
+.font-wenkai{font-family:var(--font-wenkai)}
+.font-num{font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.font-mono{font-family:var(--font-mono)}
+.eyebrow{font-family:var(--font-mono);font-size:var(--fs-micro);letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--color-ink-3)}

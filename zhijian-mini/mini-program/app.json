@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/redeem/redeem",
+    "pages/workbench/workbench",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "纸笺",
+    "navigationBarBackgroundColor": "#f8f3e8",
+    "backgroundTextStyle": "light"
+  },
+  "permission": {
+    "scope.record": {
+      "desc": "用于把老师口述内容转成主题文字"
+    }
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

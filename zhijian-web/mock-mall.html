@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模拟商城 · 纸笺橘子对接测试</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "PingFang SC", sans-serif; background: #f0f2f5; color: #333; }
+
+  /* 顶部栏 */
+  .header { background: #1d4c2f; color: #fff; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .header-title { font-size: 18px; font-weight: 700; }
+  .header-title span { opacity: 0.5; font-size: 13px; font-weight: 400; margin-left: 10px; }
+  .mode-badge { display: flex; align-items: center; gap: 10px; }
+  .badge { padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .badge-test { background: #f6c90e; color: #1d4c2f; }
+  .badge-prod { background: #2f855a; color: #fff; border: 2px solid #9ae6b4; }
+  .badge-lock { background: #e2e8f0; color: #888; font-size: 12px; cursor: default; }
+
+  /* 版本提示横幅 */
+  .version-banner { padding: 10px 28px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .version-banner.test { background: #fffbeb; color: #92400e; border-bottom: 1px solid #fde68a; }
+  .version-banner.prod { background: #f0fff4; color: #276749; border-bottom: 1px solid #9ae6b4; }
+
+  .container { max-width: 800px; margin: 24px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 0; }
+
+  /* 分区 */
+  .section { background: #fff; border-radius: 0; border-left: 5px solid #ccc; margin-bottom: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .section-1 { border-left-color: #4299e1; }
+  .section-2 { border-left-color: #48bb78; }
+  .section-3 { border-left-color: #f6ad55; }
+  .section-4 { border-left-color: #9f7aea; }
+
+  .section-header { padding: 18px 24px 14px; border-bottom: 1px solid #f7f7f7; }
+  .section-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; color: #fff; font-size: 14px; font-weight: 800; margin-right: 10px; vertical-align: middle; }
+  .s1 { background: #4299e1; }
+  .s2 { background: #48bb78; }
+  .s3 { background: #f6ad55; }
+  .s4 { background: #9f7aea; }
+  .section-title { font-size: 20px; font-weight: 800; color: #1a202c; vertical-align: middle; }
+  .section-subtitle { font-size: 13px; color: #718096; margin-top: 6px; padding-left: 38px; line-height: 1.6; }
+  .section-subtitle code { background: #edf2f7; padding: 1px 6px; border-radius: 4px; font-size: 12px; font-family: monospace; }
+  .section-body { padding: 20px 24px; }
+
+  /* 表单 */
+  .field { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .field label { font-size: 13px; color: #555; width: 110px; flex-shrink: 0; }
+  .field input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none; transition: border 0.2s; }
+  .field input:focus { border-color: #48bb78; }
+  .field input:disabled { background: #f7fafc; color: #aaa; }
+  .field-hint { font-size: 12px; color: #a0aec0; margin-top: -6px; margin-bottom: 10px; padding-left: 120px; }
+
+  /* 按钮 */
+  .btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-blue { background: #4299e1; color: #fff; }
+  .btn-green { background: #2f855a; color: #fff; }
+  .btn-gold { background: #f5c518; color: #1d4c2f; }
+  .btn-purple { background: #805ad5; color: #fff; }
+  .btn-gray { background: #edf2f7; color: #4a5568; }
+  .btn-outline { background: transparent; border: 1.5px solid #2f855a; color: #2f855a; }
+
+  /* 商品卡片 */
+  .product { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 1.5px solid #e8f5e9; border-radius: 10px; margin-bottom: 10px; }
+  .product-name { font-size: 15px; font-weight: 600; color: #1d4c2f; }
+  .product-desc { font-size: 12px; color: #888; margin-top: 3px; }
+  .product-price { font-size: 20px; font-weight: 700; color: #e53e3e; margin-right: 12px; }
+
+  /* 卡密展示 */
+  .code-box { display: none; background: #f0fff4; border: 1.5px solid #9ae6b4; border-radius: 10px; padding: 16px; margin-top: 14px; }
+  .code-value { font-size: 30px; font-weight: 900; color: #276749; letter-spacing: 4px; text-align: center; padding: 14px; background: #fff; border-radius: 8px; border: 2px dashed #68d391; margin: 10px 0; font-family: monospace; }
+  .code-meta { font-size: 12px; color: #718096; text-align: center; }
+
+  /* 兑换结果 */
+  .redeem-result { display: none; margin-top: 12px; padding: 12px 16px; border-radius: 8px; font-size: 14px; }
+  .redeem-ok { background: #f0fff4; border: 1px solid #9ae6b4; color: #276749; }
+  .redeem-fail { background: #fff5f5; border: 1px solid #fc8181; color: #c53030; }
+
+  /* Webhook 回调展示 */
+  .webhook-log { background: #1a202c; color: #68d391; border-radius: 8px; padding: 14px; font-family: monospace; font-size: 12px; line-height: 1.8; max-height: 180px; overflow-y: auto; white-space: pre-wrap; margin-top: 12px; }
+  .webhook-pending { background: #fffbeb; border: 1px solid #fbd38d; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #92400e; margin-top: 12px; display: none; }
+
+  /* 请求日志 */
+  .log-box { background: #1a1a2e; color: #00ff88; border-radius: 8px; padding: 14px; font-family: monospace; font-size: 12px; line-height: 1.7; max-height: 180px; overflow-y: auto; white-space: pre-wrap; }
+
+  /* 确认正式版区域 */
+  .confirm-section { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 2px dashed #cbd5e0; text-align: center; margin-bottom: 20px; }
+  .confirm-section.confirmed { border-color: #9ae6b4; background: #f0fff4; }
+  .confirm-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #2d3748; }
+  .confirm-desc { font-size: 13px; color: #718096; margin-bottom: 16px; }
+  .checklist { text-align: left; display: inline-block; margin-bottom: 16px; }
+  .checklist-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a5568; margin-bottom: 6px; }
+  .check-icon { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+  .check-done { background: #c6f6d5; color: #276749; }
+  .check-wait { background: #e2e8f0; color: #a0aec0; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  .tag-green { background: #c6f6d5; color: #276749; }
+  .tag-red { background: #fed7d7; color: #9b2c2c; }
+  .tag-blue { background: #bee3f8; color: #2c5282; }
+  .tag-yellow { background: #fefcbf; color: #744210; }
+</style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<div class="header">
+  <div class="header-title">🛒 模拟商城 <span>纸笺橘子接口对接</span></div>
+  <div class="mode-badge">
+    <span id="mode-label" class="badge badge-test">🧪 测试版</span>
+  </div>
+</div>
+
+<!-- 版本横幅 -->
+<div id="version-banner" class="version-banner test">
+  🧪 当前为 <strong>测试版</strong>，使用测试 Token，数据不计入正式统计。完成测试后点下方「确认上线」切换正式版。
+</div>
+
+<div class="container">
+
+  <!-- ① 第一部分：接口配置 -->
+  <div class="section section-1">
+    <div class="section-header">
+      <div><span class="section-num s1">1</span><span class="section-title">接口配置</span></div>
+      <div class="section-subtitle">
+        用户下单 → 你的服务端调 <code>POST /partner/create-code</code> → 获得卡密<br>
+        填写你的 Partner Token（由纸笺橘子运营方提供）
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Partner Token</label>
+        <input id="token" type="text" value="test-mall-token-2026" placeholder="X-Partner-Token">
+      </div>
+      <div class="field-hint">⚠️ 正式上线前需将此 Token 配置到你的服务端，不要暴露在前端页面</div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-blue" onclick="testConnection()">🔌 测试连接</button>
+        <span id="conn-status" style="font-size:13px;align-self:center;color:#888">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 第二部分：购买 → 生成卡密 -->
+  <div class="section section-2">
+    <div class="section-header">
+      <div><span class="section-num s2">2</span><span class="section-title">购买 → 触发生成卡密</span></div>
+      <div class="section-subtitle">
+        用户支付成功后，你的服务端自动调接口生成卡密，再把卡密通过短信 / 订单页发给买家
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="product">
+        <div>
+          <div class="product-name">纸笺橘子 · 30天会员</div>
+          <div class="product-desc">解锁全部 AI 生成功能，不限次数使用</div>
+        </div>
+        <div style="display:flex;align-items:center">
+          <span class="product-price">¥29</span>
+          <button class="btn btn-green" onclick="purchase('membership', 30, '30天会员')">立即购买</button>
+        </div>
+      </div>
+      <div class="product">
+        <div>
+          <div class="product-name">纸笺橘子 · 次数包 20次</div>
+          <div class="product-desc">按需使用，不过期</div>
+        </div>
+        <div style="display:flex;align-items:center">
+          <span class="product-price">¥9</span>
+          <button class="btn btn-gold" onclick="purchase('quota', 0, '次数包20次', 20)">立即购买</button>
+        </div>
+      </div>
+
+      <div id="code-box" class="code-box">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span id="code-service" class="tag tag-green"></span>
+            <span style="font-size:12px;color:#718096;margin-left:8px">订单号：<span id="code-order"></span></span>
+          </div>
+          <button class="btn btn-gray" style="font-size:12px;padding:6px 12px" onclick="copyCode()">复制卡密</button>
+        </div>
+        <div class="code-value" id="code-display">—</div>
+        <div class="code-meta">✅ 卡密已生成，发送给买家后买家可在小程序兑换中心核销</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 第三部分：用户兑换 -->
+  <div class="section section-3">
+    <div class="section-header">
+      <div><span class="section-num s3">3</span><span class="section-title">用户兑换卡密</span></div>
+      <div class="section-subtitle">
+        买家打开纸笺橘子小程序 → 兑换中心 → 填手机号 + 卡密 → 立即兑换<br>
+        此处模拟用户在小程序完成兑换的操作
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>用户手机号</label>
+        <input id="phone" type="text" value="13800138000" placeholder="买家手机号（即账号 ID）">
+      </div>
+      <div class="field">
+        <label>卡密</label>
+        <input id="redeem-code" type="text" placeholder="填入上方生成的卡密，或手动输入">
+      </div>
+      <button class="btn btn-gold" onclick="doRedeem()">📱 模拟用户兑换</button>
+      <div id="redeem-result" class="redeem-result"></div>
+    </div>
+  </div>
+
+  <!-- ④ 第四部分：收货确认 -->
+  <div class="section section-4">
+    <div class="section-header">
+      <div><span class="section-num s4">4</span><span class="section-title">收货确认（Webhook 回调）</span></div>
+      <div class="section-subtitle">
+        用户兑换成功后，纸笺橘子服务端自动回调你的 <code>webhook_url</code> → 你收到通知后确认收货并结算<br>
+        填写你的回调地址，测试时可用 <a href="https://webhook.site" target="_blank" style="color:#805ad5">webhook.site</a> 获取临时地址
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Webhook URL</label>
+        <input id="webhook" type="text" placeholder="https://webhook.site/你的专属ID">
+      </div>
+      <div class="field-hint">回调 Body 包含：event / code / user_id / order_id / status / redeemed_at_utc</div>
+      <div id="webhook-pending" class="webhook-pending">
+        ⏳ 用户已兑换，正在等待纸笺橘子服务端回调你的 Webhook...（最多等待 30 秒）
+      </div>
+      <div id="webhook-log" class="webhook-log" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- 请求日志 -->
+  <div class="section" style="border-left-color:#a0aec0">
+    <div class="section-header">
+      <div><span class="section-title" style="font-size:16px;color:#718096">🖥️ 请求日志</span></div>
+    </div>
+    <div class="section-body" style="padding-top:0">
+      <div class="log-box" id="log">等待操作...</div>
+    </div>
+  </div>
+
+  <!-- 确认上线区域 -->
+  <div id="confirm-section" class="confirm-section">
+    <div class="confirm-title">🚀 双方确认 → 切换正式版</div>
+    <div class="confirm-desc">完成以下测试项后，点「确认上线」切换为正式版配置</div>
+    <div class="checklist">
+      <div class="checklist-item"><span id="chk1" class="check-icon check-wait">—</span> 接口连接测试通过</div>
+      <div class="checklist-item"><span id="chk2" class="check-icon check-wait">—</span> 购买并成功生成卡密</div>
+      <div class="checklist-item"><span id="chk3" class="check-icon check-wait">—</span> 用户兑换卡密成功</div>
+      <div class="checklist-item"><span id="chk4" class="check-icon check-wait">—</span> Webhook 回调配置（可选）</div>
+    </div>
+    <br>
+    <button id="confirm-btn" class="btn btn-green" style="font-size:15px;padding:12px 32px" onclick="confirmProd()">
+      ✅ 确认上线，切换正式版
+    </button>
+  </div>
+
+</div>
+
+<script>
+const API = 'https://zhijian.soulshock.cn'
+let orderCounter = Math.floor(Math.random() * 1000) + 1000
+let checks = { conn: false, purchase: false, redeem: false }
+let isProd = false
+
+function log(msg) {
+  const el = document.getElementById('log')
+  const t = new Date().toLocaleTimeString()
+  el.textContent = `[${t}] ${msg}\n` + el.textContent
+}
+
+function updateChecks() {
+  document.getElementById('chk1').className = 'check-icon ' + (checks.conn ? 'check-done' : 'check-wait')
+  document.getElementById('chk1').textContent = checks.conn ? '✓' : '—'
+  document.getElementById('chk2').className = 'check-icon ' + (checks.purchase ? 'check-done' : 'check-wait')
+  document.getElementById('chk2').textContent = checks.purchase ? '✓' : '—'
+  document.getElementById('chk3').className = 'check-icon ' + (checks.redeem ? 'check-done' : 'check-wait')
+  document.getElementById('chk3').textContent = checks.redeem ? '✓' : '—'
+  document.getElementById('chk4').className = 'check-icon check-done'
+  document.getElementById('chk4').textContent = '✓'
+}
+
+async function testConnection() {
+  const token = document.getElementById('token').value.trim()
+  const el = document.getElementById('conn-status')
+  el.textContent = '连接中...'
+  log('▶ 测试接口连接...')
+  try {
+    const res = await fetch(`${API}/health`)
+    const data = await res.json()
+    if (data.status === 'ok') {
+      el.innerHTML = '<span class="tag tag-green">✅ 连接正常，版本 ' + (data.app_version || '-') + '</span>'
+      log(`✅ 服务器连接正常，版本 ${data.app_version}，模型 ${data.model}`)
+      checks.conn = true
+      updateChecks()
+    } else {
+      el.innerHTML = '<span class="tag tag-red">❌ 连接异常</span>'
+    }
+  } catch (e) {
+    el.innerHTML = '<span class="tag tag-red">❌ 无法连接：' + e.message + '</span>'
+    log(`❌ 连接失败：${e.message}`)
+  }
+}
+
+async function purchase(type, days, desc, amount) {
+  const token = document.getElementById('token').value.trim()
+  const webhookUrl = document.getElementById('webhook').value.trim()
+  const orderId = `MALL-${Date.now()}-${++orderCounter}`
+  log(`▶ 购买：${desc}，订单号 ${orderId}`)
+
+  const body = { service_type: type, order_id: orderId, expires_at: '2027-12-31T23:59:59+00:00' }
+  if (type === 'membership') body.days = days
+  if (type === 'quota') body.amount = amount || 20
+  if (webhookUrl) body.callback_url = webhookUrl
+
+  try {
+    const res = await fetch(`${API}/partner/create-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Partner-Token': token },
+      body: JSON.stringify(body)
+    })
+    const data = await res.json()
+
+    if (data.ok) {
+      document.getElementById('code-box').style.display = 'block'
+      document.getElementById('code-display').textContent = data.code
+      document.getElementById('code-order').textContent = orderId
+      document.getElementById('code-service').textContent = desc
+      document.getElementById('redeem-code').value = data.code
+      log(`✅ 卡密生成成功：${data.code}`)
+      checks.purchase = true
+      updateChecks()
+    } else {
+      const msg = data.detail || JSON.stringify(data)
+      log(`❌ 生成失败：${msg}`)
+      if (msg.includes('未启用')) {
+        alert('⚠️ 接口返回：第三方兑换入口未启用\n\n请先在 Google Cloud Run 控制台添加环境变量：\nPARTNER_REDEEM_TOKENS = test-mall-token-2026')
+      }
+    }
+  } catch (e) {
+    log(`❌ 请求错误：${e.message}`)
+  }
+}
+
+async function doRedeem() {
+  const phone = document.getElementById('phone').value.trim()
+  const code = document.getElementById('redeem-code').value.trim()
+  const webhookUrl = document.getElementById('webhook').value.trim()
+  const el = document.getElementById('redeem-result')
+
+  if (!code) { alert('请先生成或填写卡密'); return }
+  log(`▶ 用户兑换：手机 ${phone}，卡密 ${code}`)
+
+  try {
+    const res = await fetch(`${API}/redeem`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: phone, code, source: 'mock_mall' })
+    })
+    const data = await res.json()
+    el.style.display = 'block'
+
+    if (data.ok) {
+      const until = data.granted?.membership_until ? `，会员到期：${data.granted.membership_until.slice(0,10)}` : ''
+      const quota = data.granted?.quota_total !== undefined ? `，剩余次数：${data.granted.quota_total}` : ''
+      el.className = 'redeem-result redeem-ok'
+      el.innerHTML = `✅ 兑换成功！权益：${data.service?.name || '已发放'}${until}${quota}`
+      log(`✅ 兑换成功${until}${quota}`)
+      checks.redeem = true
+      updateChecks()
+
+      if (webhookUrl) {
+        document.getElementById('webhook-pending').style.display = 'block'
+        log(`⏳ 等待 Webhook 回调到 ${webhookUrl}...`)
+        setTimeout(() => {
+          document.getElementById('webhook-pending').style.display = 'none'
+          const wl = document.getElementById('webhook-log')
+          wl.style.display = 'block'
+          wl.textContent = `// 纸笺橘子已向你的 Webhook 发送以下内容：\n{\n  "event": "redeemed",\n  "code": "${code}",\n  "user_id": "${phone}",\n  "order_id": "（订单号）",\n  "status": "redeemed",\n  "redeemed_at_utc": "${new Date().toISOString()}",\n  "channel": "user_self"\n}\n\n// 请在 webhook.site 页面确认是否收到`
+        }, 3000)
+      }
+    } else {
+      el.className = 'redeem-result redeem-fail'
+      el.innerHTML = `❌ 兑换失败：${data.message || '未知错误'}`
+      log(`❌ 兑换失败：${data.message}`)
+    }
+  } catch (e) {
+    el.style.display = 'block'
+    el.className = 'redeem-result redeem-fail'
+    el.innerHTML = `❌ 网络错误：${e.message}`
+    log(`❌ 请求错误：${e.message}`)
+  }
+}
+
+function copyCode() {
+  const code = document.getElementById('code-display').textContent
+  navigator.clipboard.writeText(code).then(() => alert(`已复制：${code}`)).catch(() => prompt('手动复制：', code))
+}
+
+function confirmProd() {
+  if (!checks.conn || !checks.purchase || !checks.redeem) {
+    alert('请先完成接口连接、购买生成卡密、用户兑换三项测试再确认上线')
+    return
+  }
+  isProd = true
+  document.getElementById('mode-label').className = 'badge badge-prod'
+  document.getElementById('mode-label').textContent = '✅ 正式版'
+  const banner = document.getElementById('version-banner')
+  banner.className = 'version-banner prod'
+  banner.innerHTML = '✅ 已切换为 <strong>正式版</strong>。请将测试 Token 替换为正式 Token，并通知纸笺橘子运营方开通正式权限。'
+  const cs = document.getElementById('confirm-section')
+  cs.className = 'confirm-section confirmed'
+  cs.innerHTML = `
+    <div class="confirm-title" style="color:#276749">✅ 双方确认完成，已切换正式版</div>
+    <div class="confirm-desc" style="color:#48bb78">请将以下信息发送给纸笺橘子运营方，申请正式 Token</div>
+    <div style="background:#fff;border-radius:8px;padding:14px;text-align:left;font-size:13px;color:#2d3748;margin-top:10px">
+      <div>商城名称：<strong>（填你的商城名）</strong></div>
+      <div style="margin-top:6px">Webhook URL：<strong>${document.getElementById('webhook').value || '（待填写）'}</strong></div>
+      <div style="margin-top:6px">测试时间：<strong>${new Date().toLocaleString()}</strong></div>
+      <div style="margin-top:6px">测试结果：<strong>✅ 接口连通 / ✅ 卡密生成 / ✅ 用户兑换</strong></div>
+    </div>
+  `
+  log('🎉 已确认上线，切换正式版模式')
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+/**app.wxss**/
+page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 212, 140, .18), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(112, 198, 190, .16), transparent 18%),
+    linear-gradient(180deg, #f8f3e8 0%, #f4f8f5 46%, #f9f7f2 100%);
+  color: #18322a;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 200rpx 0;
+  box-sizing: border-box;
+} 
+
+.safe-shell {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28rpx;
+}

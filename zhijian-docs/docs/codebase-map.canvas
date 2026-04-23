@@ -1,0 +1,1154 @@
+{
+  "nodes": [
+    {
+      "id": "grp_infra",
+      "type": "group",
+      "label": "部署 / 基础设施",
+      "x": -60,
+      "y": -60,
+      "width": 760,
+      "height": 340,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "dockerfile",
+      "type": "text",
+      "text": "# Dockerfile\nCloud Run 容器镜像定义\nPython 3.11 · uvicorn\n多阶段构建，含 aspose 可选",
+      "x": 0,
+      "y": 0,
+      "width": 220,
+      "height": 110,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "deploy_sh",
+      "type": "text",
+      "text": "# scripts/deploy_google_cloud_run.sh\ngcloud run deploy 一键脚本\n设置环境变量 / 区域 / 镜像",
+      "x": 260,
+      "y": 0,
+      "width": 220,
+      "height": 110,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "requirements",
+      "type": "text",
+      "text": "# requirements.txt\nfastapi · uvicorn · openai\naspose-words · python-docx\ngoogle-cloud-firestore · lxml",
+      "x": 520,
+      "y": 0,
+      "width": 220,
+      "height": 110,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "env_file",
+      "type": "text",
+      "text": "# .env / .env.example\nDASHSCOPE_API_KEY\nOPENAI_API_KEY\nENABLE_ASPOSE_WORDS\nALLOW_MOCK_CONTENT\nAPP_VERSION",
+      "x": 0,
+      "y": 160,
+      "width": 220,
+      "height": 120,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "gcloudignore",
+      "type": "text",
+      "text": "# .gcloudignore / .dockerignore\n部署时排除文件配置\n（knowledge_base 大文件等）",
+      "x": 260,
+      "y": 160,
+      "width": 220,
+      "height": 110,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "firebase_hosting_cfg",
+      "type": "text",
+      "text": "# static-www-soulshock/\nFirebase Hosting 静态站\nindex.html · one-line.html\nfirebase.json 配置",
+      "x": 520,
+      "y": 160,
+      "width": 220,
+      "height": 110,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "grp_backend",
+      "type": "group",
+      "label": "FastAPI 后端核心 (main.py · 4600+ 行)",
+      "x": 780,
+      "y": -60,
+      "width": 940,
+      "height": 960,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "main_app",
+      "type": "text",
+      "text": "# main.py — FastAPI App\n智伴幼师 · AI幼师助手后端\nCORS 全开放 · APP_VERSION 1.2.1\n懒加载 Aspose · Firestore",
+      "x": 840,
+      "y": 20,
+      "width": 260,
+      "height": 120,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_generate",
+      "type": "text",
+      "text": "# POST /generate\n周/月活动计划表\nAI 填充 Word 模板\n关键字匹配单元格",
+      "x": 840,
+      "y": 200,
+      "width": 200,
+      "height": 110,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_generate_weekly",
+      "type": "text",
+      "text": "# POST /generate-weekly\n基于主题自动生成\n五天周计划 JSON\nPrompt 工程驱动",
+      "x": 1080,
+      "y": 200,
+      "width": 200,
+      "height": 110,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_generate_daily",
+      "type": "text",
+      "text": "# POST /generate-daily\n周计划→日教案\n导入/过程/延伸/反思\n四维 Word 填充导出",
+      "x": 1340,
+      "y": 200,
+      "width": 200,
+      "height": 110,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_standard_weekly",
+      "type": "text",
+      "text": "# POST /standard-weekly-draft\nPOST /standard-weekly-export\n标准周模板草稿 + 导出\n(Aspose/python-docx)",
+      "x": 840,
+      "y": 370,
+      "width": 220,
+      "height": 120,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_observation",
+      "type": "text",
+      "text": "# POST /generate-observation\nPOST /preview-observation\n拍照观察记录生成\n图片 base64 → AI 描述",
+      "x": 1100,
+      "y": 370,
+      "width": 220,
+      "height": 120,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_mini",
+      "type": "text",
+      "text": "# POST /generate-mini\nPOST /generate-mini-by-template\nGET /mini-export/{token}\n小程序专用接口",
+      "x": 1380,
+      "y": 370,
+      "width": 220,
+      "height": 120,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_redeem",
+      "type": "text",
+      "text": "# POST /redeem\nGET /redeem/query\nPOST /partner/redeem\nPOST /partner/create-code\n卡密兑换 + 合作商接口",
+      "x": 840,
+      "y": 550,
+      "width": 220,
+      "height": 130,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_user",
+      "type": "text",
+      "text": "# POST /user/wxlogin\nPOST /user/register\nPOST /user/agent\n微信登录 · 用户注册\n智能体调用代理",
+      "x": 1100,
+      "y": 550,
+      "width": 220,
+      "height": 130,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_ops",
+      "type": "text",
+      "text": "# 运营接口\nPOST /feedback · /track-event\nPOST /register-lite\nGET /public-stats\nGET /feedback-feed",
+      "x": 1380,
+      "y": 550,
+      "width": 220,
+      "height": 130,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_template",
+      "type": "text",
+      "text": "# 模板中心\nGET /standard-templates\nGET /template-standard\nPOST /template/analyze\nPOST /template/clean-download",
+      "x": 840,
+      "y": 740,
+      "width": 220,
+      "height": 130,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "route_misc",
+      "type": "text",
+      "text": "# 其他接口\nGET /health · GET /\nPOST /transcribe-voice-mini\nPOST /batch/generate-weekly\nGET /roadmap",
+      "x": 1100,
+      "y": 740,
+      "width": 220,
+      "height": 130,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "template_cleaner",
+      "type": "text",
+      "text": "# kindergarten_template_cleaner.py\nWord 模板净空引擎\nclean_docx_bytes()\nfind_all_day_header_rows()",
+      "x": 1380,
+      "y": 740,
+      "width": 220,
+      "height": 130,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "grp_prompt",
+      "type": "group",
+      "label": "Prompt 工程模块 (prompt_engineering/)",
+      "x": 1800,
+      "y": -60,
+      "width": 560,
+      "height": 560,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "prompt_config",
+      "type": "text",
+      "text": "# prompt_config.py\nPromptTemplate 类\nget_prompt_template() 入口\n可复现的高质量 Prompt 生成",
+      "x": 1840,
+      "y": 20,
+      "width": 240,
+      "height": 130,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "reference_templates",
+      "type": "text",
+      "text": "# reference_templates.json\n参考范本库（前3条注入）\n优质活动案例结构",
+      "x": 2120,
+      "y": 20,
+      "width": 200,
+      "height": 110,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "philosophy_hints",
+      "type": "text",
+      "text": "# philosophy_hints.json\n教育理念提示词\n蒙特梭利/瑞吉欧/华德福\n动态注入 Prompt",
+      "x": 1840,
+      "y": 200,
+      "width": 220,
+      "height": 120,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "class_level_hints",
+      "type": "text",
+      "text": "# class_level_hints.json\n班级年龄段特征提示词\n小班/中班/大班\n发展特点差异化",
+      "x": 2100,
+      "y": 200,
+      "width": 220,
+      "height": 120,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "prompt_init",
+      "type": "text",
+      "text": "# __init__.py\n模块初始化\n导出 PromptTemplate",
+      "x": 1840,
+      "y": 380,
+      "width": 220,
+      "height": 100,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "prompt_engineering_md",
+      "type": "text",
+      "text": "# PROMPT_ENGINEERING.md\nPrompt 设计规范文档\n版本化策略 · 调试指南",
+      "x": 2100,
+      "y": 380,
+      "width": 220,
+      "height": 100,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "grp_knowledge",
+      "type": "group",
+      "label": "知识库 (knowledge_base/)",
+      "x": 1800,
+      "y": 580,
+      "width": 560,
+      "height": 380,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "kb_library",
+      "type": "text",
+      "text": "# library/\n知识文档存储目录\nPDF/Word 原始文件",
+      "x": 1840,
+      "y": 640,
+      "width": 220,
+      "height": 100,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "kb_indexes",
+      "type": "text",
+      "text": "# indexes/\nknowledge_index.json\nprofile_routes.json\n向量化索引缓存",
+      "x": 2100,
+      "y": 640,
+      "width": 220,
+      "height": 110,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "kb_profiles",
+      "type": "text",
+      "text": "# profiles/\nprofile_registry.json\nuser_registry.json\n用户画像 + 知识路由表",
+      "x": 1840,
+      "y": 800,
+      "width": 220,
+      "height": 110,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "kb_incoming",
+      "type": "text",
+      "text": "# incoming/\n待处理文件暂存区\n脚本处理后移入 library",
+      "x": 2100,
+      "y": 800,
+      "width": 220,
+      "height": 110,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "grp_data",
+      "type": "group",
+      "label": "本地数据层",
+      "x": 1800,
+      "y": 1040,
+      "width": 560,
+      "height": 240,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "firestore_local",
+      "type": "text",
+      "text": "# Google Cloud Firestore\n用户数据 · 卡密记录\n运营事件 · 反馈日志\n懒加载 ADC 认证",
+      "x": 1840,
+      "y": 1080,
+      "width": 220,
+      "height": 130,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "redeem_json",
+      "type": "text",
+      "text": "# redeem_codes.json\n本地卡密备份文件\nimport_gift_codes.py\n批量导入工具",
+      "x": 2100,
+      "y": 1080,
+      "width": 220,
+      "height": 130,
+      "color": "#cc5de8"
+    },
+    {
+      "id": "grp_scripts",
+      "type": "group",
+      "label": "运维脚本 (scripts/)",
+      "x": 780,
+      "y": 980,
+      "width": 920,
+      "height": 360,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "script_kb_sync",
+      "type": "text",
+      "text": "# sync_knowledge_base_to_gcs.sh\n知识库同步到 GCS",
+      "x": 820,
+      "y": 1040,
+      "width": 200,
+      "height": 100,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "script_rebuild_index",
+      "type": "text",
+      "text": "# rebuild_knowledge_index.py\n重建向量化索引\nextract_pdf_text.py 辅助",
+      "x": 1060,
+      "y": 1040,
+      "width": 200,
+      "height": 110,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "script_query",
+      "type": "text",
+      "text": "# query_knowledge_index.py\n知识库检索测试工具\n命令行调试用",
+      "x": 1300,
+      "y": 1040,
+      "width": 200,
+      "height": 100,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "script_extract_gcs",
+      "type": "text",
+      "text": "# extract_knowledge_gcs.py\n从 GCS 提取知识文档\n入库 knowledge_base/",
+      "x": 820,
+      "y": 1200,
+      "width": 200,
+      "height": 100,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "script_lobster",
+      "type": "text",
+      "text": "# lobster_watch.py\n服务监控 / 探活脚本\n健康检查告警",
+      "x": 1060,
+      "y": 1200,
+      "width": 200,
+      "height": 100,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "grp_frontend",
+      "type": "group",
+      "label": "前端 Web",
+      "x": -60,
+      "y": 360,
+      "width": 760,
+      "height": 560,
+      "color": "#95e77e"
+    },
+    {
+      "id": "index_html",
+      "type": "text",
+      "text": "# index.html\n主 Web 前端\nSwiper 轮播 · 周计划表单\n调用后端 API\nAPP_VERSION 角标显示",
+      "x": 0,
+      "y": 420,
+      "width": 220,
+      "height": 130,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mock_mall",
+      "type": "text",
+      "text": "# mock-mall.html\n礼品兑换商城 Mock 页\n礼品券 UI 展示\n卡密查询状态",
+      "x": 260,
+      "y": 420,
+      "width": 200,
+      "height": 110,
+      "color": "#95e77e"
+    },
+    {
+      "id": "static_firebase",
+      "type": "text",
+      "text": "# static-www-soulshock/index.html\nFirebase 托管落地页\n品牌展示 + 产品介绍\none-line.html 快速入口",
+      "x": 500,
+      "y": 420,
+      "width": 220,
+      "height": 120,
+      "color": "#95e77e"
+    },
+    {
+      "id": "index_js",
+      "type": "text",
+      "text": "# index.js\n前端辅助 JS 模块\nNode.js 入口",
+      "x": 0,
+      "y": 600,
+      "width": 180,
+      "height": 100,
+      "color": "#95e77e"
+    },
+    {
+      "id": "vibe_test",
+      "type": "text",
+      "text": "# vibe-test.js\nAPI 接口集成测试\n前端回归验证脚本",
+      "x": 220,
+      "y": 600,
+      "width": 180,
+      "height": 100,
+      "color": "#95e77e"
+    },
+    {
+      "id": "package_json",
+      "type": "text",
+      "text": "# package.json\nNode 依赖配置\n前端构建工具链",
+      "x": 440,
+      "y": 600,
+      "width": 180,
+      "height": 100,
+      "color": "#95e77e"
+    },
+    {
+      "id": "grp_miniapp",
+      "type": "group",
+      "label": "微信小程序 (mini-program/)",
+      "x": -60,
+      "y": 1000,
+      "width": 760,
+      "height": 640,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mp_app",
+      "type": "text",
+      "text": "# app.js / app.json / app.wxss\n小程序全局配置\n路由注册 · 全局样式",
+      "x": 0,
+      "y": 1060,
+      "width": 220,
+      "height": 110,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mp_index",
+      "type": "text",
+      "text": "# pages/index/\n首页 (index.wxml/js/wxss)\n功能入口 · 用户引导",
+      "x": 260,
+      "y": 1060,
+      "width": 200,
+      "height": 110,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mp_workbench",
+      "type": "text",
+      "text": "# pages/workbench/\n工作台页面\nAI 生成主交互界面\n调用 /generate-mini",
+      "x": 500,
+      "y": 1060,
+      "width": 200,
+      "height": 110,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mp_redeem",
+      "type": "text",
+      "text": "# pages/redeem/\n卡密兑换页面\n调用 /redeem API\n开通会员服务",
+      "x": 0,
+      "y": 1230,
+      "width": 200,
+      "height": 110,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mp_logs",
+      "type": "text",
+      "text": "# pages/logs/\n使用日志页面\n历史记录展示",
+      "x": 240,
+      "y": 1230,
+      "width": 200,
+      "height": 100,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mp_utils",
+      "type": "text",
+      "text": "# utils/request.js · config.js · util.js\nHTTP 封装 · 配置 · 工具函数",
+      "x": 0,
+      "y": 1400,
+      "width": 300,
+      "height": 100,
+      "color": "#95e77e"
+    },
+    {
+      "id": "mp_assets",
+      "type": "text",
+      "text": "# assets/\n品牌 Logo SVG 集合\npaperpen 系列多风格",
+      "x": 340,
+      "y": 1400,
+      "width": 200,
+      "height": 100,
+      "color": "#95e77e"
+    },
+    {
+      "id": "grp_android",
+      "type": "group",
+      "label": "Android App (android-app/)",
+      "x": -60,
+      "y": 1720,
+      "width": 760,
+      "height": 280,
+      "color": "#95e77e"
+    },
+    {
+      "id": "android_main",
+      "type": "text",
+      "text": "# MainActivity.kt\nAndroid 主 Activity\nWebView 内嵌 Web 前端\n原生功能桥接",
+      "x": 0,
+      "y": 1780,
+      "width": 220,
+      "height": 120,
+      "color": "#95e77e"
+    },
+    {
+      "id": "android_manifest",
+      "type": "text",
+      "text": "# AndroidManifest.xml\n权限声明 · Activity 配置\nInternet / 存储权限",
+      "x": 260,
+      "y": 1780,
+      "width": 200,
+      "height": 110,
+      "color": "#95e77e"
+    },
+    {
+      "id": "android_build",
+      "type": "text",
+      "text": "# build.gradle.kts\nKotlin DSL 构建脚本\nminSdk 24 · targetSdk 34",
+      "x": 500,
+      "y": 1780,
+      "width": 200,
+      "height": 110,
+      "color": "#95e77e"
+    },
+    {
+      "id": "grp_external",
+      "type": "group",
+      "label": "外部服务 / 云平台",
+      "x": 780,
+      "y": 1420,
+      "width": 940,
+      "height": 620,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_dashscope",
+      "type": "text",
+      "text": "# 阿里云百炼 DashScope\nqwen-max 主力模型\nOpenAI 兼容 API\nDASHSCOPE_BASE_URL",
+      "x": 820,
+      "y": 1480,
+      "width": 220,
+      "height": 120,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_openai",
+      "type": "text",
+      "text": "# OpenAI API\nwhisper-1 语音转写\n备用 LLM 端点\n(OPENAI_API_KEY)",
+      "x": 1080,
+      "y": 1480,
+      "width": 200,
+      "height": 110,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_cloudrun",
+      "type": "text",
+      "text": "# Google Cloud Run\n无服务器容器托管\n自动扩缩容 · ADC 认证\nasia-east1 区域",
+      "x": 1340,
+      "y": 1480,
+      "width": 200,
+      "height": 120,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_firestore_svc",
+      "type": "text",
+      "text": "# Google Firestore\n用户数据库\n卡密 / 事件 / 反馈存储\n实时更新",
+      "x": 820,
+      "y": 1660,
+      "width": 200,
+      "height": 110,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_gcs",
+      "type": "text",
+      "text": "# Google Cloud Storage\n知识库文件托管\n模板文件 · PDF 存储",
+      "x": 1060,
+      "y": 1660,
+      "width": 200,
+      "height": 110,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_firebase_host",
+      "type": "text",
+      "text": "# Firebase Hosting\n静态页 CDN 托管\nstatic-www-soulshock\n全球加速",
+      "x": 1300,
+      "y": 1660,
+      "width": 200,
+      "height": 110,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_wechat",
+      "type": "text",
+      "text": "# 微信开放平台\n小程序登录 wx.login()\nopenid 获取\n/user/wxlogin 对接",
+      "x": 820,
+      "y": 1840,
+      "width": 200,
+      "height": 110,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "ext_partner",
+      "type": "text",
+      "text": "# 第三方合作商\n/partner/redeem API\n/partner/create-code\n礼品券批量入库",
+      "x": 1060,
+      "y": 1840,
+      "width": 200,
+      "height": 110,
+      "color": "#ffd43b"
+    },
+    {
+      "id": "grp_docs",
+      "type": "group",
+      "label": "文档 / 运营资料 (docs/)",
+      "x": 1800,
+      "y": 1380,
+      "width": 560,
+      "height": 660,
+      "color": "#868e96"
+    },
+    {
+      "id": "doc_arch",
+      "type": "text",
+      "text": "# SYSTEM_ARCHITECTURE.md\n系统架构总览文档\n模块关系说明",
+      "x": 1840,
+      "y": 1440,
+      "width": 220,
+      "height": 100,
+      "color": "#868e96"
+    },
+    {
+      "id": "doc_prd",
+      "type": "text",
+      "text": "# PRD-周计划与教案生成.md\n产品需求文档\n周计划 + 日教案功能规格",
+      "x": 2100,
+      "y": 1440,
+      "width": 220,
+      "height": 100,
+      "color": "#868e96"
+    },
+    {
+      "id": "doc_changelog",
+      "type": "text",
+      "text": "# ENGINEERING_CHANGELOG.md\n工程变更日志\nCONFIG_AND_CHANGES.md",
+      "x": 1840,
+      "y": 1600,
+      "width": 220,
+      "height": 100,
+      "color": "#868e96"
+    },
+    {
+      "id": "doc_roadshow",
+      "type": "text",
+      "text": "# roadshow-kit-v1.1.2.md\n路演材料包\n投资人展示资料",
+      "x": 2100,
+      "y": 1600,
+      "width": 220,
+      "height": 100,
+      "color": "#868e96"
+    },
+    {
+      "id": "doc_third_party",
+      "type": "text",
+      "text": "# third-party-redeem-api.md\n合作商对接 API 文档\n震魂科技接入协议",
+      "x": 1840,
+      "y": 1760,
+      "width": 220,
+      "height": 100,
+      "color": "#868e96"
+    },
+    {
+      "id": "doc_memory",
+      "type": "text",
+      "text": "# MEMORY.md / memory/\nAI 会话记忆文件\n项目上下文持久化",
+      "x": 2100,
+      "y": 1760,
+      "width": 220,
+      "height": 100,
+      "color": "#868e96"
+    },
+    {
+      "id": "doc_preflight",
+      "type": "text",
+      "text": "# ENGINEERING_PREFLIGHT_CHECKLIST.md\n上线预检清单\nTEMPLATE_STANDARD.md 模板标准规范",
+      "x": 1840,
+      "y": 1920,
+      "width": 480,
+      "height": 80,
+      "color": "#868e96"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "dockerfile",
+      "fromSide": "right",
+      "toNode": "main_app",
+      "toSide": "left",
+      "label": "容器化运行"
+    },
+    {
+      "id": "e2",
+      "fromNode": "deploy_sh",
+      "fromSide": "right",
+      "toNode": "ext_cloudrun",
+      "toSide": "left",
+      "label": "部署到 Cloud Run"
+    },
+    {
+      "id": "e3",
+      "fromNode": "env_file",
+      "fromSide": "right",
+      "toNode": "main_app",
+      "toSide": "left",
+      "label": "注入环境变量"
+    },
+    {
+      "id": "e4",
+      "fromNode": "requirements",
+      "fromSide": "right",
+      "toNode": "main_app",
+      "toSide": "left",
+      "label": "Python 依赖"
+    },
+    {
+      "id": "e5",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_generate",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e6",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_generate_weekly",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e7",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_generate_daily",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e8",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_redeem",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e9",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_user",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e10",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_mini",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e10b",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_ops",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e10c",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_template",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e10d",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "route_misc",
+      "toSide": "top",
+      "label": "挂载路由"
+    },
+    {
+      "id": "e11",
+      "fromNode": "route_generate_weekly",
+      "fromSide": "right",
+      "toNode": "prompt_config",
+      "toSide": "left",
+      "label": "get_prompt_template()"
+    },
+    {
+      "id": "e12",
+      "fromNode": "route_generate_daily",
+      "fromSide": "right",
+      "toNode": "prompt_config",
+      "toSide": "left",
+      "label": "get_prompt_template()"
+    },
+    {
+      "id": "e13",
+      "fromNode": "route_generate",
+      "fromSide": "right",
+      "toNode": "prompt_config",
+      "toSide": "left",
+      "label": "Prompt 构建"
+    },
+    {
+      "id": "e14",
+      "fromNode": "prompt_config",
+      "fromSide": "right",
+      "toNode": "reference_templates",
+      "toSide": "left",
+      "label": "加载范本"
+    },
+    {
+      "id": "e15",
+      "fromNode": "prompt_config",
+      "fromSide": "bottom",
+      "toNode": "philosophy_hints",
+      "toSide": "top",
+      "label": "注入理念"
+    },
+    {
+      "id": "e16",
+      "fromNode": "prompt_config",
+      "fromSide": "right",
+      "toNode": "class_level_hints",
+      "toSide": "left",
+      "label": "班级特征"
+    },
+    {
+      "id": "e17",
+      "fromNode": "route_generate",
+      "fromSide": "bottom",
+      "toNode": "template_cleaner",
+      "toSide": "top",
+      "label": "clean_docx_bytes()"
+    },
+    {
+      "id": "e18",
+      "fromNode": "route_generate_daily",
+      "fromSide": "bottom",
+      "toNode": "template_cleaner",
+      "toSide": "top",
+      "label": "净空填充"
+    },
+    {
+      "id": "e18b",
+      "fromNode": "route_standard_weekly",
+      "fromSide": "right",
+      "toNode": "template_cleaner",
+      "toSide": "left",
+      "label": "模板处理"
+    },
+    {
+      "id": "e19",
+      "fromNode": "main_app",
+      "fromSide": "bottom",
+      "toNode": "ext_dashscope",
+      "toSide": "top",
+      "label": "OpenAI SDK (qwen-max)"
+    },
+    {
+      "id": "e20",
+      "fromNode": "route_misc",
+      "fromSide": "bottom",
+      "toNode": "ext_openai",
+      "toSide": "top",
+      "label": "Whisper 语音转写"
+    },
+    {
+      "id": "e21",
+      "fromNode": "route_redeem",
+      "fromSide": "bottom",
+      "toNode": "firestore_local",
+      "toSide": "top",
+      "label": "卡密读写"
+    },
+    {
+      "id": "e22",
+      "fromNode": "route_user",
+      "fromSide": "bottom",
+      "toNode": "firestore_local",
+      "toSide": "top",
+      "label": "用户数据"
+    },
+    {
+      "id": "e23",
+      "fromNode": "route_ops",
+      "fromSide": "bottom",
+      "toNode": "firestore_local",
+      "toSide": "top",
+      "label": "事件/反馈存储"
+    },
+    {
+      "id": "e24",
+      "fromNode": "firestore_local",
+      "fromSide": "right",
+      "toNode": "ext_firestore_svc",
+      "toSide": "left",
+      "label": "云端实例"
+    },
+    {
+      "id": "e25",
+      "fromNode": "ext_cloudrun",
+      "fromSide": "left",
+      "toNode": "main_app",
+      "toSide": "right",
+      "label": "托管运行"
+    },
+    {
+      "id": "e26",
+      "fromNode": "index_html",
+      "fromSide": "right",
+      "toNode": "route_generate",
+      "toSide": "left",
+      "label": "HTTP POST /generate"
+    },
+    {
+      "id": "e27",
+      "fromNode": "index_html",
+      "fromSide": "right",
+      "toNode": "route_generate_weekly",
+      "toSide": "left",
+      "label": "生成周计划"
+    },
+    {
+      "id": "e28",
+      "fromNode": "static_firebase",
+      "fromSide": "right",
+      "toNode": "main_app",
+      "toSide": "left",
+      "label": "API 调用"
+    },
+    {
+      "id": "e29",
+      "fromNode": "mp_workbench",
+      "fromSide": "right",
+      "toNode": "route_mini",
+      "toSide": "left",
+      "label": "/generate-mini"
+    },
+    {
+      "id": "e30",
+      "fromNode": "mp_redeem",
+      "fromSide": "right",
+      "toNode": "route_redeem",
+      "toSide": "left",
+      "label": "/redeem"
+    },
+    {
+      "id": "e31",
+      "fromNode": "mp_app",
+      "fromSide": "right",
+      "toNode": "route_user",
+      "toSide": "left",
+      "label": "/user/wxlogin"
+    },
+    {
+      "id": "e32",
+      "fromNode": "mp_utils",
+      "fromSide": "top",
+      "toNode": "mp_workbench",
+      "toSide": "bottom",
+      "label": "request 封装"
+    },
+    {
+      "id": "e33",
+      "fromNode": "mp_app",
+      "fromSide": "bottom",
+      "toNode": "ext_wechat",
+      "toSide": "top",
+      "label": "wx.login()"
+    },
+    {
+      "id": "e34",
+      "fromNode": "route_user",
+      "fromSide": "right",
+      "toNode": "ext_wechat",
+      "toSide": "left",
+      "label": "code2session"
+    },
+    {
+      "id": "e35",
+      "fromNode": "android_main",
+      "fromSide": "right",
+      "toNode": "index_html",
+      "toSide": "left",
+      "label": "WebView 内嵌"
+    },
+    {
+      "id": "e36",
+      "fromNode": "script_kb_sync",
+      "fromSide": "right",
+      "toNode": "ext_gcs",
+      "toSide": "left",
+      "label": "同步上传"
+    },
+    {
+      "id": "e37",
+      "fromNode": "script_rebuild_index",
+      "fromSide": "right",
+      "toNode": "kb_indexes",
+      "toSide": "left",
+      "label": "生成索引"
+    },
+    {
+      "id": "e38",
+      "fromNode": "script_extract_gcs",
+      "fromSide": "right",
+      "toNode": "kb_library",
+      "toSide": "left",
+      "label": "提取文档入库"
+    },
+    {
+      "id": "e39",
+      "fromNode": "ext_gcs",
+      "fromSide": "left",
+      "toNode": "kb_library",
+      "toSide": "right",
+      "label": "云端存储"
+    },
+    {
+      "id": "e40",
+      "fromNode": "static_firebase",
+      "fromSide": "right",
+      "toNode": "ext_firebase_host",
+      "toSide": "left",
+      "label": "firebase deploy"
+    },
+    {
+      "id": "e41",
+      "fromNode": "ext_partner",
+      "fromSide": "left",
+      "toNode": "route_redeem",
+      "toSide": "right",
+      "label": "/partner/redeem"
+    },
+    {
+      "id": "e42",
+      "fromNode": "kb_indexes",
+      "fromSide": "left",
+      "toNode": "main_app",
+      "toSide": "right",
+      "label": "知识检索索引"
+    }
+  ]
+}

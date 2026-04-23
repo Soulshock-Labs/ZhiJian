@@ -1,0 +1,97 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8f3e8 0%, #f6f8f2 38%, #f9fbf7 100%);
+}
+
+.shell {
+  padding: 28rpx;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(218, 231, 223, 0.9);
+  border-radius: 28rpx;
+  box-shadow: 0 12rpx 30rpx rgba(48, 88, 69, 0.06);
+}
+
+.block {
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #2f855a;
+}
+
+.desc {
+  margin-top: 10rpx;
+  margin-bottom: 20rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #6b7f74;
+}
+
+.form-item {
+  margin-top: 14rpx;
+}
+
+.label {
+  font-size: 24rpx;
+  color: #4f675b;
+  margin-bottom: 8rpx;
+}
+
+.input {
+  width: 100%;
+  height: 82rpx;
+  border-radius: 20rpx;
+  border: 1px solid #d8e5dd;
+  background: #fff;
+  padding: 0 22rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  color: #304b3f;
+}
+
+.submit-btn {
+  margin-top: 24rpx;
+  width: 100%;
+  border: none;
+  border-radius: 24rpx;
+  padding: 20rpx 18rpx;
+  background: linear-gradient(180deg, #57c96d 0%, #2da74e 100%);
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 700;
+  box-shadow: 0 10rpx 20rpx rgba(31, 157, 66, 0.16);
+}
+
+.query-btn {
+  margin-top: 16rpx;
+  width: 100%;
+  border: 2rpx solid #bfdbfe;
+  border-radius: 24rpx;
+  padding: 20rpx 18rpx;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 28rpx;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.result-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #2f855a;
+  margin-bottom: 10rpx;
+}
+
+.result-text {
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: #415d52;
+  white-space: pre-wrap;
+}

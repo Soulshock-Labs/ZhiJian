@@ -1,0 +1,6 @@
+# Vercel 构建时忽略的文件
+zhijian-api/
+zhijian-mini/
+zhijian-android/
+zhijian-docs/
+.git/

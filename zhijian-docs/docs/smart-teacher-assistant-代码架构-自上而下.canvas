@@ -1,0 +1,162 @@
+{
+  "metadata": { "version": "1.0" },
+  "nodes": [
+    {
+      "id": "l0-root",
+      "type": "text",
+      "x": -400,
+      "y": -20,
+      "width": 800,
+      "height": 300,
+      "color": "6",
+      "text": "## L0 · 智伴幼师 `smart-teacher-assistant`\n### 代码架构总根（自上而下阅读）\n\n| 轴 | 含义 |\n|---|------|\n| **↓** | 入口 → 服务内核 → 数据与支持 |\n| **单体** | 绝大部分 HTTP 与业务在 **`main.py`（约 4900 行）** |\n| **客户端** | 浏览器 **`index.html`**（`GET /`）· **微信小程序** `mini-program/` · **Android** `android-app/` |\n| **独立静态** | **`static-www-soulshock/`**（Firebase 配置，与 Cloud Run 主站可分流） |\n| **版本** | `APP_VERSION`（默认随 `main.py`）；以部署环境为准 |\n\n> 本图由仓库目录与 `main.py` 路由/分块扫描生成；细节以 GitHub 源码为准。"
+    },
+    {
+      "id": "l1-clients",
+      "type": "text",
+      "x": -860,
+      "y": 320,
+      "width": 300,
+      "height": 240,
+      "color": "4",
+      "text": "## L1 · 客户端与静态入口\n\n- **`index.html`**（根）：`main.py` → `GET /` → `FileResponse` 直出\n- **`static-www-soulshock/`**：`firebase.json`、`index.html`、`one-line.html`（另一路托管）\n- **`mini-program/`**：`app.js` · `app.json` · `pages/workbench|index|redeem|logs` · `utils/config.js`（本机/云）· `request.js`\n- **`android-app/`**：Gradle + `MainActivity.kt`（实验壳）\n- **`mock-mall.html`**、`**index.js**`、`vibe-test.js`（演示/边角）"
+    },
+    {
+      "id": "l1-main",
+      "type": "text",
+      "x": -520,
+      "y": 320,
+      "width": 320,
+      "height": 240,
+      "color": "1",
+      "text": "## L1 · `main.py` · FastAPI 应用核\n\n- **`FastAPI` 实例** + `CORSMiddleware`\n- **OpenAI 兼容客户端**：DashScope（主）· 可选 OpenAI（语音转写）\n- **懒加载**：Aspose（`ENABLE_ASPOSE_WORDS`）· Firestore（`google.cloud.firestore`）\n- **常量路径**：`knowledge_base/`、各类 `*.json` / `*.jsonl` 持久化文件\n\n> 红色：单体最厚，后续拆分优先从这里纵向切。"
+    },
+    {
+      "id": "l1-ai",
+      "type": "text",
+      "x": -160,
+      "y": 320,
+      "width": 280,
+      "height": 240,
+      "color": "3",
+      "text": "## L1 · AI 与提示词工程\n\n- **`prompt_engineering/prompt_config.py`**：`get_prompt_template`\n- **JSON**：`philosophy_hints.json`、`class_level_hints.json`、`reference_templates.json`\n- **`PROMPT_ENGINEERING.md`**（人读的设计说明）\n\n生成链路在 `main.py`：`build_*_prompt` → `generate_*_content` → LLM"
+    },
+    {
+      "id": "l1-word",
+      "type": "text",
+      "x": 160,
+      "y": 320,
+      "width": 300,
+      "height": 240,
+      "color": "4",
+      "text": "## L1 · Word 与模板管线\n\n- **`kindergarten_template_cleaner.py`**：净空、表头行、清洗字节\n- **`main.py` 内**：`match_field` / `match_daily_field` · `_fill_word_template_docx_bytes` · 可选 `_fill_word_template_aspose_bytes` · `fill_word_template` · `analyze_template_docx`\n- **`TEMPLATE_STANDARD.md`**（模板规范）\n- **依赖**：`python-docx`、可选 `aspose-words` + `lxml`"
+    },
+    {
+      "id": "l1-data",
+      "type": "text",
+      "x": -860,
+      "y": 600,
+      "width": 300,
+      "height": 260,
+      "color": "2",
+      "text": "## L1 · 运行时数据与云侧\n\n**根目录数据文件（节选）**\n- `user_services.json` · `user_accounts.json` · `redeem_codes.json`\n- `app_public_stats.json` · `template_download_stats.json`\n- `feedback_messages.jsonl` · `registrations.jsonl` · `redeem_logs.jsonl` · `weekly_draft_sessions.jsonl` · `partner_webhook_retry.jsonl` 等\n\n**云**\n- **Firestore**（ADC 可用时）\n- **`REDEEM_CODES_GCS_URI`**：卡密多实例一致\n\n**密钥**：`.env` / `.env.example`（勿提交真实 Key）"
+    },
+    {
+      "id": "l1-kb",
+      "type": "text",
+      "x": -520,
+      "y": 600,
+      "width": 320,
+      "height": 260,
+      "color": "5",
+      "text": "## L1 · 知识库与运维脚本\n\n**`knowledge_base/`**\n- `indexes/`：`knowledge_index.json`、`profile_routes.json`\n- `classified/`：周计划、日计划、观察、国标等子域\n- `library/`、`profiles/`、`incoming/`、`archives/`\n- `README.md`\n\n**`scripts/`**\n- `deploy_google_cloud_run.sh`\n- `rebuild_knowledge_index.py`、`query_knowledge_index.py`\n- `extract_knowledge_gcs.py`、`extract_pdf_text.py`\n- `sync_knowledge_base_to_gcs.sh`、`lobster_watch.py`"
+    },
+    {
+      "id": "l1-ship",
+      "type": "text",
+      "x": -160,
+      "y": 600,
+      "width": 620,
+      "height": 260,
+      "color": "5",
+      "text": "## L1 · 交付、工程文档与杂项\n\n**容器与依赖**：`Dockerfile` · `requirements.txt` · `.dockerignore` · `.gcloudignore`\n\n**`docs/`**（产品/工程）\n- `PRD-周计划与教案生成.md` · `SYSTEM_ARCHITECTURE.md` · `ARCHITECTURE_BRAIN_MAP.md`\n- `ENGINEERING_PREFLIGHT_CHECKLIST.md` · `ENGINEERING_CHANGELOG.md`\n- `third-party-redeem-api.md` · `bug-proposal-export-and-connectivity.md` 等\n- 另有 **`codebase-map.canvas`**、本图、若干 `sing-box`/`live-singbox` JSON（网络侧备忘）\n\n**协作与记忆**：`MEMORY.md` · `memory/*.md` · `Start.md` / `End.md`\n\n**工具脚本**：`import_gift_codes.py`\n\n**归档**：`archive/`（冲突副本等）\n\n**注意**：根目录存在 **`google-cloud-cli-darwin-x86_64.tar.gz`** 等大文件——不宜随库频繁同步到 Obsidian 索引。"
+    },
+    {
+      "id": "l2-clients-detail",
+      "type": "text",
+      "x": -900,
+      "y": 900,
+      "width": 320,
+      "height": 200,
+      "color": "4",
+      "text": "## L2 · 客户端实现要点\n\n- **小程序**：生成链路以云端 API 为准；`config.js` 区分本机 `127.0.0.1:8000` 与线上域名（见 `MEMORY` 联调记录）\n- **网页**：以 **`GET /` 实际返回的文件**为准；与 Firebase 静态站可能**不是同一份 HTML**\n- **Android**：当前为轻量壳，主能力仍走 HTTP API"
+    },
+    {
+      "id": "l2-routes-core",
+      "type": "text",
+      "x": -540,
+      "y": 900,
+      "width": 340,
+      "height": 220,
+      "color": "4",
+      "text": "## L2 · HTTP 路由族 A — 生成与园部主线\n\n| 方法 | 路径 | 语义 |\n|------|------|------|\n| POST | `/generate` | 活动计划表 → Word |\n| POST | `/preview` | 预览 JSON |\n| POST | `/generate-weekly` | 五天周计划 JSON |\n| POST | `/generate-daily` | 日教案 → Word |\n| POST | `/preview-daily` | 日教案预览 |\n| POST | `/generate-term-plan` | 园部学期/月/周骨架 |\n| POST | `/apply-daily-feedback` | 日执行反馈 → 回流周计划 |\n| GET | `/roadmap` | 模块分期配置 |\n| POST | `/batch/generate-weekly` | 批量速写 |\n| GET | `/batch/users` | 批量侧用户枚举 |"
+    },
+    {
+      "id": "l2-routes-supp",
+      "type": "text",
+      "x": -160,
+      "y": 900,
+      "width": 360,
+      "height": 260,
+      "color": "4",
+      "text": "## L2 · HTTP 路由族 B — 模板·用户·运营·扩展\n\n**模板中心**：`/template-standard` · `/standard-templates` · `/standard-template/{id}/download` · `/template/clean-download` · `/template/analyze` · `/standard-weekly-draft` · `/standard-weekly-export`\n\n**兑换/合作**：`/redeem*` · `/partner/*`\n\n**用户**：`/user/wxlogin` · `/user/register` · `/user/agent`\n\n**运营**：`/public-stats` · `/track-event` · `/register-lite` · `/feedback` · `/feedback-feed`\n\n**观察/语音/小程序专用**：`/preview-observation` · `/generate-observation*` · `/transcribe-voice-mini` · `/generate-mini*` · `/mini-template/upload` · `/mini-export/{token}`\n\n**其它**：`/knowledge-base/status` · `/bug-report` · `/health` · `/mock-token`（隐藏）"
+    },
+    {
+      "id": "l2-word-internals",
+      "type": "text",
+      "x": 240,
+      "y": 900,
+      "width": 300,
+      "height": 200,
+      "color": "3",
+      "text": "## L2 · Word 层内部调用顺序（概念）\n\n```\n上传/读取 .docx\n  → clean_template_keep_style / cleaner\n  → LLM 产出结构化字段\n  → match_*_field 映射表单元格\n  → _fill_word_template_* / fill_word_template\n  → StreamingResponse / FileResponse\n```\n\n响应头可带 **`X-Export-Engine`**（Aspose / docx）"
+    },
+    {
+      "id": "l2-kb-flow",
+      "type": "text",
+      "x": -520,
+      "y": 1160,
+      "width": 360,
+      "height": 180,
+      "color": "5",
+      "text": "## L2 · 知识库在系统中的位置\n\n- **状态接口**：`GET /knowledge-base/status`（`main.py` 中 `_knowledge_base_status`）\n- **资产**：`knowledge_base/indexes/*.json` 驱动检索/引用（与生成策略的接线以代码为准）\n- **维护**：优先用 `scripts/rebuild_knowledge_index.py` 等批处理，避免手改索引不一致"
+    },
+    {
+      "id": "l3-legend",
+      "type": "text",
+      "x": -400,
+      "y": 1380,
+      "width": 800,
+      "height": 140,
+      "color": "2",
+      "text": "## 读图图例 · 与参考「课程总览图」对应关系\n\n| 颜色 | 层级含义 |\n|------|----------|\n| **紫 L0** | 全项目总根 |\n| **绿 L1/L2** | 可交付功能块（客户端、Word、核心路由） |\n| **红 L1** | 单体热点 `main.py`（最厚、最该纵向拆分） |\n| **黄 L1** | AI 与外部模型依赖 |\n| **橙 L1** | 持久化 / 多实例一致性风险点 |\n| **青 L1/L2** | 知识库、脚本、容器与文档 |\n\n**纵轴**：L0 → L1 → L2 即为「从上到下」；同级节点之间无强先后，表示并列子系统。"
+    }
+  ],
+  "edges": [
+    { "id": "e0-c", "fromNode": "l0-root", "fromSide": "bottom", "toNode": "l1-clients", "toSide": "top", "color": "6" },
+    { "id": "e0-m", "fromNode": "l0-root", "fromSide": "bottom", "toNode": "l1-main", "toSide": "top", "color": "6" },
+    { "id": "e0-a", "fromNode": "l0-root", "fromSide": "bottom", "toNode": "l1-ai", "toSide": "top", "color": "6" },
+    { "id": "e0-w", "fromNode": "l0-root", "fromSide": "bottom", "toNode": "l1-word", "toSide": "top", "color": "6" },
+    { "id": "e0-d", "fromNode": "l0-root", "fromSide": "bottom", "toNode": "l1-data", "toSide": "top", "color": "6" },
+    { "id": "e0-k", "fromNode": "l0-root", "fromSide": "bottom", "toNode": "l1-kb", "toSide": "top", "color": "6" },
+    { "id": "e0-s", "fromNode": "l0-root", "fromSide": "bottom", "toNode": "l1-ship", "toSide": "top", "color": "6" },
+    { "id": "e-c-l2", "fromNode": "l1-clients", "fromSide": "bottom", "toNode": "l2-clients-detail", "toSide": "top", "color": "4" },
+    { "id": "e-m-a", "fromNode": "l1-main", "fromSide": "bottom", "toNode": "l2-routes-core", "toSide": "top", "color": "4" },
+    { "id": "e-m-b", "fromNode": "l1-main", "fromSide": "bottom", "toNode": "l2-routes-supp", "toSide": "top", "color": "4" },
+    { "id": "e-w-l2", "fromNode": "l1-word", "fromSide": "bottom", "toNode": "l2-word-internals", "toSide": "top", "color": "4" },
+    { "id": "e-k-l2", "fromNode": "l1-kb", "fromSide": "bottom", "toNode": "l2-kb-flow", "toSide": "top", "color": "5" },
+    { "id": "e-ai-main", "fromNode": "l1-ai", "fromSide": "bottom", "toNode": "l2-routes-core", "toSide": "top", "color": "3", "label": "prompt→生成" },
+    { "id": "e-word-core", "fromNode": "l1-word", "fromSide": "left", "toNode": "l1-main", "toSide": "right", "color": "4", "label": "填表" },
+    { "id": "e-leg", "fromNode": "l2-kb-flow", "fromSide": "bottom", "toNode": "l3-legend", "toSide": "top", "color": "2" }
+  ]
+}

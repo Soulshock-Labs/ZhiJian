@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "site": "soulshock-cn",
+    "public": "out",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  }
+}

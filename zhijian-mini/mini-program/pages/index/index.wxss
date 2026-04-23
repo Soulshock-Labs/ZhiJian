@@ -1,0 +1,135 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8f3e8 0%, #f6f8f2 38%, #f9fbf7 100%);
+}
+
+.shell {
+  padding: 28rpx;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(218, 231, 223, 0.9);
+  border-radius: 28rpx;
+  box-shadow: 0 12rpx 30rpx rgba(48, 88, 69, 0.06);
+}
+
+.entry {
+  min-height: calc(100vh - 56rpx);
+  height: calc(100vh - 56rpx);
+  padding: 56rpx 34rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.entry-brand {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.brand-badge {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, #ffe66b 0%, #ffd84d 100%);
+  color: #1d4c2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 800;
+  box-shadow: 0 12rpx 24rpx rgba(255, 196, 0, 0.22);
+}
+
+.brand {
+  display: block;
+  font-size: 46rpx;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #2f855a;
+}
+
+.entry-slogan {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  line-height: 1.6;
+  color: #7a8b82;
+  letter-spacing: 1rpx;
+  font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
+
+.entry-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding-bottom: 340rpx;
+  box-sizing: border-box;
+}
+
+.entry-footer {
+  position: absolute;
+  left: 34rpx;
+  right: 34rpx;
+  bottom: calc(34rpx + constant(safe-area-inset-bottom));
+  bottom: calc(34rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+}
+
+.entry-btn {
+  width: 100%;
+  border: none;
+  border-radius: 26rpx;
+  padding: 22rpx 18rpx;
+  background: linear-gradient(180deg, #57c96d 0%, #2da74e 100%);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 700;
+  box-shadow: 0 10rpx 20rpx rgba(31, 157, 66, 0.16);
+}
+
+.entry-redeem {
+  width: 100%;
+}
+
+.entry-btn-redeem {
+  background: linear-gradient(180deg, #ffe66b 0%, #f5c518 100%);
+  color: #1d4c2f;
+  box-shadow: 0 10rpx 20rpx rgba(220, 180, 0, 0.18);
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.entry-copy {
+  width: 100%;
+}
+
+.desc-window {
+  height: 44rpx;
+  overflow: hidden;
+  margin-top: 16rpx;
+}
+
+.desc-strip {
+  will-change: transform;
+}
+
+.desc-text {
+  display: block;
+  text-align: center;
+  font-size: 26rpx;
+  color: #666;
+  line-height: 44rpx;
+  height: 44rpx;
+  font-weight: 400;
+  letter-spacing: 0.6rpx;
+  font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+}

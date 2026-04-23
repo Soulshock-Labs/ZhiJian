@@ -1,0 +1,132 @@
+from __future__ import annotations
+
+from fastapi import APIRouter, Body, File, Form, Header, HTTPException, UploadFile
+from fastapi.responses import FileResponse, StreamingResponse
+
+import json, os
+from datetime import datetime, timezone
+
+from core.utils import _utc_iso
+from services.data_store import _load_user_accounts, _load_user_services, _save_user_accounts
+from services.user_service import _generate_user_token, _get_or_create_user, _verify_user_token
+router = APIRouter()
+@router.post("/user/wxlogin", tags=["用户"])
+async def user_wxlogin(
+    code: str = Form(..., description="微信 wx.login() 返回的 code"),
+):
+    """
+    小程序登录接口：
+    1. 用 code 换微信 openid（需配置 WECHAT_APPID + WECHAT_SECRET）
+    2. 自动创建用户档案（含 agent_profile）
+    3. 返回 user_token 用于后续所有请求认证
+    """
+    import httpx
+
+    appid  = os.getenv("WECHAT_APPID", "")
+    secret = os.getenv("WECHAT_SECRET", "")
+
+    openid = ""
+    if appid and secret:
+        try:
+            url = (
+                f"https://api.weixin.qq.com/sns/jscode2session"
+                f"?appid={appid}&secret={secret}&js_code={code}&grant_type=authorization_code"
+            )
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.get(url)
+                wx_data = resp.json()
+            openid = str(wx_data.get("openid", "")).strip()
+            if not openid:
+                raise HTTPException(status_code=400, detail=f"微信登录失败：{wx_data.get('errmsg', '未知')}")
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"微信接口调用失败：{e}")
+    else:
+        # 未配置微信密钥时，用 code 本身作为 openid（本地开发用）
+        openid = f"dev_{code[:16]}"
+
+    user = _get_or_create_user(openid)
+    token = _generate_user_token(openid)
+
+    # 写 token 到 Firestore + 本地
+    accounts = _load_user_accounts()
+    accounts[openid]["last_token"] = token
+    accounts[openid]["last_login"] = _utc_iso()
+    _save_user_accounts(accounts)
+
+    return {
+        "ok": True,
+        "openid": openid,
+        "user_token": token,
+        "agent_profile": user.get("agent_profile", {}),
+        "user_id": user.get("user_id") or "",
+        "is_new": user.get("created_at") == accounts[openid].get("last_login"),
+    }
+@router.post("/user/agent", tags=["用户"])
+async def update_agent_profile(
+    user_token: str = Form(..., description="登录 token"),
+    name: str = Form("小助手", description="智能体名字"),
+    personality: str = Form("热心、耐心", description="性格特征"),
+    tone: str = Form("亲切温暖", description="说话音调"),
+    style: str = Form("鼓励式教学", description="教学风格"),
+):
+    """自定义用户的 AI 智能体性格，影响所有生成内容的风格。"""
+    openid = _verify_user_token(user_token)
+    accounts = _load_user_accounts()
+    accounts[openid]["agent_profile"] = {
+        "name": name,
+        "personality": personality,
+        "tone": tone,
+        "style": style,
+    }
+    _save_user_accounts(accounts)
+    return {"ok": True, "agent_profile": accounts[openid]["agent_profile"]}
+@router.post("/user/register", tags=["用户"])
+async def user_register(payload: dict = Body(...)):
+    """
+    极简内测注册：手机号即账号，重复注册视为登录，返回当前权益状态。
+    """
+    phone = str(payload.get("phone", "") or payload.get("user_id", "")).strip()
+    if len(phone) < 5:
+        raise HTTPException(status_code=400, detail="请填写有效手机号或账号（至少5位）")
+
+    user_id = phone.lower()
+    accounts = _load_user_accounts()
+    is_new = user_id not in accounts
+    now_iso = _utc_iso()
+
+    if is_new:
+        accounts[user_id] = {
+            "user_id": user_id,
+            "phone": phone,
+            "created_at_utc": now_iso,
+            "updated_at_utc": now_iso,
+        }
+    else:
+        accounts[user_id]["updated_at_utc"] = now_iso
+    _save_user_accounts(accounts)
+
+    user_services = _load_user_services()
+    service_entry = user_services.get(user_id, {})
+    membership_until = service_entry.get("membership_until")
+    is_active_member = False
+    if membership_until:
+        try:
+            until_dt = datetime.fromisoformat(str(membership_until))
+            is_active_member = datetime.now(timezone.utc) < until_dt
+        except Exception:
+            pass
+
+    return {
+        "ok": True,
+        "is_new": is_new,
+        "user_id": user_id,
+        "created_at_utc": accounts[user_id]["created_at_utc"],
+        "service": {
+            "membership_until": membership_until,
+            "is_active_member": is_active_member,
+            "balance": int(service_entry.get("balance", 0) or 0),
+            "quota": int(service_entry.get("quota", 0) or 0),
+        },
+    }

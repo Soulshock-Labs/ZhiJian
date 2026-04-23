@@ -1,0 +1,234 @@
+<scroll-view class="page" scroll-y>
+  <view class="shell">
+    <view class="topbar">
+      <button class="back-btn" bindtap="goHome">返回首页</button>
+      <text class="topbar-note">今日工作区</text>
+    </view>
+
+    <view class="card hero">
+      <view class="hero-top">
+        <view class="brand-wrap">
+          <view class="brand-badge">纸</view>
+          <view>
+            <text class="brand">纸笺</text>
+            <text class="sub">幼师工作台 · 直接连后端</text>
+          </view>
+        </view>
+        <view class="status-pill">{{backendStatus}}</view>
+      </view>
+      <text class="backend-note" wx:if="{{backendNote}}">{{backendNote}}</text>
+      <view class="kb-strip">
+        <text class="kb-title">{{knowledgeStatus}}</text>
+        <text class="kb-note" wx:if="{{knowledgeNote}}">{{knowledgeNote}}</text>
+      </view>
+
+      <view class="hero-copy">
+        <text class="hero-title">本周的主题\n是什么？</text>
+        <text class="hero-desc">输入主题 · 上传模板 · 一键生成文档</text>
+      </view>
+
+      <view class="primary-flow">
+        <view class="step-block">
+          <view class="step-head">
+            <text class="step-no">1</text>
+            <text class="step-label">本周的主题是什么</text>
+          </view>
+          <input class="field main-field" placeholder="例如：春天来了" value="{{theme}}" bindinput="bindThemeInput" />
+        </view>
+
+        <view class="step-block">
+          <view class="step-head">
+            <text class="step-no">2</text>
+            <text class="step-label">请上传您的模板</text>
+          </view>
+          <view class="template-box">
+            <button class="template-btn" loading="{{templateSelecting}}" bindtap="chooseTemplate">
+              {{templateName ? '重新选择模板' : '选择 .docx 模板'}}
+            </button>
+            <text class="template-name">{{templateName || '未选择模板'}}</text>
+            <text class="template-tip">{{templateCloudReady ? '模板已上传云端，可直接生成。' : '已在微信收到模板，可直接上传分析。'}}</text>
+          </view>
+        </view>
+
+        <view class="step-block">
+          <view class="step-head">
+            <text class="step-no">3</text>
+            <text class="step-label">生成文档</text>
+          </view>
+          <button class="hero-cta" loading="{{docGenerating}}" bindtap="generateDocument">
+            <text class="hero-cta-main">{{docGenerating ? '生成中…' : '✦ 生成文档'}}</text>
+            <text class="hero-cta-sub">{{docGenerating ? '正在调用 AI，请稍候' : '系统会直接套入你的模板'}}</text>
+          </button>
+        </view>
+      </view>
+
+      <button class="more-btn" bindtap="toggleAdvanced">
+        {{showAdvanced ? '收起二级功能' : '展开二级功能'}}
+      </button>
+    </view>
+
+    <view wx:if="{{showAdvanced}}">
+      <view class="card block">
+        <view class="section-head">
+          <text class="section-title">二级功能</text>
+          <text class="section-note">周计划、日计划、观察记录都在这里</text>
+        </view>
+        <view class="module-grid">
+          <view class="module-card {{selectedModule === 'weekly' ? 'active' : ''}}" bindtap="switchModule" data-module="weekly">
+            <text class="module-badge">01</text>
+            <text class="module-title">周计划</text>
+            <text class="module-desc">生成一周任务</text>
+          </view>
+          <view class="module-card {{selectedModule === 'daily' ? 'active' : ''}}" bindtap="switchModule" data-module="daily">
+            <text class="module-badge">02</text>
+            <text class="module-title">日计划</text>
+            <text class="module-desc">由周计划拆解</text>
+          </view>
+          <view class="module-card {{selectedModule === 'observe' ? 'active' : ''}}" bindtap="switchModule" data-module="observe">
+            <text class="module-badge">03</text>
+            <text class="module-title">观察记录</text>
+            <text class="module-desc">生成现场记录</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="card block" wx:if="{{selectedModule === 'weekly'}}">
+        <view class="section-head">
+          <text class="section-title">周计划</text>
+          <text class="section-note">先生成周计划，再拆日计划</text>
+        </view>
+        <picker mode="selector" range="{{philOptions}}" range-key="label" bindchange="onPhilChange">
+          <view class="field picker">
+            <text>{{phil}}</text>
+            <text class="picker-arrow">▾</text>
+          </view>
+        </picker>
+
+        <view class="chip-group">
+          <block wx:for="{{activityOptions}}" wx:key="id" wx:for-item="item">
+            <view class="chip {{selectedActivities.indexOf(item.id) > -1 ? 'chip-on' : ''}}" bindtap="toggleActivity" data-id="{{item.id}}">
+              {{item.label}}
+            </view>
+          </block>
+        </view>
+
+        <button class="primary-btn" loading="{{weeklyLoading}}" bindtap="generateWeekly">生成周计划</button>
+
+        <view class="result" wx:if="{{weeklyPlan}}">
+          <text class="result-title">生成结果</text>
+          <view class="day-list">
+            <view class="day-item" wx:for="{{weeklyPlan.days}}" wx:key="day">
+              <text class="day-name">{{item.day}}</text>
+              <text class="day-task">{{item.task}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="card block" wx:if="{{selectedModule === 'daily'}}">
+        <view class="section-head">
+          <text class="section-title">日计划</text>
+          <text class="section-note">需要先生成周计划</text>
+        </view>
+        <picker mode="selector" range="{{dayOptions}}" bindchange="onDayChange">
+          <view class="field picker">
+            <text>{{dailyDay}}</text>
+            <text class="picker-arrow">▾</text>
+          </view>
+        </picker>
+
+        <view class="preview-tile" wx:if="{{weeklyPlan}}">
+          <text class="preview-label">当前主题</text>
+          <text class="preview-value">{{weeklyPlan.week_theme}}</text>
+        </view>
+
+        <button class="primary-btn light" loading="{{dailyLoading}}" bindtap="generateDailyPreview">先预览日计划</button>
+        <button class="primary-btn" loading="{{dailyLoading}}" bindtap="generateDailyDoc">生成并下载日计划</button>
+
+        <view class="result" wx:if="{{dailyPreview}}">
+          <text class="result-title">四维预览</text>
+          <view class="daily-grid">
+            <view class="daily-box">
+              <text class="daily-k">导入</text>
+              <text class="daily-v">{{dailyPreview.content.introduction}}</text>
+            </view>
+            <view class="daily-box">
+              <text class="daily-k">过程</text>
+              <text class="daily-v">{{dailyPreview.content.process}}</text>
+            </view>
+            <view class="daily-box">
+              <text class="daily-k">延伸</text>
+              <text class="daily-v">{{dailyPreview.content.extension}}</text>
+            </view>
+            <view class="daily-box">
+              <text class="daily-k">反思</text>
+              <text class="daily-v">{{dailyPreview.content.reflection}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="card block" wx:if="{{selectedModule === 'observe'}}">
+        <view class="section-head">
+          <text class="section-title">观察记录</text>
+          <text class="section-note">先用文本链路跑通，后续再加多图上传</text>
+        </view>
+        <input class="field" placeholder="观察主题" value="{{obsTheme}}" bindinput="bindObsThemeInput" />
+        <input class="field" placeholder="幼儿姓名（可选）" value="{{obsChild}}" bindinput="bindObsChildInput" />
+
+        <picker mode="selector" range="{{sceneOptions}}" bindchange="onSceneChange">
+          <view class="field picker">
+            <text>{{obsScene}}</text>
+            <text class="picker-arrow">▾</text>
+          </view>
+        </picker>
+
+        <textarea class="textarea field" placeholder="补充观察描述" value="{{obsNote}}" bindinput="bindObsNoteInput"></textarea>
+
+        <button class="primary-btn light" loading="{{obsLoading}}" bindtap="generateObservationPreview">先预览观察记录</button>
+        <button class="primary-btn" loading="{{obsLoading}}" bindtap="generateObservationDoc">生成并下载观察记录</button>
+
+        <view class="result" wx:if="{{obsPreview}}">
+          <text class="result-title">观察概览</text>
+          <text class="obs-text">{{obsPreview.content.summary}}</text>
+        </view>
+      </view>
+
+      <view class="card block">
+        <view class="section-head">
+          <text class="section-title">语音输入</text>
+          <text class="section-note">可选能力</text>
+        </view>
+        <view class="voice-row">
+          <button class="voice-btn {{voiceRecording ? 'recording' : ''}}" bindtap="toggleVoiceInput">
+            {{voiceRecording ? '停止并识别' : '语音输入主题'}}
+          </button>
+          <text class="voice-note">{{voiceStatus}}</text>
+        </view>
+      </view>
+
+      <view class="card block">
+        <view class="section-head">
+          <text class="section-title">模块路线图</text>
+          <text class="section-note">来自 /roadmap</text>
+        </view>
+        <view class="roadmap">
+          <view class="roadmap-col">
+            <text class="roadmap-title">To B</text>
+            <view class="roadmap-item" wx:for="{{roadmap.to_b}}" wx:key="module">
+              <text class="roadmap-name">{{item.module}}</text>
+              <text class="roadmap-tag">{{item.phase}} · {{item.status}}</text>
+            </view>
+          </view>
+          <view class="roadmap-col">
+            <text class="roadmap-title">To C</text>
+            <view class="roadmap-item" wx:for="{{roadmap.to_c}}" wx:key="module">
+              <text class="roadmap-name">{{item.module}}</text>
+              <text class="roadmap-tag">{{item.phase}} · {{item.status}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

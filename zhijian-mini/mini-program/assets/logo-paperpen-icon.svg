@@ -1,0 +1,48 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="140" y1="120" x2="900" y2="920" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E9F7EF"/>
+      <stop offset="1" stop-color="#DDF5E7"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="300" y1="210" x2="740" y2="780" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F6FBF8"/>
+    </linearGradient>
+    <linearGradient id="nibGrad" x1="586" y1="422" x2="770" y2="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4CC46A"/>
+      <stop offset="1" stop-color="#2CA253"/>
+    </linearGradient>
+    <filter id="softShadow" x="160" y="140" width="720" height="760" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="20"/>
+      <feGaussianBlur stdDeviation="24"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.170833 0 0 0 0 0.383333 0 0 0 0 0.279167 0 0 0 0.17 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="url(#bgGrad)"/>
+
+  <g filter="url(#softShadow)">
+    <path d="M290 188H664L780 304V700C780 756.885 733.885 803 677 803H347C290.115 803 244 756.885 244 700V234C244 177.115 290.115 131 347 131H290V188Z" fill="url(#cardGrad)"/>
+  </g>
+
+  <path d="M664 188V304H780" fill="#ECF8F0"/>
+  <path d="M664 188V304H780" stroke="#CFE7D8" stroke-width="20" stroke-linejoin="round"/>
+
+  <rect x="318" y="392" width="312" height="28" rx="14" fill="#D9EBDD"/>
+  <rect x="318" y="456" width="252" height="28" rx="14" fill="#D9EBDD"/>
+  <rect x="318" y="520" width="276" height="28" rx="14" fill="#D9EBDD"/>
+
+  <g transform="translate(586 420) rotate(18)">
+    <rect x="0" y="0" width="170" height="170" rx="44" fill="url(#nibGrad)"/>
+    <path d="M84 40L124 92L84 136L44 92L84 40Z" fill="#FFFFFF"/>
+    <circle cx="84" cy="92" r="12" fill="#45B965"/>
+  </g>
+
+  <circle cx="304" cy="304" r="66" fill="#FFE064"/>
+  <path d="M267 297C286 272 320 268 343 288C320 314 286 319 267 297Z" fill="#2DA455"/>
+  <path d="M283 322C300 302 330 299 349 317C330 338 301 340 283 322Z" fill="#2DA455"/>
+</svg>

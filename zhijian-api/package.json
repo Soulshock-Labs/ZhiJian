@@ -1,0 +1,10 @@
+{
+  "name": "smart-teacher-assistant",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@google-cloud/vertexai": "^1.1.0",
+    "@google-cloud/storage": "^7.19.0"
+  }
+}

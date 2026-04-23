@@ -1,0 +1,17 @@
+.env
+.env.*
+__pycache__/
+*.pyc
+venv/
+.venv/
+.git/
+.gitignore
+*.md
+gcloud-service-key.json
+service-account*.json
+output_*.docx
+filled_*.docx
+knowledge_base/library/
+knowledge_base/incoming/
+knowledge_base/archives/
+android-app/

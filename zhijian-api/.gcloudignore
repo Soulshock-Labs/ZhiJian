@@ -1,0 +1,14 @@
+# 注意：勿在此排除 redeem_codes.json（真实卡密仅本机存在、不入 Git，但部署需上传）
+.gcloudignore
+.git
+.gitignore
+__pycache__/
+*.pyc
+venv/
+.venv/
+.env
+.env.*
+knowledge_base/library/**
+knowledge_base/incoming/**
+knowledge_base/archives/**
+android-app/**

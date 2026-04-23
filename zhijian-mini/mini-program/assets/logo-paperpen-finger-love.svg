@@ -1,0 +1,60 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="110" y1="96" x2="920" y2="934" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8F6DF"/>
+      <stop offset="0.5" stop-color="#ECF9DF"/>
+      <stop offset="1" stop-color="#DDF4E8"/>
+    </linearGradient>
+    <linearGradient id="outline" x1="332" y1="314" x2="714" y2="774" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#49B76B"/>
+      <stop offset="1" stop-color="#2B9751"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="384" y1="362" x2="626" y2="768" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFEEDC"/>
+      <stop offset="1" stop-color="#F6DABD"/>
+    </linearGradient>
+    <linearGradient id="cuff" x1="420" y1="704" x2="616" y2="876" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#67CB86"/>
+      <stop offset="1" stop-color="#2EA45B"/>
+    </linearGradient>
+    <filter id="shadow" x="246" y="236" width="542" height="648" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="16"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.2 0 0 0 0 0.42 0 0 0 0 0.27 0 0 0 0.22 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="240" fill="url(#bg)"/>
+  <ellipse cx="512" cy="884" rx="248" ry="52" fill="#C8E2D1" opacity="0.58"/>
+
+  <g filter="url(#shadow)">
+    <path d="M398 706C356 706 322 672 322 630C322 596 344 568 374 560C378 522 404 494 438 494C460 494 478 506 490 526C498 504 520 488 546 488C574 488 598 506 604 534C614 520 632 512 650 512C682 512 706 538 706 570C706 580 704 590 700 600C726 612 744 638 744 670C744 718 706 756 658 756H398V706Z" fill="url(#skin)" stroke="url(#outline)" stroke-width="8" stroke-linejoin="round"/>
+
+    <path d="M446 540L534 390C546 370 572 360 594 372C616 384 624 410 612 430L538 566" fill="url(#skin)"/>
+    <path d="M446 540L534 390C546 370 572 360 594 372C616 384 624 410 612 430L538 566" stroke="url(#outline)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M520 520L594 450C612 432 640 434 656 452C672 470 670 498 652 514L576 584" fill="url(#skin)"/>
+    <path d="M520 520L594 450C612 432 640 434 656 452C672 470 670 498 652 514L576 584" stroke="url(#outline)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M520 520L552 550" stroke="#E39A74" stroke-width="8" stroke-linecap="round"/>
+    <path d="M580 574C590 590 608 600 626 600" stroke="#E39A74" stroke-width="8" stroke-linecap="round"/>
+    <path d="M632 562C642 578 660 588 678 588" stroke="#E39A74" stroke-width="8" stroke-linecap="round"/>
+
+    <path d="M506 738H618C618 792 574 836 520 836C466 836 422 792 422 738H506Z" fill="url(#cuff)" stroke="url(#outline)" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M452 760C476 774 564 774 588 760" stroke="#D7F3DF" stroke-width="5" stroke-linecap="round" opacity="0.82"/>
+  </g>
+
+  <path d="M560 430C568 420 584 420 592 430" stroke="#F5CCAF" stroke-width="8" stroke-linecap="round" opacity="0.66"/>
+  <path d="M536 544C546 556 566 556 576 544" stroke="#D98A61" stroke-width="5" stroke-linecap="round"/>
+
+  <path d="M606 322L650 356L606 388L562 356L606 322Z" fill="#FFF2D2" stroke="url(#outline)" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="666" cy="368" r="8" fill="#45B66A"/>
+  <circle cx="550" cy="340" r="7" fill="#45B66A"/>
+  <circle cx="662" cy="328" r="5" fill="#7CCB8E"/>
+
+  <path d="M262 830C390 882 634 882 770 804" stroke="#60BC79" stroke-width="7" stroke-linecap="round" opacity="0.74"/>
+</svg>
