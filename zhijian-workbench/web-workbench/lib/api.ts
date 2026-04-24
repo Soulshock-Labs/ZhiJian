@@ -8,7 +8,7 @@
  * 4. 所有函数都写明返回类型，避免 any 蔓延
  */
 
-const DEFAULT_API_BASE = "https://zhijian-api-46126657817.asia-east1.run.app";
+const DEFAULT_API_BASE = "https://zhijian-api-ocjwdme54q-de.a.run.app";
 
 export const API_BASE = (
   process.env.NEXT_PUBLIC_API_BASE || DEFAULT_API_BASE

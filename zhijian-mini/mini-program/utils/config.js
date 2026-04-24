@@ -1,4 +1,4 @@
-const CLOUD_API_BASE = 'https://zhijian.soulshock.cn'
+const CLOUD_API_BASE = 'https://api.zhijian.me'
 const LOCAL_API_BASE = 'http://127.0.0.1:8000'
 const API_OVERRIDE_KEY = 'STA_API_BASE'
 
@@ -44,8 +44,7 @@ function describeApiBase(base = '') {
     return '本机 127.0.0.1:8000'
   }
   if (normalized === CLOUD_API_BASE) {
-    // 与 CLOUD_API_BASE 一致：正式域名是 zhijian，勿写 run.app（易误导合法域名配置）
-    return 'zhijian.soulshock.cn'
+    return 'api.zhijian.me'
   }
   // 自定义 API 地址（如 *.run.app）：显示主机名，便于在微信后台填 request 合法域名
   const hostMatch = normalized.match(/^https?:\/\/([^/]+)/i)
