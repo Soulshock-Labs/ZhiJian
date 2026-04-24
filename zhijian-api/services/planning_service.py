@@ -22,7 +22,7 @@ from typing import Optional
 from docx import Document
 from fastapi import HTTPException
 
-from core.settings import AI_MODEL, APP_VERSION, DASHSCOPE_API_KEY
+from core.settings import AI_MODEL, AI_MODEL_FAST, APP_VERSION, DASHSCOPE_API_KEY
 from core.state import client, ENABLE_ASPOSE_WORDS
 from core.clients import _raise_if_invalid_dashscope_key
 from word_engine.field_map import PHILOSOPHY_HINTS
@@ -105,7 +105,7 @@ def generate_weekly_content(
     try:
         prompt_template = get_prompt_template()
         resp = client.chat.completions.create(
-            model=AI_MODEL,
+            model=AI_MODEL_FAST,
             messages=[
                 {"role": "system", "content": prompt_template.build_system_prompt()},
                 {"role": "user",   "content": build_weekly_prompt(theme, phil, activities, class_level)},
@@ -118,8 +118,29 @@ def generate_weekly_content(
         raw = re.sub(r"\s*```$", "", raw)
         return json.loads(raw)
     except Exception as e:
+        import traceback, logging, time
+        logging.error("generate_weekly_content attempt failed: %s\n%s", e, traceback.format_exc())
         _raise_if_invalid_dashscope_key(e)
-        raise HTTPException(status_code=502, detail=f"周计划生成失败：{e}")
+        # 超时或临时错误：重试一次
+        try:
+            time.sleep(2)
+            prompt_template = get_prompt_template()
+            resp = client.chat.completions.create(
+                model=AI_MODEL,
+                messages=[
+                    {"role": "system", "content": prompt_template.build_system_prompt()},
+                    {"role": "user",   "content": build_weekly_prompt(theme, phil, activities, class_level)},
+                ],
+                temperature=1,
+                max_tokens=4096,
+            )
+            raw = resp.choices[0].message.content.strip()
+            raw = re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = re.sub(r"\s*```$", "", raw)
+            return json.loads(raw)
+        except Exception as e2:
+            logging.error("generate_weekly_content retry also failed: %s", e2)
+            raise HTTPException(status_code=502, detail=f"周计划生成失败（已重试）：{e2}")
 
 
 def _mock_weekly(theme: str, phil: str) -> dict:
