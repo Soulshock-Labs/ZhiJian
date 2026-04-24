@@ -428,12 +428,14 @@ export function generateWeekly(params: {
   phil: string;
   class_level?: string;
   activities?: string;
+  model?: string;
 }): Promise<WeeklyPlanResponse> {
   return apiPostForm<WeeklyPlanResponse>("/generate-weekly", {
     theme: params.theme,
     phil: params.phil,
     class_level: params.class_level ?? "中班",
     activities: params.activities ?? "[]",
+    model: params.model ?? "",
   });
 }
 

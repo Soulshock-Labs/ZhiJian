@@ -38,6 +38,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
   const [documentName, setDocumentName] = useState("");
   const [documentBusy, setDocumentBusy] = useState<"" | "process">("");
   const [documentNote, setDocumentNote] = useState("");
+  const [model, setModel] = useState("");
 
   if (!open) return null;
 
@@ -52,6 +53,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
         theme: theme.trim(),
         phil: phil.trim(),
         class_level: classLevel,
+        model,
       });
       setPlan(res.weekly_plan);
     } catch (err) {
@@ -181,7 +183,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-body-sm font-medium text-ink mb-1.5">教育理念</label>
                   <select
@@ -206,6 +208,19 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
                     <option value="小班">小班</option>
                     <option value="中班">中班</option>
                     <option value="大班">大班</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-body-sm font-medium text-ink mb-1.5">生成模式</label>
+                  <select
+                    className="w-full px-3 py-2 rounded-md border border-rule bg-paper text-ink text-body-sm focus:outline-none"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    title="快模型3-5秒，Kimi k2.5质量更好但需20-40秒"
+                  >
+                    <option value="">🚀 快速生成（默认）</option>
+                    <option value="moonshot-v1-8k">⚡ Kimi 轻量版</option>
+                    <option value="kimi-k2.5">🧠 Kimi k2.5（深度）</option>
                   </select>
                 </div>
               </div>

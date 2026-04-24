@@ -98,14 +98,17 @@ def generate_weekly_content(
     phil: str,
     activities: list[str],
     class_level: str = "",
+    model: str = "",
 ) -> dict:
-    """调用 AI 生成五天周计划 JSON，未配置 Key 时返回 Mock 数据。"""
+    """调用 AI 生成五天周计划 JSON，未配置 Key 时返回 Mock 数据。
+    model: 可指定模型，空字符串则使用 AI_MODEL_FAST。"""
     if not DASHSCOPE_API_KEY:
         return _mock_weekly(theme, phil)
+    model_to_use = model.strip() if model.strip() else AI_MODEL_FAST
     try:
         prompt_template = get_prompt_template()
         resp = client.chat.completions.create(
-            model=AI_MODEL_FAST,
+            model=model_to_use,
             messages=[
                 {"role": "system", "content": prompt_template.build_system_prompt()},
                 {"role": "user",   "content": build_weekly_prompt(theme, phil, activities, class_level)},
@@ -126,7 +129,7 @@ def generate_weekly_content(
             time.sleep(2)
             prompt_template = get_prompt_template()
             resp = client.chat.completions.create(
-                model=AI_MODEL_FAST,
+                model=model_to_use,
                 messages=[
                     {"role": "system", "content": prompt_template.build_system_prompt()},
                     {"role": "user",   "content": build_weekly_prompt(theme, phil, activities, class_level)},

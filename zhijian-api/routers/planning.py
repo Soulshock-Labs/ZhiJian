@@ -44,6 +44,7 @@ async def generate_weekly(
     phil:        str = Form(...,  description="教育理念"),
     activities:  str = Form("[]", description="活动类型列表（JSON）"),
     class_level: str = Form("中班", description="班级（小班/中班/大班）"),
+    model:       str = Form("",   description="指定模型，空则使用默认快模型"),
 ):
     """
     基于主题、理念和班级，自动生成高质量周计划。
@@ -57,7 +58,7 @@ async def generate_weekly(
     except (json.JSONDecodeError, TypeError):
         acts_list = [a.strip() for a in activities.split(",") if a.strip()] if activities else []
 
-    plan = generate_weekly_content(theme, phil, acts_list, class_level)
+    plan = generate_weekly_content(theme, phil, acts_list, class_level, model=model)
     return {"status": "ok", "weekly_plan": plan}
 
 
