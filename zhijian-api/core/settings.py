@@ -24,6 +24,8 @@ DASHSCOPE_BASE_URL = os.getenv(
 
 AI_MODEL = os.getenv("AI_MODEL", "qwen-max")
 
+AI_MODEL_FAST = os.getenv("AI_MODEL_FAST", "qwen-turbo")
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
