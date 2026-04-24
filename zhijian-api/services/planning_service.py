@@ -23,8 +23,22 @@ from docx import Document
 from fastapi import HTTPException
 
 from core.settings import AI_MODEL, AI_MODEL_FAST, APP_VERSION, DASHSCOPE_API_KEY
-from core.state import client, ENABLE_ASPOSE_WORDS
+from core.state import client, deepseek_client, qwen_client, ENABLE_ASPOSE_WORDS
 from core.clients import _raise_if_invalid_dashscope_key
+
+
+def _resolve_client(model_name: str):
+    """根据模型名称前缀选择对应的 API client。"""
+    if model_name.startswith("deepseek"):
+        if deepseek_client is None:
+            raise HTTPException(status_code=503, detail="DeepSeek API 未配置（缺少 DEEPSEEK_API_KEY）")
+        return deepseek_client
+    if model_name.startswith("qwen"):
+        if qwen_client is None:
+            raise HTTPException(status_code=503, detail="Qwen API 未配置（缺少 QWEN_API_KEY）")
+        return qwen_client
+    # 默认走 Moonshot（当前 client）
+    return client
 from word_engine.field_map import PHILOSOPHY_HINTS
 from word_engine.template_tools import _today_str, _get_cell_text, _is_colored_cell, clean_template_keep_style
 from word_engine.docx_filler import _write_cell_preserve_style
@@ -107,7 +121,7 @@ def generate_weekly_content(
     model_to_use = model.strip() if model.strip() else AI_MODEL_FAST
     try:
         prompt_template = get_prompt_template()
-        resp = client.chat.completions.create(
+        resp = _resolve_client(model_to_use).chat.completions.create(
             model=model_to_use,
             messages=[
                 {"role": "system", "content": prompt_template.build_system_prompt()},
@@ -128,7 +142,7 @@ def generate_weekly_content(
         try:
             time.sleep(2)
             prompt_template = get_prompt_template()
-            resp = client.chat.completions.create(
+            resp = _resolve_client(model_to_use).chat.completions.create(
                 model=model_to_use,
                 messages=[
                     {"role": "system", "content": prompt_template.build_system_prompt()},

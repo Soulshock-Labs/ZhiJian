@@ -211,16 +211,15 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-body-sm font-medium text-ink mb-1.5">生成模式</label>
+                  <label className="block text-body-sm font-medium text-ink mb-1.5">生成模型</label>
                   <select
                     className="w-full px-3 py-2 rounded-md border border-rule bg-paper text-ink text-body-sm focus:outline-none"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    title="快模型3-5秒，Kimi k2.5质量更好但需20-40秒"
+                    title="快模型3-8秒"
                   >
-                    <option value="">🚀 快速生成（默认）</option>
-                    <option value="moonshot-v1-8k">⚡ Kimi 轻量版</option>
-                    <option value="kimi-k2.5">🧠 Kimi k2.5（深度）</option>
+                    <option value="deepseek-chat">🚀 DeepSeek（快）</option>
+                    <option value="moonshot-v1-8k">⚡ Kimi 轻量版（快）</option>
                   </select>
                 </div>
               </div>
