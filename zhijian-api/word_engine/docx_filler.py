@@ -332,7 +332,7 @@ def _fill_word_template_docx_bytes(cleaned_bytes: bytes, fill_data: dict[str, st
 
     try:
         doc.core_properties.comments = (
-            f"智伴幼师导出 · v{APP_VERSION} · 排版引擎 python-docx（Aspose 回退）"
+            f"纸笺幼师导出 · v{APP_VERSION} · 排版引擎 python-docx（Aspose 回退）"
         )
     except Exception:
         pass

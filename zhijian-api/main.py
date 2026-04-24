@@ -1,5 +1,5 @@
 """
-智伴幼师 · AI幼师助手  —  FastAPI 后端
+纸笺幼师 · AI幼师助手  —  FastAPI 后端
 ==========================================
 职责：App 工厂 + Router 挂载 + Startup 事件
 所有业务逻辑已下沉至 services/ 和 routers/ 模块
@@ -22,7 +22,7 @@ from services.webhook_service import _webhook_retry_loop
 # App & CORS
 # ──────────────────────────────────────────────
 app = FastAPI(
-    title="智伴幼师 API",
+    title="纸笺幼师 API",
     description="AI幼师助手后端服务",
     version=APP_VERSION,
 )

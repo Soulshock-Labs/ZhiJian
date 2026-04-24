@@ -228,7 +228,7 @@ def _build_observation_docx_bytes(
 
     try:
         doc.core_properties.comments = (
-            f"智伴幼师导出 · v{APP_VERSION} · 排版引擎 python-docx（观察记录）"
+            f"纸笺幼师导出 · v{APP_VERSION} · 排版引擎 python-docx（观察记录）"
         )
     except Exception:
         pass
