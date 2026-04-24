@@ -80,3 +80,8 @@ mini-program/project.private.config.json
 
 # ── 本地知识库 / 大数据资料（仅本机 Google Drive，不入 Git）──
 knowledge_base/
+
+# -- Kimi / Claude ????? --
+PROJECT_CONTEXT.md
+.kimi-sync/
+
