@@ -126,7 +126,7 @@ def generate_weekly_content(
             time.sleep(2)
             prompt_template = get_prompt_template()
             resp = client.chat.completions.create(
-                model=AI_MODEL,
+                model=AI_MODEL_FAST,
                 messages=[
                     {"role": "system", "content": prompt_template.build_system_prompt()},
                     {"role": "user",   "content": build_weekly_prompt(theme, phil, activities, class_level)},
