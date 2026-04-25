@@ -38,7 +38,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
   const [documentName, setDocumentName] = useState("");
   const [documentBusy, setDocumentBusy] = useState<"" | "process">("");
   const [documentNote, setDocumentNote] = useState("");
-  const [model, setModel] = useState("");
+  const [model, setModel] = useState("deepseek-chat");
 
   if (!open) return null;
 
