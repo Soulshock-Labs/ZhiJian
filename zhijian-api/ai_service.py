@@ -341,12 +341,9 @@ def generate_content(
 ) -> dict:
     """调用阿里云百炼 Qwen-Max，返回解析后的内容字典。"""
     if not DASHSCOPE_API_KEY:
-        if not ALLOW_MOCK_CONTENT:
-            raise HTTPException(
-                status_code=503,
-                detail="AI 服务未配置（缺少 DASHSCOPE_API_KEY）；为保证生成质量，已禁止回退 Mock 内容。",
-            )
-        logger.warning("AI Key 缺失，ALLOW_MOCK_CONTENT=1，回退 Mock 生成")
+        # 与 generate_weekly_content 保持一致：未配置 Key 时回退 Mock，
+        # 避免旧 /generate 接口 503 而 /generate-weekly 正常的不一致体验。
+        logger.warning("AI Key 缺失，回退 Mock 生成（/generate 旧接口）")
         return _normalize_content_payload(
             _mock_content(theme, phil, activities),
             theme=theme, phil=phil, activities=activities,
