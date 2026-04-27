@@ -385,10 +385,13 @@ export function registerBetaUser(params: {
 export type AuthResponse = {
   ok: boolean;
   is_new?: boolean;
-  user_id: string;
+  account_id: string;
+  member_no: string;
+  user_id: string;       // 向后兼容，值同 account_id
   user_token: string;
   role: string;
   org_id: string;
+  agent_profile?: Record<string, string>;
   service?: UserServiceState;
   created_at_utc?: string;
 };
