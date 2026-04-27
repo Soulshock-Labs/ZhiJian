@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from core.settings import (
+    _ACCOUNT_INDEX_FILE,
     _APP_STATS_FILE,
     _DEFAULT_APP_STATS,
     _DEFAULT_REDEEM_CODES,
@@ -10,6 +11,7 @@ from core.settings import (
     _KNOWLEDGE_BASE_DIR,
     _KNOWLEDGE_INDEX_FILE,
     _KNOWLEDGE_ROUTE_FILE,
+    _MEMBER_NO_FILE,
     _REDEEM_CODES_FILE,
     _REDEEM_CODES_GCS_URI,
     _REGISTER_LOG_FILE,
@@ -349,6 +351,92 @@ def _save_user_accounts(data: dict[str, dict]) -> None:
         )
     except Exception as e:
         logger.warning("保存用户账户失败：%s", e)
+
+# ══════════════════════════════════════════════════════════════════════
+# 账号索引：phone / openid → account_id 反查表
+# ══════════════════════════════════════════════════════════════════════
+
+def _load_account_index() -> dict[str, str]:
+    """
+    读取反查索引。结构：
+    {
+      "phone:13800138000": "uid_xxx",
+      "openid:wx_yyy":     "uid_xxx",
+    }
+    """
+    if FIRESTORE_ENABLED:
+        try:
+            doc = _fs().collection("meta").document("account_index").get()
+            if doc.exists:
+                data = doc.to_dict() or {}
+                return {k: v for k, v in data.items() if isinstance(v, str)}
+        except Exception as e:
+            logger.warning("Firestore 读取 account_index 失败，回退本地：%s", e)
+    if not _ACCOUNT_INDEX_FILE.exists():
+        return {}
+    try:
+        data = json.loads(_ACCOUNT_INDEX_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _save_account_index(index: dict[str, str]) -> None:
+    if FIRESTORE_ENABLED:
+        try:
+            _fs().collection("meta").document("account_index").set(index)
+        except Exception as e:
+            logger.warning("Firestore 写 account_index 失败：%s", e)
+    try:
+        _ACCOUNT_INDEX_FILE.write_text(
+            json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    except Exception as e:
+        logger.warning("保存 account_index 失败：%s", e)
+
+
+# ══════════════════════════════════════════════════════════════════════
+# 会员号计数器（6位递增，从 10000 起）
+# ══════════════════════════════════════════════════════════════════════
+
+_MEMBER_NO_START = 10000
+
+
+def _next_member_no() -> str:
+    """生成下一个会员号（递增，线程安全靠单进程 Cloud Run 保证）。"""
+    if FIRESTORE_ENABLED:
+        try:
+            ref = _fs().collection("meta").document("member_no_counter")
+            from google.cloud.firestore import Client  # noqa: F401
+            # Firestore 事务递增
+            @_fs().transaction()  # type: ignore[misc]
+            def _tx(transaction, ref):  # type: ignore[misc]
+                snap = ref.get(transaction=transaction)
+                current = snap.get("value") if snap.exists else _MEMBER_NO_START - 1
+                next_no = int(current) + 1
+                transaction.set(ref, {"value": next_no})
+                return next_no
+            no = _tx(ref)  # type: ignore[call-arg]
+            return str(no)
+        except Exception as e:
+            logger.warning("Firestore 会员号递增失败，回退本地：%s", e)
+
+    # 本地文件计数器
+    try:
+        if _MEMBER_NO_FILE.exists():
+            current = int(json.loads(_MEMBER_NO_FILE.read_text(encoding="utf-8")).get("value", _MEMBER_NO_START - 1))
+        else:
+            current = _MEMBER_NO_START - 1
+        next_no = current + 1
+        _MEMBER_NO_FILE.write_text(
+            json.dumps({"value": next_no}, ensure_ascii=False), encoding="utf-8"
+        )
+        return str(next_no)
+    except Exception as e:
+        logger.warning("会员号计数器失败，使用随机备用：%s", e)
+        import random
+        return str(random.randint(10000, 99999))
+
 
 def _knowledge_base_status() -> dict:
     index_payload = _read_json_file(_KNOWLEDGE_INDEX_FILE)

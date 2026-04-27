@@ -1,16 +1,20 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Body, File, Form, Header, HTTPException, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
 
 import hashlib
-import json
-import os
 from datetime import datetime, timezone
 
 from core.utils import _utc_iso
 from services.data_store import _load_user_accounts, _load_user_services, _save_user_accounts
-from services.user_service import _add_token_to_account, _generate_user_token, _get_or_create_user, _verify_user_token
+from services.user_service import (
+    _create_phone_account,
+    _get_account_by_phone,
+    _get_or_create_user,
+    _issue_token,
+    _verify_user_token,
+    _verify_user_token_full,
+)
 
 router = APIRouter()
 
@@ -20,10 +24,10 @@ def _hash_password(password: str) -> str:
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
-def _build_service_info(user_id: str) -> dict:
-    """读取用户权益状态，提取公共逻辑避免重复。"""
+def _build_service_info(account_id: str) -> dict:
+    """读取用户权益状态（按 account_id 查询）。"""
     user_services = _load_user_services()
-    entry = user_services.get(user_id, {})
+    entry = user_services.get(account_id, {})
     membership_until = entry.get("membership_until")
     is_active_member = False
     if membership_until:
@@ -38,22 +42,39 @@ def _build_service_info(user_id: str) -> dict:
         "balance": int(entry.get("balance", 0) or 0),
         "quota":   int(entry.get("quota",   0) or 0),
     }
+
+
+def _account_response(account: dict, token: str, is_new: bool = False) -> dict:
+    """统一的账号响应格式。"""
+    return {
+        "ok":          True,
+        "is_new":      is_new,
+        "account_id":  account["account_id"],
+        "member_no":   account.get("member_no", ""),
+        "user_id":     account["account_id"],      # 向后兼容旧字段
+        "user_token":  token,
+        "role":        account.get("role", "teacher"),
+        "org_id":      account.get("org_id", ""),
+        "agent_profile": account.get("agent_profile", {}),
+        "service":     _build_service_info(account["account_id"]),
+    }
+
+
+# ── /user/wxlogin ─────────────────────────────────────────────────────
 @router.post("/user/wxlogin", tags=["用户"])
 async def user_wxlogin(
     code: str = Form(..., description="微信 wx.login() 返回的 code"),
 ):
     """
-    小程序登录接口：
-    1. 用 code 换微信 openid（需配置 WECHAT_APPID + WECHAT_SECRET）
-    2. 自动创建用户档案（含 agent_profile）
-    3. 返回 user_token 用于后续所有请求认证
+    小程序登录：code → openid → 查/建账号 → 返回 token。
+    如果 openid 未绑定手机号，返回 bound=False，前端引导绑定。
     """
     import httpx
+    import os
 
     appid  = os.getenv("WECHAT_APPID", "")
     secret = os.getenv("WECHAT_SECRET", "")
 
-    openid = ""
     if appid and secret:
         try:
             url = (
@@ -71,57 +92,28 @@ async def user_wxlogin(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"微信接口调用失败：{e}")
     else:
-        # 未配置微信密钥时，用 code 本身作为 openid（本地开发用）
         openid = f"dev_{code[:16]}"
 
-    user = _get_or_create_user(openid)
-    token = _generate_user_token(openid)
+    account = _get_or_create_user(openid)
+    token   = _issue_token(account["account_id"])
 
-    # 写 token 到 Firestore + 本地（多端支持）
+    # 重新读取最新 account（_issue_token 已写回）
     accounts = _load_user_accounts()
-    _add_token_to_account(accounts, openid, token)
-    accounts[openid]["last_login"] = _utc_iso()
-    # 存量微信用户静默补填角色字段
-    accounts[openid].setdefault("role",         "teacher")
-    accounts[openid].setdefault("org_id",        "")
-    accounts[openid].setdefault("active_tokens", [])
-    _save_user_accounts(accounts)
+    account  = accounts.get(account["account_id"], account)
 
     return {
-        "ok":           True,
-        "openid":       openid,
-        "user_token":   token,
-        "role":         accounts[openid]["role"],
-        "org_id":       accounts[openid]["org_id"],
-        "agent_profile": user.get("agent_profile", {}),
-        "user_id":      user.get("user_id") or "",
-        "is_new":       user.get("created_at") == accounts[openid].get("last_login"),
+        **_account_response(account, token),
+        "openid":      openid,
+        "phone_bound": bool(account.get("phone")),   # 前端判断是否需要绑定手机号
     }
-@router.post("/user/agent", tags=["用户"])
-async def update_agent_profile(
-    user_token: str = Form(..., description="登录 token"),
-    name: str = Form("小助手", description="智能体名字"),
-    personality: str = Form("热心、耐心", description="性格特征"),
-    tone: str = Form("亲切温暖", description="说话音调"),
-    style: str = Form("鼓励式教学", description="教学风格"),
-):
-    """自定义用户的 AI 智能体性格，影响所有生成内容的风格。"""
-    openid = _verify_user_token(user_token)
-    accounts = _load_user_accounts()
-    accounts[openid]["agent_profile"] = {
-        "name": name,
-        "personality": personality,
-        "tone": tone,
-        "style": style,
-    }
-    _save_user_accounts(accounts)
-    return {"ok": True, "agent_profile": accounts[openid]["agent_profile"]}
+
+
+# ── /user/register ────────────────────────────────────────────────────
 @router.post("/user/register", tags=["用户"])
 async def user_register(payload: dict = Body(...)):
     """
     注册：手机号 + 密码。
-    - 手机号已存在 → 报错（请直接登录）
-    - 新用户 → 创建账号，返回 token 直接登录
+    手机号已存在 → 409；新用户 → 创建账号并直接登录。
     """
     phone    = str(payload.get("phone", "") or payload.get("user_id", "")).strip()
     password = str(payload.get("password", "")).strip()
@@ -131,40 +123,13 @@ async def user_register(payload: dict = Body(...)):
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="密码至少6位")
 
-    user_id  = phone.lower()
-    accounts = _load_user_accounts()
+    account = _create_phone_account(phone, _hash_password(password))
+    token   = _issue_token(account["account_id"])
 
-    if user_id in accounts:
-        raise HTTPException(status_code=409, detail="该手机号已注册，请直接登录")
-
-    now_iso = _utc_iso()
-    token   = _generate_user_token(user_id)
-    accounts[user_id] = {
-        "user_id":        user_id,
-        "phone":          phone,
-        "password_hash":  _hash_password(password),
-        "role":           "teacher",
-        "org_id":         "",
-        "last_token":     token,
-        "active_tokens":  [token],   # 多端支持
-        "last_login":     now_iso,
-        "created_at_utc": now_iso,
-        "updated_at_utc": now_iso,
-    }
-    _save_user_accounts(accounts)
-
-    return {
-        "ok":             True,
-        "is_new":         True,
-        "user_id":        user_id,
-        "user_token":     token,
-        "role":           "teacher",
-        "org_id":         "",
-        "created_at_utc": now_iso,
-        "service":        _build_service_info(user_id),
-    }
+    return _account_response(account, token, is_new=True)
 
 
+# ── /user/login ───────────────────────────────────────────────────────
 @router.post("/user/login", tags=["用户"])
 async def user_login(payload: dict = Body(...)):
     """
@@ -176,37 +141,53 @@ async def user_login(payload: dict = Body(...)):
     if not phone or not password:
         raise HTTPException(status_code=400, detail="请填写手机号和密码")
 
-    user_id  = phone.lower()
-    accounts = _load_user_accounts()
-
-    if user_id not in accounts:
+    account = _get_account_by_phone(phone)
+    if not account:
         raise HTTPException(status_code=404, detail="账号不存在，请先注册")
 
-    entry = accounts[user_id]
-
-    # 存量用户（无密码字段）静默补填结构，但不允许空密码登录
-    stored_hash = entry.get("password_hash", "")
+    stored_hash = account.get("password_hash", "")
     if not stored_hash:
-        raise HTTPException(status_code=400, detail="该账号未设置密码，请联系管理员或重新注册")
-
+        raise HTTPException(status_code=400, detail="该账号未设置密码，请联系管理员")
     if stored_hash != _hash_password(password):
         raise HTTPException(status_code=401, detail="密码错误")
 
-    now_iso = _utc_iso()
-    token   = _generate_user_token(user_id)
-    _add_token_to_account(accounts, user_id, token)
-    entry["last_login"]     = now_iso
-    entry["updated_at_utc"] = now_iso
-    entry.setdefault("role",           "teacher")
-    entry.setdefault("org_id",         "")
-    entry.setdefault("active_tokens",  [])
-    _save_user_accounts(accounts)
+    token = _issue_token(account["account_id"])
 
-    return {
-        "ok":         True,
-        "user_id":    user_id,
-        "user_token": token,
-        "role":       entry["role"],
-        "org_id":     entry["org_id"],
-        "service":    _build_service_info(user_id),
+    # 读最新 account
+    accounts = _load_user_accounts()
+    account  = accounts.get(account["account_id"], account)
+
+    return _account_response(account, token)
+
+
+# ── /user/agent ───────────────────────────────────────────────────────
+@router.post("/user/agent", tags=["用户"])
+async def update_agent_profile(
+    user_token:  str = Form(..., description="登录 token"),
+    name:        str = Form("小助手",   description="智能体名字"),
+    personality: str = Form("热心、耐心", description="性格特征"),
+    tone:        str = Form("亲切温暖", description="说话音调"),
+    style:       str = Form("鼓励式教学", description="教学风格"),
+):
+    """自定义用户的 AI 智能体性格，影响所有生成内容的风格。需要 agent 权限。"""
+    from core.auth import require_permission
+    account = require_permission(user_token, "agent")
+
+    accounts = _load_user_accounts()
+    aid      = account["account_id"]
+    accounts[aid]["agent_profile"] = {
+        "name":        name,
+        "personality": personality,
+        "tone":        tone,
+        "style":       style,
     }
+    _save_user_accounts(accounts)
+    return {"ok": True, "agent_profile": accounts[aid]["agent_profile"]}
+
+
+# ── /user/me ──────────────────────────────────────────────────────────
+@router.get("/user/me", tags=["用户"])
+async def get_me(user_token: str):
+    """获取当前登录用户信息。"""
+    account = _verify_user_token_full(user_token)
+    return _account_response(account, user_token)

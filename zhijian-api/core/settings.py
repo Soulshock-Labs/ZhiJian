@@ -72,7 +72,9 @@ _REDEEM_LOG_FILE = _BASE_DIR / "redeem_logs.jsonl"
 
 _USER_SERVICE_FILE = _BASE_DIR / "user_services.json"
 
-_USER_ACCOUNTS_FILE = _BASE_DIR / "user_accounts.json"
+_USER_ACCOUNTS_FILE  = _BASE_DIR / "user_accounts.json"
+_ACCOUNT_INDEX_FILE  = _BASE_DIR / "account_index.json"   # phone/openid → account_id 反查表
+_MEMBER_NO_FILE      = _BASE_DIR / "member_no_counter.json"  # 会员号计数器
 
 _WEBHOOK_RETRY_FILE = _BASE_DIR / "partner_webhook_retry.jsonl"
 
