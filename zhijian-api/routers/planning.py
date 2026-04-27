@@ -33,6 +33,8 @@ from services.planning_service import (
     fill_daily_word_template,
     _build_daily_structured_docx_bytes,
 )
+from word_engine.doc_reader import extract_doc_context, to_markdown
+from services.doc_space import get_doc_md, get_all_docs_md
 
 router = APIRouter()
 
@@ -45,11 +47,19 @@ async def generate_weekly(
     activities:  str = Form("[]", description="活动类型列表（JSON）"),
     class_level: str = Form("中班", description="班级（小班/中班/大班）"),
     model:       str = Form("",   description="指定模型，空则使用默认快模型"),
+    ref_doc:     Optional[UploadFile] = File(None,  description="临时参考文档（不存储，用完即走）"),
+    doc_id:      str = Form("",   description="已存储文档的 ID（从用户空间读取，优先级高于 ref_doc）"),
+    user_id:     str = Form("",   description="用户 ID（配合 doc_id 或扫描全部空间使用）"),
+    scan_space:  str = Form("0",  description="是否扫描用户全部文档空间（1=是）"),
 ):
     """
     基于主题、理念和班级，自动生成高质量周计划。
-    使用 Prompt 工程系统确保输出风格一致、质量稳定（可复现）。
     返回 JSON，前端可直接展示，并允许用户选择某一天生成日教案。
+
+    参考文档三种方式（优先级从高到低）：
+    1. doc_id    从用户空间读已存储文档的 MD（推荐，无需重复上传）
+    2. scan_space=1  扫描用户空间全部文档，拼合注入（Agent 模式）
+    3. ref_doc   临时上传文件，用完不存储（兼容旧流程）
     """
     try:
         acts_list: list[str] = json.loads(activities) if activities else []
@@ -58,8 +68,54 @@ async def generate_weekly(
     except (json.JSONDecodeError, TypeError):
         acts_list = [a.strip() for a in activities.split(",") if a.strip()] if activities else []
 
-    plan = generate_weekly_content(theme, phil, acts_list, class_level, model=model)
-    return {"status": "ok", "weekly_plan": plan}
+    ALLOWED_EXTS = {"docx", "pdf", "jpg", "jpeg", "png", "webp", "gif"}
+    doc_md = ""
+    doc_info: dict = {}
+
+    # ── 优先级 1：从用户空间读已存储文档 ──
+    if doc_id.strip() and user_id.strip():
+        md = get_doc_md(user_id.strip(), doc_id.strip())
+        if md:
+            doc_md = md
+            doc_info = {"source": "doc_space", "doc_id": doc_id.strip()}
+        else:
+            doc_info = {"source": "doc_space", "doc_id": doc_id.strip(), "error": "文档不存在"}
+
+    # ── 优先级 2：Agent 扫描全部空间 ──
+    elif scan_space.strip() == "1" and user_id.strip():
+        doc_md = get_all_docs_md(user_id.strip())
+        doc_info = {"source": "space_scan", "user_id": user_id.strip()}
+
+    # ── 优先级 3：临时上传（兼容旧流程） ──
+    elif ref_doc is not None:
+        filename = ref_doc.filename or ""
+        ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+        if ext not in ALLOWED_EXTS:
+            raise HTTPException(
+                status_code=400,
+                detail="参考文件仅支持 .docx、.pdf、.jpg、.jpeg、.png、.webp 格式",
+            )
+        file_bytes = await ref_doc.read()
+        if not file_bytes:
+            raise HTTPException(status_code=400, detail="上传的文件为空")
+        ctx = extract_doc_context(file_bytes, filename)
+        if ctx.ok:
+            doc_md = to_markdown(ctx)
+            doc_info = {
+                "source":      "temp_upload",
+                "filename":    ctx.filename,
+                "file_type":   ctx.file_type,
+                "char_count":  ctx.char_count,
+                "table_count": ctx.table_count,
+            }
+        else:
+            doc_info = {"source": "temp_upload", "filename": filename, "error": ctx.error}
+
+    plan = generate_weekly_content(theme, phil, acts_list, class_level, model=model, doc_md=doc_md)
+    resp: dict = {"status": "ok", "weekly_plan": plan}
+    if doc_info:
+        resp["doc_analyzed"] = doc_info
+    return resp
 
 
 # ── /generate-term-plan ───────────────────────────────────────────────

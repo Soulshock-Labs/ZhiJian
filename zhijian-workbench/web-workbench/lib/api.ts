@@ -429,7 +429,23 @@ export function generateWeekly(params: {
   class_level?: string;
   activities?: string;
   model?: string;
+  ref_doc?: File | null;
 }): Promise<WeeklyPlanResponse> {
+  // 有参考文档时用 FormData（multipart），没有时用 urlencoded（更快）
+  if (params.ref_doc) {
+    const body = new FormData();
+    body.append("theme", params.theme);
+    body.append("phil", params.phil);
+    body.append("class_level", params.class_level ?? "中班");
+    body.append("activities", params.activities ?? "[]");
+    body.append("model", params.model ?? "");
+    body.append("ref_doc", params.ref_doc);
+    return request<WeeklyPlanResponse>("/generate-weekly", {
+      method: "POST",
+      body,
+      timeoutMs: 90_000, // 文档分析 + AI 生成需要更长时间
+    });
+  }
   return apiPostForm<WeeklyPlanResponse>("/generate-weekly", {
     theme: params.theme,
     phil: params.phil,

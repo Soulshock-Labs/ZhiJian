@@ -107,26 +107,104 @@ def build_weekly_prompt(
     )
 
 
+def _analyze_doc_with_deepseek(doc_md: str, theme: str, phil: str) -> str:
+    """
+    用 DeepSeek 分析老师上传的文档 Markdown，提取风格/偏好/结构要点。
+    返回一段精炼的「文档分析摘要」字符串，用于注入周计划生成 prompt。
+    若 DeepSeek 不可用则直接返回原始 doc_md（降级处理）。
+    """
+    from core.state import deepseek_client
+    from core.settings import DEEPSEEK_API_KEY
+
+    if not DEEPSEEK_API_KEY or deepseek_client is None:
+        logger.warning("DeepSeek 未配置，跳过文档分析，直接使用原文摘要")
+        return doc_md
+
+    analyze_prompt = f"""你是一名幼儿园课程设计专家。老师上传了一份参考文档，请你仔细阅读并提炼以下信息：
+
+1. **文档类型**：周计划 / 日教案 / 活动方案 / 其他
+2. **周主题/活动主题**：从文档中提取
+3. **教育理念风格**：老师倾向的教学方式和理念关键词
+4. **内容结构特点**：文档的组织方式、常用板块
+5. **活动类型偏好**：频繁出现的活动类型（区域、户外、艺术等）
+6. **写作风格**：语言风格（简洁/详细、学术/生活化等）
+7. **可复用的亮点内容**：值得在新计划中延续或参考的具体做法
+
+---
+
+【本次生成目标】
+- 新周主题：{theme}
+- 教育理念：{phil}
+
+请基于文档内容，给出5-8条具体建议，帮助生成与老师风格一致的新周计划。
+用简洁的要点形式输出，不需要 JSON，直接输出中文要点列表。
+
+---
+
+【老师上传的文档内容】
+{doc_md}
+"""
+
+    try:
+        resp = deepseek_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": "你是专业的幼儿园课程顾问，擅长分析教师文档并提炼风格特征。"},
+                {"role": "user", "content": analyze_prompt},
+            ],
+            temperature=0.3,
+            max_tokens=1000,
+        )
+        analysis = resp.choices[0].message.content.strip()
+        logger.info("DeepSeek 文档分析完成，摘要长度：%d", len(analysis))
+        return analysis
+    except Exception as e:
+        logger.warning("DeepSeek 文档分析失败，降级使用原文摘要：%s", e)
+        return doc_md
+
+
 def generate_weekly_content(
     theme: str,
     phil: str,
     activities: list[str],
     class_level: str = "",
     model: str = "",
+    doc_md: str = "",
 ) -> dict:
     """调用 AI 生成五天周计划 JSON，未配置 Key 时返回 Mock 数据。
-    model: 可指定模型，空字符串则使用 AI_MODEL_FAST。"""
+    model: 可指定模型，空字符串则使用 AI_MODEL_FAST。
+    doc_md: 老师上传文档的 Markdown 内容，非空时先用 DeepSeek 分析再注入 prompt。
+    """
     if not DASHSCOPE_API_KEY:
         return _mock_weekly(theme, phil)
     model_to_use = model.strip() if model.strip() else AI_MODEL_FAST
-    try:
+
+    # ── 文档分析：若老师上传了参考文档，先用 DeepSeek 分析提炼风格 ──
+    doc_analysis_hint = ""
+    if doc_md.strip():
+        analysis = _analyze_doc_with_deepseek(doc_md.strip(), theme, phil)
+        if analysis.strip():
+            doc_analysis_hint = (
+                "\n\n【老师上传的参考文档分析】\n"
+                "以下是对老师上传文档的分析，请参考这些风格特点生成本次周计划：\n"
+                f"{analysis}\n"
+                "【请在保持以上风格的基础上，结合本次主题和理念生成新的周计划】"
+            )
+            logger.info("文档分析摘要已注入 prompt，长度：%d", len(doc_analysis_hint))
+
+    def _build_messages() -> list[dict]:
         prompt_template = get_prompt_template()
+        system_content = prompt_template.build_system_prompt() + doc_analysis_hint
+        user_content = build_weekly_prompt(theme, phil, activities, class_level)
+        return [
+            {"role": "system", "content": system_content},
+            {"role": "user",   "content": user_content},
+        ]
+
+    try:
         resp = _resolve_client(model_to_use).chat.completions.create(
             model=model_to_use,
-            messages=[
-                {"role": "system", "content": prompt_template.build_system_prompt()},
-                {"role": "user",   "content": build_weekly_prompt(theme, phil, activities, class_level)},
-            ],
+            messages=_build_messages(),
             temperature=1,
             max_tokens=4096,
         )
@@ -135,19 +213,15 @@ def generate_weekly_content(
         raw = re.sub(r"\s*```$", "", raw)
         return json.loads(raw)
     except Exception as e:
-        import traceback, logging, time
-        logging.error("generate_weekly_content attempt failed: %s\n%s", e, traceback.format_exc())
+        import traceback, time
+        logger.error("generate_weekly_content attempt failed: %s\n%s", e, traceback.format_exc())
         _raise_if_invalid_dashscope_key(e)
         # 超时或临时错误：重试一次
         try:
             time.sleep(2)
-            prompt_template = get_prompt_template()
             resp = _resolve_client(model_to_use).chat.completions.create(
                 model=model_to_use,
-                messages=[
-                    {"role": "system", "content": prompt_template.build_system_prompt()},
-                    {"role": "user",   "content": build_weekly_prompt(theme, phil, activities, class_level)},
-                ],
+                messages=_build_messages(),
                 temperature=1,
                 max_tokens=4096,
             )
@@ -156,7 +230,7 @@ def generate_weekly_content(
             raw = re.sub(r"\s*```$", "", raw)
             return json.loads(raw)
         except Exception as e2:
-            logging.error("generate_weekly_content retry also failed: %s", e2)
+            logger.error("generate_weekly_content retry also failed: %s", e2)
             raise HTTPException(status_code=502, detail=f"周计划生成失败（已重试）：{e2}")
 
 

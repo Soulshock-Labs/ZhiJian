@@ -48,6 +48,7 @@ from routers.templates import router as templates_router
 from routers.generate import router as generate_router
 from routers.observation import router as observation_router
 from routers.mini import router as mini_router
+from routers.doc_space import router as doc_space_router
 
 app.include_router(planning_router)
 app.include_router(frontend_router)
@@ -59,6 +60,7 @@ app.include_router(templates_router)
 app.include_router(generate_router)
 app.include_router(observation_router)
 app.include_router(mini_router)
+app.include_router(doc_space_router)
 
 # ──────────────────────────────────────────────
 # 应用启动事件

@@ -54,6 +54,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
         phil: phil.trim(),
         class_level: classLevel,
         model,
+        ref_doc: documentFile ?? undefined,
       });
       setPlan(res.weekly_plan);
     } catch (err) {
@@ -72,8 +73,10 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
   const handleDocumentUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0];
     if (!file) return;
-    if (!file.name.toLowerCase().endsWith(".docx")) {
-      setDocumentNote("请上传 .docx 文档");
+    const name = file.name.toLowerCase();
+    const allowed = [".docx", ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif"];
+    if (!allowed.some((ext) => name.endsWith(ext))) {
+      setDocumentNote("支持 .docx、.pdf、.jpg、.png、.webp（拍照上传）");
       return;
     }
     setDocumentFile(file);
@@ -166,11 +169,11 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
 
               <div className="rounded-md border border-rule-soft bg-paper-hi px-3 py-3">
                 <label className="block text-body-sm font-medium text-ink mb-1.5">
-                  上传模板或旧周计划
+                  上传参考文档 <span className="text-ink-3 font-normal">（旧计划 / 模板 / 拍照）</span>
                 </label>
                 <input
                   type="file"
-                  accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  accept=".docx,.pdf,.jpg,.jpeg,.png,.webp,.gif,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,image/*"
                   onChange={handleDocumentUpload}
                   disabled={Boolean(documentBusy)}
                   className="block w-full text-body-sm text-ink file:mr-3 file:h-8 file:px-3 file:rounded-pill file:border file:border-rule file:bg-white file:text-body-sm file:text-ink hover:file:bg-paper-sunk"
