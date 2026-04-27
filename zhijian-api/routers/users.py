@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 from core.utils import _utc_iso
 from services.data_store import _load_user_accounts, _load_user_services, _save_user_accounts
-from services.user_service import _generate_user_token, _get_or_create_user, _verify_user_token
+from services.user_service import _add_token_to_account, _generate_user_token, _get_or_create_user, _verify_user_token
 
 router = APIRouter()
 
@@ -77,13 +77,14 @@ async def user_wxlogin(
     user = _get_or_create_user(openid)
     token = _generate_user_token(openid)
 
-    # 写 token 到 Firestore + 本地
+    # 写 token 到 Firestore + 本地（多端支持）
     accounts = _load_user_accounts()
-    accounts[openid]["last_token"] = token
+    _add_token_to_account(accounts, openid, token)
     accounts[openid]["last_login"] = _utc_iso()
     # 存量微信用户静默补填角色字段
-    accounts[openid].setdefault("role",   "teacher")
-    accounts[openid].setdefault("org_id", "")
+    accounts[openid].setdefault("role",         "teacher")
+    accounts[openid].setdefault("org_id",        "")
+    accounts[openid].setdefault("active_tokens", [])
     _save_user_accounts(accounts)
 
     return {
@@ -145,6 +146,7 @@ async def user_register(payload: dict = Body(...)):
         "role":           "teacher",
         "org_id":         "",
         "last_token":     token,
+        "active_tokens":  [token],   # 多端支持
         "last_login":     now_iso,
         "created_at_utc": now_iso,
         "updated_at_utc": now_iso,
@@ -192,11 +194,12 @@ async def user_login(payload: dict = Body(...)):
 
     now_iso = _utc_iso()
     token   = _generate_user_token(user_id)
-    entry["last_token"]     = token
+    _add_token_to_account(accounts, user_id, token)
     entry["last_login"]     = now_iso
     entry["updated_at_utc"] = now_iso
-    entry.setdefault("role",   "teacher")
-    entry.setdefault("org_id", "")
+    entry.setdefault("role",           "teacher")
+    entry.setdefault("org_id",         "")
+    entry.setdefault("active_tokens",  [])
     _save_user_accounts(accounts)
 
     return {
