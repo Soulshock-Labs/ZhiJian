@@ -13,6 +13,17 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, type AuthResponse, registerUser, loginUser } from "@/lib/api";
 
 type Tab = "register" | "login";
+type RegisterRole = "teacher" | "org_admin" | "guest";
+
+const REGISTER_ROLE_OPTIONS: Array<{
+  value: RegisterRole;
+  label: string;
+  hint: string;
+}> = [
+  { value: "teacher", label: "幼师", hint: "适合日常生成周计划、观察记录" },
+  { value: "org_admin", label: "园长", hint: "适合园所统筹与教研管理" },
+  { value: "guest", label: "游客", hint: "先体验界面与基础流程" },
+];
 
 interface AuthModalProps {
   open: boolean;
@@ -31,33 +42,54 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
   const [memberNo, setMemberNo] = useState("");   // 登录用
   const [password, setPassword] = useState("");
   const [confirm, setConfirm]   = useState("");
+  const [registerRole, setRegisterRole] = useState<RegisterRole>("teacher");
   const [busy, setBusy]         = useState(false);
   const [error, setError]       = useState("");
   const [newMemberNo, setNewMemberNo] = useState(""); // 注册成功后显示
   const overlayRef = useRef<HTMLDivElement>(null);
+  const successTimerRef = useRef<number | null>(null);
+
+  function clearSuccessTimer() {
+    if (successTimerRef.current !== null) {
+      window.clearTimeout(successTimerRef.current);
+      successTimerRef.current = null;
+    }
+  }
 
   function switchTab(t: Tab) {
+    clearSuccessTimer();
     setTab(t);
     setError("");
     setPassword("");
     setConfirm("");
     setMemberNo("");
     setNewMemberNo("");
+    setRegisterRole("teacher");
+  }
+
+  function handleClose() {
+    clearSuccessTimer();
+    setBusy(false);
+    setError("");
+    setNewMemberNo("");
+    onClose();
   }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     }
     if (open) document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open]);
 
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
+
+  useEffect(() => clearSuccessTimer, []);
 
   if (!open) return null;
 
@@ -78,10 +110,15 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
     setError("");
     try {
       if (tab === "register") {
-        const data = await registerUser({ password: password.trim() });
+        const data = await registerUser({
+          password: password.trim(),
+          role: registerRole,
+        });
         setNewMemberNo(data.member_no || "");
         // 注册成功先展示会员号，3秒后回调
-        setTimeout(() => {
+        clearSuccessTimer();
+        successTimerRef.current = window.setTimeout(() => {
+          successTimerRef.current = null;
           onSuccess(data);
           setPassword("");
           setConfirm("");
@@ -115,9 +152,9 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
       ref={overlayRef}
       className="fixed inset-0 z-[500] flex items-center justify-center p-4"
       style={{ background: "rgba(30,28,26,0.55)", backdropFilter: "blur(3px)" }}
-      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      onClick={(e) => { if (e.target === overlayRef.current) handleClose(); }}
     >
-      <div className="relative w-full max-w-[380px] rounded-xl bg-paper shadow-2xl border border-rule overflow-hidden">
+      <div className="relative w-full max-w-[420px] rounded-xl bg-paper shadow-2xl border border-rule overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-0">
           <div className="flex items-center gap-2">
@@ -127,7 +164,7 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
             <span className="font-wenkai text-body tracking-wider text-ink">纸笺幼师</span>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="w-7 h-7 rounded-full text-ink-3 hover:bg-paper-sunk hover:text-ink grid place-items-center text-[18px] leading-none"
             aria-label="关闭"
           >
@@ -150,6 +187,21 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
               {t === "login" ? "登录" : "注册"}
             </button>
           ))}
+        </div>
+
+        <div className="mx-6 mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-rule bg-paper-sunk px-4 py-3">
+            <p className="text-body-sm font-semibold text-ink">内测中心</p>
+            <p className="mt-1 text-meta text-ink-3">
+              当前为内测版，注册后即可进入体验，后续可在工作台继续完善资料。
+            </p>
+          </div>
+          <div className="rounded-lg border border-rule bg-paper-sunk px-4 py-3">
+            <p className="text-body-sm font-semibold text-ink">兑换中心</p>
+            <p className="mt-1 text-meta text-ink-3">
+              登录后可使用卡密兑换会员、次数与余额权益。
+            </p>
+          </div>
         </div>
 
         {/* 注册成功：显示会员号 */}
@@ -187,6 +239,34 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
                 <p className="text-meta text-ink-2">
                   注册后系统自动分配你的会员号，请妥善保存，登录时使用。
                 </p>
+              </div>
+            )}
+
+            {tab === "register" && (
+              <div>
+                <label className={LABEL_CLS}>身份</label>
+                <div className="grid gap-2">
+                  {REGISTER_ROLE_OPTIONS.map((option) => {
+                    const active = registerRole === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setRegisterRole(option.value)}
+                        className={[
+                          "w-full rounded-lg border px-3 py-3 text-left transition-colors",
+                          active
+                            ? "border-brand bg-[color-mix(in_oklch,var(--color-brand),white_88%)] shadow-sm"
+                            : "border-rule bg-white hover:border-brand/40 hover:bg-paper-hi",
+                        ].join(" ")}
+                        disabled={busy}
+                      >
+                        <p className="text-body-sm font-semibold text-ink">{option.label}</p>
+                        <p className="mt-1 text-meta text-ink-3">{option.hint}</p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 

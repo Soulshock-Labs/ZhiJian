@@ -18,6 +18,7 @@ from services.user_service import (
 )
 
 router = APIRouter()
+REGISTER_ROLES = {"guest", "teacher", "org_admin"}
 
 
 def _hash_password(password: str) -> str:
@@ -119,11 +120,14 @@ async def user_register(payload: dict = Body(...)):
     """
     password  = str(payload.get("password", "")).strip()
     member_no = str(payload.get("member_no", "")).strip()  # 可选，测试用
+    role      = str(payload.get("role", "teacher")).strip().lower() or "teacher"
 
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="密码至少6位")
+    if role not in REGISTER_ROLES:
+        raise HTTPException(status_code=400, detail="角色无效，请选择幼师、园长或游客")
 
-    account = _create_account(_hash_password(password), member_no=member_no)
+    account = _create_account(_hash_password(password), member_no=member_no, role=role)
     token   = _issue_token(account["account_id"])
 
     return _account_response(account, token, is_new=True)

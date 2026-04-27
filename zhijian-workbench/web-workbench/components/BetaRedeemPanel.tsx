@@ -43,10 +43,12 @@ export function BetaRedeemPanel() {
 
   function handleAuthSuccess(data: AuthResponse) {
     login({
-      token:   data.user_token,
+      token: data.user_token,
+      account_id: data.account_id,
+      member_no: data.member_no,
       user_id: data.user_id,
-      role:    data.role   || "teacher",
-      org_id:  data.org_id || "",
+      role: data.role || "teacher",
+      org_id: data.org_id || "",
     });
     setAuthOpen(false);
   }
@@ -108,12 +110,12 @@ export function BetaRedeemPanel() {
           <div className="mt-5 space-y-2">
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-full bg-brand text-white grid place-items-center text-body-sm font-semibold">
-                {user.user_id.replace(/\D/g, "").slice(-4) || user.user_id[0]?.toUpperCase()}
+                {user.member_no.slice(-4) || user.account_id.replace(/\D/g, "").slice(-4) || user.account_id[0]?.toUpperCase()}
               </div>
               <div>
-                <p className="text-body-sm font-medium text-ink">{user.user_id}</p>
+                <p className="text-body-sm font-medium text-ink">会员号 {user.member_no || "未分配"}</p>
                 <p className="text-meta text-ink-3">
-                  {{ teacher: "幼师", org_admin: "园长", platform_admin: "管理员" }[user.role] ?? user.role}
+                  {{ teacher: "幼师", org_admin: "园长", guest: "游客", platform_admin: "管理员" }[user.role] ?? user.role}
                 </p>
               </div>
             </div>
@@ -122,7 +124,7 @@ export function BetaRedeemPanel() {
         ) : (
           /* 未登录 — 引导注册 */
           <div className="mt-4 space-y-3">
-            <p className="text-meta text-ink-2">注册账号即可使用 AI 生成功能，支持手机号密码登录</p>
+            <p className="text-meta text-ink-2">注册后系统自动分配会员号，使用会员号和密码登录</p>
             <div className="flex gap-3">
               <button
                 type="button"
@@ -159,7 +161,7 @@ export function BetaRedeemPanel() {
               <div className="flex-1">
                 <p className="text-meta text-ink-3 mb-1.5">当前账号</p>
                 <div className="h-8 px-3 rounded-sm border border-rule bg-paper-sunk flex items-center text-body-sm text-ink-2">
-                  {user?.user_id}
+                  会员号 {user?.member_no || "未分配"}
                 </div>
               </div>
               <div className="flex-1">

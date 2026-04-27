@@ -398,10 +398,12 @@ export type AuthResponse = {
 
 export function registerUser(params: {
   password: string;
+  role?: string;
   member_no?: string;  // 仅测试用，生产环境不传
 }): Promise<AuthResponse> {
   return apiPost<AuthResponse>("/user/register", {
     password:  params.password,
+    role:      params.role ?? "teacher",
     member_no: params.member_no ?? "",
   });
 }

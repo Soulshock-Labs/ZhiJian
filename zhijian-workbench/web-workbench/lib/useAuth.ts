@@ -5,12 +5,13 @@
  *
  * 存储结构（localStorage）：
  *   zj_user_token   string   登录 token
- *   zj_user_id      string   用户 ID（手机号）
+ *   zj_account_id   string   账号主键（uid_xxx）
+ *   zj_member_no    string   会员号（如 10000）
  *   zj_user_role    string   角色：teacher / org_admin / platform_admin
  *   zj_org_id       string   所属园所 ID（暂时为 ""）
  *
  * 对外暴露：
- *   user        { token, user_id, role, org_id } | null
+ *   user        { token, account_id, member_no, user_id, role, org_id } | null
  *   login()     写入并广播
  *   logout()    清除并广播
  *   isLoggedIn  boolean
@@ -19,29 +20,38 @@
 import { useEffect, useState, useCallback } from "react";
 
 const KEYS = {
-  token:   "zj_user_token",
-  user_id: "zj_user_id",
-  role:    "zj_user_role",
-  org_id:  "zj_org_id",
+  token:      "zj_user_token",
+  account_id: "zj_account_id",
+  member_no:  "zj_member_no",
+  role:       "zj_user_role",
+  org_id:     "zj_org_id",
 } as const;
 
 export type AuthUser = {
-  token:   string;
-  user_id: string;
-  role:    string;
-  org_id:  string;
+  token:      string;
+  account_id: string;
+  member_no:  string;
+  user_id:    string;
+  role:       string;
+  org_id:     string;
 };
 
 function readFromStorage(): AuthUser | null {
   if (typeof window === "undefined") return null;
   try {
-    const token   = localStorage.getItem(KEYS.token)   || "";
-    const user_id = localStorage.getItem(KEYS.user_id) || "";
-    if (!token || !user_id) return null;
+    const token = localStorage.getItem(KEYS.token) || "";
+    const account_id =
+      localStorage.getItem(KEYS.account_id) ||
+      localStorage.getItem("zj_user_id") ||
+      localStorage.getItem("user_id") ||
+      "";
+    if (!token || !account_id) return null;
     return {
       token,
-      user_id,
-      role:   localStorage.getItem(KEYS.role)   || "teacher",
+      account_id,
+      member_no: localStorage.getItem(KEYS.member_no) || "",
+      user_id: account_id,
+      role: localStorage.getItem(KEYS.role) || "teacher",
       org_id: localStorage.getItem(KEYS.org_id) || "",
     };
   } catch {
@@ -51,13 +61,15 @@ function readFromStorage(): AuthUser | null {
 
 function writeToStorage(user: AuthUser) {
   try {
-    localStorage.setItem(KEYS.token,   user.token);
-    localStorage.setItem(KEYS.user_id, user.user_id);
-    localStorage.setItem(KEYS.role,    user.role);
-    localStorage.setItem(KEYS.org_id,  user.org_id);
-    // 同时更新旧 key，兼容 BetaRedeemPanel 等旧逻辑
-    localStorage.setItem("user_id", user.user_id);
-    localStorage.setItem("STA_REDEEM_USER_ID", user.user_id);
+    localStorage.setItem(KEYS.token, user.token);
+    localStorage.setItem(KEYS.account_id, user.account_id);
+    localStorage.setItem(KEYS.member_no, user.member_no);
+    localStorage.setItem(KEYS.role, user.role);
+    localStorage.setItem(KEYS.org_id, user.org_id);
+    // 兼容旧逻辑：旧 user_id 继续写 account_id，避免文档空间等接口串不起来
+    localStorage.setItem("zj_user_id", user.account_id);
+    localStorage.setItem("user_id", user.account_id);
+    localStorage.setItem("STA_REDEEM_USER_ID", user.account_id);
   } catch {
     // ignore
   }
@@ -66,6 +78,9 @@ function writeToStorage(user: AuthUser) {
 function clearStorage() {
   try {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+    localStorage.removeItem("zj_user_id");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("STA_REDEEM_USER_ID");
   } catch {
     // ignore
   }

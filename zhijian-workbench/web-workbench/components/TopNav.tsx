@@ -19,22 +19,25 @@ export function TopNav() {
 
   function handleAuthSuccess(data: AuthResponse) {
     login({
-      token:   data.user_token,
+      token: data.user_token,
+      account_id: data.account_id,
+      member_no: data.member_no,
       user_id: data.user_id,
-      role:    data.role   || "teacher",
-      org_id:  data.org_id || "",
+      role: data.role || "teacher",
+      org_id: data.org_id || "",
     });
     setAuthOpen(false);
   }
 
-  // 头像首字（手机号取后4位，其它取首字符）
+  // 头像优先显示会员号后4位，其次用 account_id 派生
   const avatarLabel = user
-    ? user.user_id.replace(/\D/g, "").slice(-4) || user.user_id[0]?.toUpperCase() || "U"
+    ? user.member_no.slice(-4) || user.account_id.replace(/\D/g, "").slice(-4) || user.account_id[0]?.toUpperCase() || "U"
     : "";
 
   const roleLabel: Record<string, string> = {
     teacher:          "幼师",
     org_admin:        "园长",
+    guest:            "游客",
     platform_admin:   "管理员",
   };
 
@@ -110,7 +113,9 @@ export function TopNav() {
                   >
                     <div className="px-4 py-3 border-b border-rule">
                       <p className="text-body-sm font-medium text-ink truncate">{user.user_id}</p>
-                      <p className="text-meta text-ink-3 mt-0.5">{roleLabel[user.role] ?? user.role}</p>
+                      <p className="text-meta text-ink-3 mt-0.5">
+                        会员号 {user.member_no || "未分配"} · {roleLabel[user.role] ?? user.role}
+                      </p>
                     </div>
                     <button
                       onClick={() => { logout(); setMenuOpen(false); }}

@@ -218,7 +218,7 @@ def _get_or_create_user(openid: str) -> dict:
     return entry
 
 
-def _create_account(password_hash: str, member_no: str = "") -> dict:
+def _create_account(password_hash: str, member_no: str = "", role: str = "teacher") -> dict:
     """
     注册：只需密码，系统自动分配会员号。
     member_no 可手动指定（测试用），不指定则自动递增。
@@ -241,7 +241,7 @@ def _create_account(password_hash: str, member_no: str = "") -> dict:
         "phone":          "",       # 小程序绑定时填入
         "openid":         "",       # 小程序登录时填入
         "password_hash":  password_hash,
-        "role":           "teacher",
+        "role":           role,
         "org_id":         "",
         "active_tokens":  [],
         "last_token":     None,
