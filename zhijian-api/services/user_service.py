@@ -51,6 +51,10 @@ def _index_key_phone(phone: str) -> str:
     return f"phone:{phone.strip().lower()}"
 
 
+def _index_key_member_no(member_no: str) -> str:
+    return f"member_no:{member_no.strip()}"
+
+
 def _index_key_openid(openid: str) -> str:
     return f"openid:{openid.strip()}"
 
@@ -77,6 +81,8 @@ def _rebuild_index_for_account(index: dict, account: dict) -> None:
         index[_index_key_phone(account["phone"])] = aid
     if account.get("openid"):
         index[_index_key_openid(account["openid"])] = aid
+    if account.get("member_no"):
+        index[_index_key_member_no(account["member_no"])] = aid
     _index_add_token(index, aid, account.get("active_tokens") or [])
 
 
@@ -212,24 +218,28 @@ def _get_or_create_user(openid: str) -> dict:
     return entry
 
 
-def _create_phone_account(phone: str, password_hash: str) -> dict:
-    """手机号注册：创建新账号，返回 account dict。已存在则抛 409。"""
+def _create_account(password_hash: str, member_no: str = "") -> dict:
+    """
+    注册：只需密码，系统自动分配会员号。
+    member_no 可手动指定（测试用），不指定则自动递增。
+    """
     accounts = _load_user_accounts()
     index    = _load_account_index()
     _ensure_new_format(accounts, index)
 
-    key = _index_key_phone(phone)
-    if key in index and index[key] in accounts:
-        raise HTTPException(status_code=409, detail="该手机号已注册，请直接登录")
-
     now = _utc_iso()
     aid = _new_account_id()
-    mno = _next_member_no()
+    mno = member_no.strip() if member_no.strip() else _next_member_no()
+
+    # 检查会员号唯一性（测试账号手动指定时）
+    if _index_key_member_no(mno) in index:
+        raise HTTPException(status_code=409, detail=f"会员号 {mno} 已存在")
+
     entry: dict = {
         "account_id":     aid,
         "member_no":      mno,
-        "phone":          phone,
-        "openid":         "",
+        "phone":          "",       # 小程序绑定时填入
+        "openid":         "",       # 小程序登录时填入
         "password_hash":  password_hash,
         "role":           "teacher",
         "org_id":         "",
@@ -245,20 +255,32 @@ def _create_phone_account(phone: str, password_hash: str) -> dict:
         "updated_at_utc": now,
     }
     accounts[aid] = entry
-    index[key]    = aid
+    index[_index_key_member_no(mno)] = aid
     _save_user_accounts(accounts)
     _save_account_index(index)
-    logger.info("新账号（手机）：aid=%s member_no=%s phone=%s", aid, mno, phone)
+    logger.info("新账号：aid=%s member_no=%s", aid, mno)
     return entry
 
 
 def _get_account_by_phone(phone: str) -> dict | None:
-    """按手机号查账号，不存在返回 None。"""
+    """按手机号查账号（小程序绑定用），不存在返回 None。"""
     accounts = _load_user_accounts()
     index    = _load_account_index()
     _ensure_new_format(accounts, index)
 
     aid = index.get(_index_key_phone(phone))
+    if not aid:
+        return None
+    return accounts.get(aid)
+
+
+def _get_account_by_member_no(member_no: str) -> dict | None:
+    """按会员号查账号（Web/Android 登录用），不存在返回 None。"""
+    accounts = _load_user_accounts()
+    index    = _load_account_index()
+    _ensure_new_format(accounts, index)
+
+    aid = index.get(_index_key_member_no(member_no.strip()))
     if not aid:
         return None
     return accounts.get(aid)

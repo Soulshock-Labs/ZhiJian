@@ -8,7 +8,8 @@ from datetime import datetime, timezone
 from core.utils import _utc_iso
 from services.data_store import _load_user_accounts, _load_user_services, _save_user_accounts
 from services.user_service import (
-    _create_phone_account,
+    _create_account,
+    _get_account_by_member_no,
     _get_account_by_phone,
     _get_or_create_user,
     _issue_token,
@@ -112,18 +113,17 @@ async def user_wxlogin(
 @router.post("/user/register", tags=["用户"])
 async def user_register(payload: dict = Body(...)):
     """
-    注册：手机号 + 密码。
-    手机号已存在 → 409；新用户 → 创建账号并直接登录。
+    注册：只需密码，系统自动分配会员号（如 10000）。
+    会员号即用户名，用于后续登录。
+    测试时可传 member_no 手动指定（4位测试号）。
     """
-    phone    = str(payload.get("phone", "") or payload.get("user_id", "")).strip()
-    password = str(payload.get("password", "")).strip()
+    password  = str(payload.get("password", "")).strip()
+    member_no = str(payload.get("member_no", "")).strip()  # 可选，测试用
 
-    if len(phone) < 4:
-        raise HTTPException(status_code=400, detail="请填写有效手机号（至少4位）")
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="密码至少6位")
 
-    account = _create_phone_account(phone, _hash_password(password))
+    account = _create_account(_hash_password(password), member_no=member_no)
     token   = _issue_token(account["account_id"])
 
     return _account_response(account, token, is_new=True)
@@ -133,15 +133,16 @@ async def user_register(payload: dict = Body(...)):
 @router.post("/user/login", tags=["用户"])
 async def user_login(payload: dict = Body(...)):
     """
-    登录：手机号 + 密码，返回 user_token。
+    登录：会员号 + 密码。
+    会员号即注册时系统分配的数字 ID（如 10000）。
     """
-    phone    = str(payload.get("phone", "") or payload.get("user_id", "")).strip()
-    password = str(payload.get("password", "")).strip()
+    member_no = str(payload.get("member_no", "") or payload.get("user_id", "")).strip()
+    password  = str(payload.get("password", "")).strip()
 
-    if not phone or not password:
-        raise HTTPException(status_code=400, detail="请填写手机号和密码")
+    if not member_no or not password:
+        raise HTTPException(status_code=400, detail="请填写会员号和密码")
 
-    account = _get_account_by_phone(phone)
+    account = _get_account_by_member_no(member_no)
     if not account:
         raise HTTPException(status_code=404, detail="账号不存在，请先注册")
 
@@ -153,7 +154,6 @@ async def user_login(payload: dict = Body(...)):
 
     token = _issue_token(account["account_id"])
 
-    # 读最新 account
     accounts = _load_user_accounts()
     account  = accounts.get(account["account_id"], account)
 
