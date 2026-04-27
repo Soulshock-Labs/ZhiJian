@@ -118,8 +118,8 @@ async def user_register(payload: dict = Body(...)):
     phone    = str(payload.get("phone", "") or payload.get("user_id", "")).strip()
     password = str(payload.get("password", "")).strip()
 
-    if len(phone) < 5:
-        raise HTTPException(status_code=400, detail="请填写有效手机号（至少5位）")
+    if len(phone) < 4:
+        raise HTTPException(status_code=400, detail="请填写有效手机号（至少4位）")
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="密码至少6位")
 
