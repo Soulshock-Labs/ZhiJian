@@ -7,7 +7,7 @@ import os
 
 
 
-from core.settings import AI_MODEL, DASHSCOPE_API_KEY, _BASE_DIR, _FRONTEND
+from core.settings import AI_MODEL, APP_ENV, DASHSCOPE_API_KEY, _BASE_DIR, _FRONTEND
 router = APIRouter()
 @router.get("/", tags=["前端"])
 async def serve_frontend():
@@ -23,6 +23,8 @@ async def serve_frontend():
 @router.get("/mock-token", tags=["工具"], include_in_schema=False)
 async def mock_token_page():
     """第三方商城对接测试台（临时测试页）。"""
+    if APP_ENV == "production":
+        raise HTTPException(status_code=404, detail="测试页未开放")
     p = _BASE_DIR / "mock-mall.html"
     if p.exists():
         return FileResponse(str(p), media_type="text/html")

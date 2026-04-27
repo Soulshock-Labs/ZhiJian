@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 APP_VERSION = os.getenv("APP_VERSION", "1.2.1")
+APP_ENV = str(os.getenv("APP_ENV", "development")).strip().lower() or "development"
 
 def _env_truthy(name: str, default: str = "0") -> bool:
     raw = os.getenv(name, default)
@@ -39,6 +40,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 
 VOICE_TRANSCRIBE_MODEL = os.getenv("VOICE_TRANSCRIBE_MODEL", "whisper-1")
+MAX_UPLOAD_FILE_SIZE = int(os.getenv("MAX_UPLOAD_FILE_SIZE", str(10 * 1024 * 1024)) or (10 * 1024 * 1024))
 
 _BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -91,32 +93,7 @@ _DEFAULT_APP_STATS = {
     "register_count": 0,
 }
 
-_DEFAULT_REDEEM_CODES = [
-    {
-        "code": "VIP2026",
-        "status": "unused",
-        "token_type": "auto",
-        "expires_at": "2026-12-31T23:59:59+00:00",
-        "service": {"type": "membership", "name": "会员", "days": 30},
-        "description": "30天会员",
-    },
-    {
-        "code": "CZ100",
-        "status": "unused",
-        "token_type": "auto",
-        "expires_at": "2026-12-31T23:59:59+00:00",
-        "service": {"type": "balance", "name": "充值", "amount": 100},
-        "description": "充值100元",
-    },
-    {
-        "code": "TIMES20",
-        "status": "unused",
-        "token_type": "auto",
-        "expires_at": "2026-12-31T23:59:59+00:00",
-        "service": {"type": "quota", "name": "次数", "amount": 20},
-        "description": "增加20次",
-    },
-]
+_DEFAULT_REDEEM_CODES: list[dict] = []
 
 def _parse_partner_tokens(raw: str) -> set[str]:
     items = [part.strip() for part in str(raw or "").split(",")]
@@ -166,3 +143,26 @@ _CODE_ALPHABET = "".join(c for c in (string.ascii_uppercase + string.digits) if 
 _CODE_PREFIX_MAP = {"membership": "M", "balance": "B", "quota": "Q"}
 
 _FRONTEND = str(_BASE_DIR / "index.html")
+
+
+def _default_cors_origins() -> list[str]:
+    if APP_ENV == "production":
+        return [
+            "https://zhijian.me",
+            "https://www.zhijian.me",
+            "https://test.zhijian.me",
+        ]
+    return [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://test.zhijian.me",
+    ]
+
+
+def _parse_cors_origins(raw: str) -> list[str]:
+    items = [item.strip() for item in str(raw or "").split(",")]
+    values = [item for item in items if item]
+    return values or _default_cors_origins()
+
+
+CORS_ALLOW_ORIGINS = _parse_cors_origins(os.getenv("CORS_ALLOW_ORIGINS", ""))

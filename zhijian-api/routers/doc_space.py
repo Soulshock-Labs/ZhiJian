@@ -15,6 +15,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
+from core.auth import require_permission
+from core.settings import MAX_UPLOAD_FILE_SIZE
+from core.utils import _read_upload_with_limit
 from word_engine.doc_reader import extract_doc_context, to_markdown, IMAGE_EXTS
 from services.doc_space import (
     save_doc_to_space,
@@ -31,8 +34,8 @@ ALLOWED_EXTS = {"docx", "pdf"} | IMAGE_EXTS
 # ── POST /doc-space/upload ────────────────────────────────────────────
 @router.post("/upload")
 async def upload_to_doc_space(
+    user_token: str     = Form(..., description="登录 token"),
     file:    UploadFile = File(..., description="文档或图片（.docx/.pdf/.jpg/.png/.webp）"),
-    user_id: str        = Form(..., description="用户 ID"),
 ):
     """
     上传文档到用户空间：
@@ -45,8 +48,8 @@ async def upload_to_doc_space(
     这是一个独立流程，和生成周计划解耦。
     后续生成时传 doc_id，无需重复上传。
     """
-    if not user_id.strip():
-        raise HTTPException(status_code=400, detail="user_id 不能为空")
+    account = require_permission(user_token, "doc_space")
+    account_id = str(account.get("account_id", "")).strip()
 
     filename = file.filename or "unknown"
     ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
@@ -57,9 +60,7 @@ async def upload_to_doc_space(
             detail=f"不支持的格式：{ext}，支持 .docx、.pdf、.jpg、.jpeg、.png、.webp",
         )
 
-    file_bytes = await file.read()
-    if not file_bytes:
-        raise HTTPException(status_code=400, detail="上传文件为空")
+    file_bytes = await _read_upload_with_limit(file, MAX_UPLOAD_FILE_SIZE, empty_detail="上传文件为空")
 
     # ── 提取文本 → MD ──
     ctx = extract_doc_context(file_bytes, filename)
@@ -76,7 +77,7 @@ async def upload_to_doc_space(
         "table_count": ctx.table_count,
     }
     meta = save_doc_to_space(
-        user_id=user_id.strip(),
+        user_id=account_id,
         filename=filename,
         file_bytes=file_bytes,
         md_content=md_content,
@@ -98,11 +99,10 @@ async def upload_to_doc_space(
 
 # ── GET /doc-space/list ───────────────────────────────────────────────
 @router.get("/list")
-async def list_docs(user_id: str):
+async def list_docs(user_token: str):
     """列出用户空间中所有文档（按上传时间倒序）。"""
-    if not user_id.strip():
-        raise HTTPException(status_code=400, detail="user_id 不能为空")
-    docs = list_user_docs(user_id.strip())
+    account = require_permission(user_token, "doc_space")
+    docs = list_user_docs(str(account.get("account_id", "")).strip())
     return {
         "status": "ok",
         "count":  len(docs),
@@ -112,11 +112,10 @@ async def list_docs(user_id: str):
 
 # ── GET /doc-space/{doc_id}/md ────────────────────────────────────────
 @router.get("/{doc_id}/md")
-async def get_doc_markdown(doc_id: str, user_id: str):
+async def get_doc_markdown(doc_id: str, user_token: str):
     """读取某份文档的 Markdown 内容（供预览或 Agent 使用）。"""
-    if not user_id.strip():
-        raise HTTPException(status_code=400, detail="user_id 不能为空")
-    md = get_doc_md(user_id.strip(), doc_id)
+    account = require_permission(user_token, "doc_space")
+    md = get_doc_md(str(account.get("account_id", "")).strip(), doc_id)
     if md is None:
         raise HTTPException(status_code=404, detail="文档不存在")
     return {
@@ -129,11 +128,10 @@ async def get_doc_markdown(doc_id: str, user_id: str):
 
 # ── DELETE /doc-space/{doc_id} ────────────────────────────────────────
 @router.delete("/{doc_id}")
-async def remove_doc(doc_id: str, user_id: str):
+async def remove_doc(doc_id: str, user_token: str):
     """从用户空间删除某份文档（原文件 + MD + 元数据）。"""
-    if not user_id.strip():
-        raise HTTPException(status_code=400, detail="user_id 不能为空")
-    ok = delete_doc(user_id.strip(), doc_id)
+    account = require_permission(user_token, "doc_space")
+    ok = delete_doc(str(account.get("account_id", "")).strip(), doc_id)
     if not ok:
         raise HTTPException(status_code=404, detail="文档不存在")
     return {"status": "ok", "doc_id": doc_id, "message": "已删除"}

@@ -2,10 +2,10 @@ import { AppShell } from "@/components/AppShell";
 import { HeroSection } from "@/components/HeroSection";
 import { TaskCards } from "@/components/TaskCards";
 import { QuickActions } from "@/components/QuickActions";
-import { BetaRedeemPanel } from "@/components/BetaRedeemPanel";
 import { RecentList } from "@/components/RecentList";
 import { StatusStrip } from "@/components/StatusStrip";
 import { HealthBadge } from "@/components/HealthBadge";
+import { AdminConsolePanel } from "@/components/AdminConsolePanel";
 
 // Switch to 'empty' | 'quota' to preview those states.
 const state: "default" | "empty" | "quota" = "default";
@@ -16,7 +16,7 @@ export default function Page() {
       <HeroSection state={state} />
       <TaskCards />
       <QuickActions />
-      <BetaRedeemPanel />
+      <AdminConsolePanel />
       <RecentList />
       <StatusStrip />
       <HealthBadge />

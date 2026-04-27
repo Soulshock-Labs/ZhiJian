@@ -4,6 +4,7 @@ import json
 
 from core.settings import (
     _ACCOUNT_INDEX_FILE,
+    APP_ENV,
     _APP_STATS_FILE,
     _DEFAULT_APP_STATS,
     _DEFAULT_REDEEM_CODES,
@@ -22,6 +23,20 @@ from core.settings import (
 )
 from core.state import FIRESTORE_ENABLED, _fs, logger
 from core.utils import _parse_gs_uri, _read_json_file
+
+
+def _merge_string_dicts(remote: dict[str, str], local: dict[str, str]) -> dict[str, str]:
+    out = dict(remote)
+    out.update(local)
+    return out
+
+
+def _merge_object_dicts(remote: dict[str, dict], local: dict[str, dict]) -> dict[str, dict]:
+    out = {k: dict(v) for k, v in remote.items()}
+    for key, value in local.items():
+        if isinstance(value, dict):
+            out[key] = dict(value)
+    return out
 
 def _load_template_stats() -> dict[str, int]:
     if not _TEMPLATE_STATS_FILE.exists():
@@ -208,6 +223,8 @@ def _load_redeem_codes() -> dict[str, dict]:
         logger.info("GCS 卡密库不存在或暂不可读，回退本地 redeem_codes.json")
 
     if not _REDEEM_CODES_FILE.exists():
+        if APP_ENV == "production":
+            raise RuntimeError("生产环境缺少 redeem_codes.json，已拒绝加载默认卡密")
         try:
             _REDEEM_CODES_FILE.write_text(
                 json.dumps(_DEFAULT_REDEEM_CODES, ensure_ascii=False, indent=2),
@@ -241,25 +258,26 @@ def _save_redeem_codes(codes: dict[str, dict]) -> None:
         logger.warning("保存卡密库失败：%s", e)
 
 def _load_user_services() -> dict[str, dict]:
-    """读用户服务：优先 Firestore，回退本地 JSON。"""
+    """读用户服务：合并 Firestore 与本地 JSON，本地优先。"""
+    remote: dict[str, dict] = {}
     if FIRESTORE_ENABLED:
         try:
             docs = _fs().collection("user_services").stream()
-            result = {}
             for doc in docs:
-                result[doc.id] = doc.to_dict()
-            if result:
-                return result
+                data = doc.to_dict()
+                if isinstance(data, dict):
+                    remote[doc.id] = data
         except Exception as e:
             logger.warning("Firestore 读取用户服务失败，回退本地：%s", e)
+    local: dict[str, dict] = {}
     if not _USER_SERVICE_FILE.exists():
-        return {}
+        return remote
     try:
         data = json.loads(_USER_SERVICE_FILE.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
+        local = data if isinstance(data, dict) else {}
     except Exception as e:
         logger.warning("读取用户服务失败：%s", e)
-        return {}
+    return _merge_object_dicts(remote, local)
 
 def _save_user_services(data: dict[str, dict]) -> None:
     """写用户服务：同时写 Firestore 和本地 JSON（双保险）。"""
@@ -313,25 +331,26 @@ def _enqueue_webhook_retry(payload: dict) -> None:
     _save_webhook_retries(items)
 
 def _load_user_accounts() -> dict[str, dict]:
-    """读用户账户：优先 Firestore，回退本地 JSON。"""
+    """读用户账户：合并 Firestore 与本地 JSON，本地优先。"""
+    remote: dict[str, dict] = {}
     if FIRESTORE_ENABLED:
         try:
             docs = _fs().collection("users").stream()
-            result = {}
             for doc in docs:
-                result[doc.id] = doc.to_dict()
-            if result:
-                return result
+                data = doc.to_dict()
+                if isinstance(data, dict):
+                    remote[doc.id] = data
         except Exception as e:
             logger.warning("Firestore 读取用户账户失败，回退本地：%s", e)
+    local: dict[str, dict] = {}
     if not _USER_ACCOUNTS_FILE.exists():
-        return {}
+        return remote
     try:
         data = json.loads(_USER_ACCOUNTS_FILE.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
+        local = data if isinstance(data, dict) else {}
     except Exception as e:
         logger.warning("读取用户账户失败：%s", e)
-        return {}
+    return _merge_object_dicts(remote, local)
 
 def _save_user_accounts(data: dict[str, dict]) -> None:
     """写用户账户：同时写 Firestore 和本地 JSON（双保险）。"""
@@ -364,21 +383,24 @@ def _load_account_index() -> dict[str, str]:
       "openid:wx_yyy":     "uid_xxx",
     }
     """
+    remote: dict[str, str] = {}
     if FIRESTORE_ENABLED:
         try:
             doc = _fs().collection("meta").document("account_index").get()
             if doc.exists:
                 data = doc.to_dict() or {}
-                return {k: v for k, v in data.items() if isinstance(v, str)}
+                remote = {k: v for k, v in data.items() if isinstance(v, str)}
         except Exception as e:
             logger.warning("Firestore 读取 account_index 失败，回退本地：%s", e)
+    local: dict[str, str] = {}
     if not _ACCOUNT_INDEX_FILE.exists():
-        return {}
+        return remote
     try:
         data = json.loads(_ACCOUNT_INDEX_FILE.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
+        local = data if isinstance(data, dict) else {}
     except Exception:
-        return {}
+        local = {}
+    return _merge_string_dicts(remote, local)
 
 
 def _save_account_index(index: dict[str, str]) -> None:
@@ -399,7 +421,7 @@ def _save_account_index(index: dict[str, str]) -> None:
 # 会员号计数器（6位递增，从 10000 起）
 # ══════════════════════════════════════════════════════════════════════
 
-_MEMBER_NO_START = 10000
+_MEMBER_NO_START = 60001
 
 
 def _next_member_no() -> str:
@@ -412,8 +434,9 @@ def _next_member_no() -> str:
             @_fs().transaction()  # type: ignore[misc]
             def _tx(transaction, ref):  # type: ignore[misc]
                 snap = ref.get(transaction=transaction)
-                current = snap.get("value") if snap.exists else _MEMBER_NO_START - 1
-                next_no = int(current) + 1
+                current = int(snap.get("value")) if snap.exists and snap.get("value") is not None else _MEMBER_NO_START - 1
+                current = max(current, _MEMBER_NO_START - 1)
+                next_no = current + 1
                 transaction.set(ref, {"value": next_no})
                 return next_no
             no = _tx(ref)  # type: ignore[call-arg]
@@ -427,6 +450,7 @@ def _next_member_no() -> str:
             current = int(json.loads(_MEMBER_NO_FILE.read_text(encoding="utf-8")).get("value", _MEMBER_NO_START - 1))
         else:
             current = _MEMBER_NO_START - 1
+        current = max(current, _MEMBER_NO_START - 1)
         next_no = current + 1
         _MEMBER_NO_FILE.write_text(
             json.dumps({"value": next_no}, ensure_ascii=False), encoding="utf-8"

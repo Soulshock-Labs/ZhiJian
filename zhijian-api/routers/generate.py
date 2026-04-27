@@ -9,8 +9,9 @@ from uuid import uuid4
 from docx.opc.exceptions import PackageNotFoundError
 
 from ai_service import _extract_template_outline, _normalize_content_payload, generate_content
-from core.settings import AI_MODEL, _WEEKLY_DRAFT_LOG_FILE
-from core.utils import _append_jsonl, _utc_iso
+from core.auth import require_permission
+from core.settings import AI_MODEL, MAX_UPLOAD_FILE_SIZE, _WEEKLY_DRAFT_LOG_FILE
+from core.utils import _append_jsonl, _read_upload_with_limit, _utc_iso
 from services.data_store import _load_user_accounts
 from services.generate_service import _build_mini_doc_payload, _generate_weekly_for_user
 from word_engine.aspose_filler import _export_http_headers
@@ -25,6 +26,7 @@ from word_engine.template_tools import _build_standard_weekly_template_bytes
 router = APIRouter()
 @router.post("/generate", tags=["核心接口"])
 async def generate(
+    user_token: str = Form(..., description="登录 token"),
     theme: str = Form(..., description="教学主题"),
     phil: str = Form(..., description="教育理念"),
     activities: str = Form("[]", description="活动重点列表（JSON 数组字符串）"),
@@ -49,6 +51,8 @@ async def generate(
     默认返回填充好的 `.docx` 文件流；
     当 `client=mini` 时，返回包含 `file_base64` 的 JSON，便于小程序直接写本地文件。
     """
+    require_permission(user_token, "generate")
+
     # ── 校验文件格式 ──
     if not template.filename.lower().endswith(".docx"):
         raise HTTPException(
@@ -65,9 +69,7 @@ async def generate(
         acts_list = []
 
     # ── 读取模板二进制 ──
-    template_bytes = await template.read()
-    if len(template_bytes) == 0:
-        raise HTTPException(status_code=400, detail="上传的文件为空")
+    template_bytes = await _read_upload_with_limit(template, MAX_UPLOAD_FILE_SIZE)
     _append_jsonl(_WEEKLY_DRAFT_LOG_FILE, {
         "ts": _utc_iso(),
         "event": "template_submit",
@@ -161,6 +163,7 @@ async def generate(
     )
 @router.post("/preview", tags=["调试"])
 async def preview(
+    user_token: str = Form(...),
     theme: str = Form(...),
     phil: str = Form(...),
     activities: str = Form("[]"),
@@ -169,11 +172,13 @@ async def preview(
     class_level: str = Form("", description="班级类型：小班 / 中班 / 大班"),
 ):
     """返回 AI 生成的结构化内容 JSON，用于前端预览和调试（无需上传文件）"""
+    require_permission(user_token, "generate")
     acts_list: list[str] = json.loads(activities) if activities else []
     content = generate_content(theme, phil, acts_list, child_initiative, child_desc, class_level=class_level.strip())
     return {"status": "ok", "theme": theme, "philosophy": phil, "content": content}
 @router.post("/standard-weekly-draft", tags=["标准周模板"])
 async def standard_weekly_draft(
+    user_token: str = Form(...),
     theme: str = Form(...),
     phil: str = Form(...),
     activities: str = Form("[]"),
@@ -182,6 +187,7 @@ async def standard_weekly_draft(
     class_level: str = Form("", description="班级类型：小班 / 中班 / 大班"),
 ):
     """生成标准周模板草稿（JSON，可在前端修改后再导出）。"""
+    require_permission(user_token, "generate")
     try:
         acts_list: list[str] = json.loads(activities) if activities else []
     except Exception:
@@ -215,9 +221,11 @@ async def standard_weekly_draft(
     }
 @router.post("/standard-weekly-export", tags=["标准周模板"])
 async def standard_weekly_export(
+    user_token: str = Form(..., description="登录 token"),
     draft_json: str = Form(..., description="前端可编辑草稿 JSON"),
 ):
     """按可编辑草稿导出标准周模板 Word。"""
+    require_permission(user_token, "generate")
     try:
         payload = json.loads(draft_json)
         if not isinstance(payload, dict):
@@ -298,6 +306,7 @@ async def batch_generate_weekly(payload: dict = Body(...)):
       "admin_token": "..."                   # 管理员 token（可选鉴权）
     }
     """
+    account = require_permission(str(payload.get("user_token", "")).strip(), "manage_platform")
     openids: list[str] = payload.get("openids", [])
     theme = str(payload.get("theme", "")).strip()
     phil = str(payload.get("phil", "以幼儿为中心")).strip()
@@ -311,11 +320,13 @@ async def batch_generate_weekly(payload: dict = Body(...)):
     if len(openids) > 50:
         raise HTTPException(status_code=400, detail="单次最多 50 位老师")
 
-    # asyncio 并发全部用户
-    tasks = [
-        _generate_weekly_for_user(openid, theme, phil, activities, class_level)
-        for openid in openids
-    ]
+    semaphore = asyncio.Semaphore(5)
+
+    async def limited_generate(openid: str):
+        async with semaphore:
+            return await _generate_weekly_for_user(openid, theme, phil, activities, class_level)
+
+    tasks = [limited_generate(openid) for openid in openids]
     results = await asyncio.gather(*tasks)
 
     ok_count = sum(1 for r in results if r.get("ok"))
@@ -326,11 +337,17 @@ async def batch_generate_weekly(payload: dict = Body(...)):
         "total": len(openids),
         "ok_count": ok_count,
         "fail_count": fail_count,
+        "viewer_member_no": str(account.get("member_no", "")).strip(),
         "results": list(results),
     }
 @router.get("/batch/users", tags=["批量速写"])
-async def batch_list_users():
+async def batch_list_users(user_token: str, offset: int = 0, limit: int = 100):
     """列出所有注册用户（openid + agent_profile），用于批量速写前选择目标。"""
+    require_permission(user_token, "manage_platform")
+    if offset < 0:
+        raise HTTPException(status_code=400, detail="offset 不能小于 0")
+    if limit <= 0 or limit > 200:
+        raise HTTPException(status_code=400, detail="limit 必须在 1-200 之间")
     accounts = _load_user_accounts()
     users = []
     for openid, entry in accounts.items():
@@ -340,4 +357,6 @@ async def batch_list_users():
             "agent": entry.get("agent_profile", {}),
             "created_at": entry.get("created_at", ""),
         })
-    return {"status": "ok", "count": len(users), "users": users}
+    users.sort(key=lambda item: item.get("created_at", ""), reverse=True)
+    page = users[offset: offset + limit]
+    return {"status": "ok", "count": len(users), "offset": offset, "limit": limit, "users": page}

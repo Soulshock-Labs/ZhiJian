@@ -4,6 +4,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from fastapi import HTTPException, UploadFile
+
 from core.state import logger
 
 def _append_jsonl(path: Path, payload: dict) -> None:
@@ -49,3 +51,12 @@ def _read_json_file(path: Path) -> dict:
         return payload if isinstance(payload, dict) else {}
     except Exception:
         return {}
+
+
+async def _read_upload_with_limit(file: UploadFile, max_bytes: int, *, empty_detail: str = "上传文件为空") -> bytes:
+    payload = await file.read()
+    if not payload:
+        raise HTTPException(status_code=400, detail=empty_detail)
+    if len(payload) > max_bytes:
+        raise HTTPException(status_code=413, detail=f"文件超过 {max_bytes // (1024 * 1024)}MB 限制")
+    return payload

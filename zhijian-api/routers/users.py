@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
 
+import bcrypt
 import hashlib
 from datetime import datetime, timezone
 
-from core.utils import _utc_iso
-from services.data_store import _load_user_accounts, _load_user_services, _save_user_accounts
+from core.auth import ROLE_PERMISSIONS, require_permission
+from core.settings import APP_ENV
+from core.utils import _parse_iso_datetime, _utc_iso
+from services.data_store import _load_redeem_codes, _load_user_accounts, _load_user_services, _save_user_accounts, _save_user_services
 from services.user_service import (
     _create_account,
     _get_account_by_member_no,
@@ -22,8 +25,25 @@ REGISTER_ROLES = {"guest", "teacher", "org_admin"}
 
 
 def _hash_password(password: str) -> str:
-    """SHA-256 哈希密码，不明文存储。"""
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+    """使用 bcrypt 存储密码。"""
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def _is_legacy_sha256(password_hash: str) -> bool:
+    value = str(password_hash or "").strip().lower()
+    return len(value) == 64 and all(ch in "0123456789abcdef" for ch in value)
+
+
+def _verify_password(password: str, password_hash: str) -> bool:
+    stored = str(password_hash or "").strip()
+    if not stored:
+        return False
+    if _is_legacy_sha256(stored):
+        return stored == hashlib.sha256(password.encode("utf-8")).hexdigest()
+    try:
+        return bcrypt.checkpw(password.encode("utf-8"), stored.encode("utf-8"))
+    except ValueError:
+        return False
 
 
 def _build_service_info(account_id: str) -> dict:
@@ -62,6 +82,13 @@ def _account_response(account: dict, token: str, is_new: bool = False) -> dict:
     }
 
 
+def _member_no_int(account: dict) -> int | None:
+    try:
+        return int(str(account.get("member_no", "")).strip())
+    except Exception:
+        return None
+
+
 # ── /user/wxlogin ─────────────────────────────────────────────────────
 @router.post("/user/wxlogin", tags=["用户"])
 async def user_wxlogin(
@@ -94,6 +121,8 @@ async def user_wxlogin(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"微信接口调用失败：{e}")
     else:
+        if APP_ENV == "production":
+            raise HTTPException(status_code=500, detail="微信登录配置缺失")
         openid = f"dev_{code[:16]}"
 
     account = _get_or_create_user(openid)
@@ -153,8 +182,15 @@ async def user_login(payload: dict = Body(...)):
     stored_hash = account.get("password_hash", "")
     if not stored_hash:
         raise HTTPException(status_code=400, detail="该账号未设置密码，请联系管理员")
-    if stored_hash != _hash_password(password):
+    if not _verify_password(password, stored_hash):
         raise HTTPException(status_code=401, detail="密码错误")
+
+    if _is_legacy_sha256(stored_hash):
+        accounts = _load_user_accounts()
+        if account["account_id"] in accounts:
+            accounts[account["account_id"]]["password_hash"] = _hash_password(password)
+            accounts[account["account_id"]]["updated_at_utc"] = _utc_iso()
+            _save_user_accounts(accounts)
 
     token = _issue_token(account["account_id"])
 
@@ -195,3 +231,228 @@ async def get_me(user_token: str):
     """获取当前登录用户信息。"""
     account = _verify_user_token_full(user_token)
     return _account_response(account, user_token)
+
+
+# ── /user/internal-beta/accounts ─────────────────────────────────────
+@router.get("/user/internal-beta/accounts", tags=["用户"])
+async def list_internal_beta_accounts(user_token: str, offset: int = 0, limit: int = 200):
+    """
+    返回内测账号列表。
+    - 仅 platform_admin 可访问
+    - member_no=1001 时，默认只返回另外 99 个（1002-1100）
+    - 其他平台管理员可返回整组内测账号
+    """
+    account = require_permission(user_token, "manage_platform")
+    if offset < 0:
+        raise HTTPException(status_code=400, detail="offset 不能小于 0")
+    if limit <= 0 or limit > 200:
+        raise HTTPException(status_code=400, detail="limit 必须在 1-200 之间")
+    accounts = _load_user_accounts()
+
+    def _as_int(value: str) -> int | None:
+        try:
+            return int(str(value).strip())
+        except Exception:
+            return None
+
+    caller_member_no = str(account.get("member_no", "")).strip()
+    rows: list[dict] = []
+    for entry in accounts.values():
+        if not isinstance(entry, dict):
+            continue
+        member_no = str(entry.get("member_no", "")).strip()
+        member_no_int = _as_int(member_no)
+        if member_no_int is None:
+            continue
+        if 1001 <= member_no_int <= 1100:
+            if caller_member_no == "1001" and member_no == "1001":
+                continue
+            rows.append({
+                "account_id": entry.get("account_id", ""),
+                "member_no": member_no,
+                "role": entry.get("role", "teacher"),
+                "org_id": entry.get("org_id", ""),
+                "created_at_utc": entry.get("created_at_utc", ""),
+                "updated_at_utc": entry.get("updated_at_utc", ""),
+            })
+
+    rows.sort(key=lambda item: int(item["member_no"]))
+    page = rows[offset: offset + limit]
+    return {
+        "ok": True,
+        "viewer_member_no": caller_member_no,
+        "count": len(rows),
+        "offset": offset,
+        "limit": limit,
+        "accounts": page,
+    }
+
+
+@router.get("/user/internal-beta/redeem-codes", tags=["用户"])
+async def list_internal_beta_redeem_codes(user_token: str):
+    """
+    返回内测兑换码使用情况。
+    仅 1001 / 10001 可访问。
+    """
+    account = require_permission(user_token, "manage_platform")
+    caller_member_no = str(account.get("member_no", "")).strip()
+    if caller_member_no not in {"1001", "10001"}:
+        raise HTTPException(status_code=403, detail="仅指定内测管理员可查看兑换码使用情况")
+
+    codes = _load_redeem_codes()
+    items: list[dict] = []
+    used = 0
+    unused = 0
+    expired = 0
+    for code, item in codes.items():
+        status = str(item.get("status", "unused")).strip().lower() or "unused"
+        expires_at = str(item.get("expires_at", "")).strip()
+        expire_dt = _parse_iso_datetime(expires_at)
+        if status == "used":
+          used += 1
+        elif expire_dt is not None and datetime.now(timezone.utc) > expire_dt:
+          expired += 1
+        else:
+          unused += 1
+
+        items.append({
+            "code": code,
+            "status": status,
+            "token_type": item.get("token_type", ""),
+            "description": item.get("description", ""),
+            "service": item.get("service", {}),
+            "expires_at": expires_at,
+            "used_by": item.get("used_by", ""),
+            "used_at_utc": item.get("used_at_utc", ""),
+            "batch": item.get("batch", ""),
+        })
+
+    items.sort(key=lambda row: row["code"])
+    return {
+        "ok": True,
+        "count": len(items),
+        "summary": {
+            "unused": unused,
+            "used": used,
+            "expired": expired,
+        },
+        "codes": items,
+    }
+
+
+@router.get("/user/admin/users", tags=["用户"])
+async def admin_list_users(user_token: str, offset: int = 0, limit: int = 500):
+    """
+    全量用户后台列表。
+    仅 10001 可访问，用于审核授权。
+    """
+    account = require_permission(user_token, "manage_platform")
+    if offset < 0:
+        raise HTTPException(status_code=400, detail="offset 不能小于 0")
+    if limit <= 0 or limit > 500:
+        raise HTTPException(status_code=400, detail="limit 必须在 1-500 之间")
+    caller_member_no = str(account.get("member_no", "")).strip()
+    if caller_member_no != "10001":
+        raise HTTPException(status_code=403, detail="仅主账号 10001 可查看全量用户信息")
+
+    accounts = _load_user_accounts()
+    user_services = _load_user_services()
+    rows: list[dict] = []
+    for entry in accounts.values():
+        if not isinstance(entry, dict):
+            continue
+        role = str(entry.get("role", "guest")).strip() or "guest"
+        aid = str(entry.get("account_id", "")).strip()
+        service = user_services.get(aid, {})
+        rows.append({
+            "account_id": aid,
+            "member_no": entry.get("member_no", ""),
+            "role": role,
+            "permissions": sorted(ROLE_PERMISSIONS.get(role, set())),
+            "org_id": entry.get("org_id", ""),
+            "note": entry.get("note", ""),
+            "phone": entry.get("phone", ""),
+            "openid": entry.get("openid", ""),
+            "created_at_utc": entry.get("created_at_utc", ""),
+            "updated_at_utc": entry.get("updated_at_utc", ""),
+            "service": {
+                "membership_until": service.get("membership_until"),
+                "balance": int(service.get("balance", 0) or 0),
+                "quota": int(service.get("quota", 0) or 0),
+            },
+        })
+
+    rows.sort(key=lambda item: (_member_no_int(item) is None, _member_no_int(item) or 0))
+    page = rows[offset: offset + limit]
+    return {"ok": True, "count": len(rows), "offset": offset, "limit": limit, "users": page}
+
+
+@router.post("/user/admin/authorize", tags=["用户"])
+async def admin_authorize_user(payload: dict = Body(...)):
+    """
+    主账号 10001 审核授权：
+    - 调整角色
+    - 调整 org_id
+    - 写备注
+    - 可选设置会员有效期
+    """
+    user_token = str(payload.get("user_token", "")).strip()
+    account = require_permission(user_token, "manage_platform")
+    caller_member_no = str(account.get("member_no", "")).strip()
+    if caller_member_no != "10001":
+        raise HTTPException(status_code=403, detail="仅主账号 10001 可审核授权")
+
+    target_member_no = str(payload.get("member_no", "")).strip()
+    target_account_id = str(payload.get("account_id", "")).strip()
+    role = str(payload.get("role", "")).strip().lower()
+    org_id = str(payload.get("org_id", "")).strip()
+    note = str(payload.get("note", "")).strip()
+    membership_until = str(payload.get("membership_until", "")).strip()
+
+    if role and role not in {"guest", "teacher", "org_admin", "platform_admin"}:
+        raise HTTPException(status_code=400, detail="角色无效")
+
+    accounts = _load_user_accounts()
+    target: dict | None = None
+    target_key = ""
+    for aid, entry in accounts.items():
+        if not isinstance(entry, dict):
+            continue
+        if target_account_id and aid == target_account_id:
+            target = entry
+            target_key = aid
+            break
+        if target_member_no and str(entry.get("member_no", "")).strip() == target_member_no:
+            target = entry
+            target_key = aid
+            break
+
+    if not target or not target_key:
+        raise HTTPException(status_code=404, detail="目标账号不存在")
+
+    if role:
+        target["role"] = role
+    if org_id:
+        target["org_id"] = org_id
+    if note:
+        target["note"] = note
+    target["updated_at_utc"] = _utc_iso()
+    accounts[target_key] = target
+    _save_user_accounts(accounts)
+
+    if membership_until:
+        user_services = _load_user_services()
+        entry = user_services.get(target_key, {"membership_until": None, "balance": 0, "quota": 0, "rewards": []})
+        entry["membership_until"] = membership_until
+        user_services[target_key] = entry
+        _save_user_services(user_services)
+
+    return {
+        "ok": True,
+        "account_id": target_key,
+        "member_no": target.get("member_no", ""),
+        "role": target.get("role", "guest"),
+        "org_id": target.get("org_id", ""),
+        "note": target.get("note", ""),
+        "membership_until": membership_until or None,
+    }

@@ -10,10 +10,24 @@ export function TopNav() {
   const { user, isLoggedIn, login, logout } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
+  const [spotlightSection, setSpotlightSection] = useState<"redeem" | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   function openLogin() {
     setAuthTab("login");
+    setSpotlightSection(null);
+    setAuthOpen(true);
+  }
+
+  function openRegister() {
+    setAuthTab("register");
+    setSpotlightSection(null);
+    setAuthOpen(true);
+  }
+
+  function openRedeemEntry() {
+    setAuthTab("register");
+    setSpotlightSection("redeem");
     setAuthOpen(true);
   }
 
@@ -26,7 +40,9 @@ export function TopNav() {
       role: data.role || "teacher",
       org_id: data.org_id || "",
     });
-    setAuthOpen(false);
+    if (spotlightSection !== "redeem") {
+      setAuthOpen(false);
+    }
   }
 
   // 头像优先显示会员号后4位，其次用 account_id 派生
@@ -71,13 +87,31 @@ export function TopNav() {
         </nav>
         <div className="flex-1" />
         <div className="flex items-center gap-3">
-          {/* 兑换中心 — 已登录才显示，未登录引导注册 */}
-          <a
-            href="#beta-redeem"
-            className="h-7 px-3 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-micro font-semibold text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap"
-          >
-            兑换中心
-          </a>
+          {isLoggedIn && user?.role === "platform_admin" ? (
+            <a
+              href="#admin-console"
+              className="h-8 px-4 rounded-pill bg-paper-hi border border-rule text-meta font-semibold text-ink hover:bg-paper-sunk whitespace-nowrap transition-colors"
+            >
+              管理后台
+            </a>
+          ) : null}
+
+          {isLoggedIn ? (
+            <a
+              href={user?.role === "platform_admin" ? "#admin-console" : "#"}
+              className="h-7 px-3 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-micro font-semibold text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap"
+            >
+              兑换中心
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={openRedeemEntry}
+              className="h-8 px-4 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-meta font-semibold text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap transition-colors"
+            >
+              内测兑换
+            </button>
+          )}
 
           <input
             className="hidden lg:block h-8 w-[180px] px-3 rounded-sm border border-rule bg-white text-meta text-ink placeholder:text-ink-4 focus:outline-none focus:border-brand focus:shadow-focus"
@@ -142,7 +176,13 @@ export function TopNav() {
       <AuthModal
         open={authOpen}
         defaultTab={authTab}
-        onClose={() => setAuthOpen(false)}
+        spotlightSection={spotlightSection}
+        isLoggedIn={isLoggedIn}
+        authUser={user}
+        onClose={() => {
+          setAuthOpen(false);
+          setSpotlightSection(null);
+        }}
         onSuccess={handleAuthSuccess}
       />
     </>

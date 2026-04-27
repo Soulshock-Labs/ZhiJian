@@ -25,6 +25,15 @@ function getStoredUserId(): string {
   }
 }
 
+function getStoredUserToken(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return localStorage.getItem("zj_user_token") || "";
+  } catch {
+    return "";
+  }
+}
+
 export function WeeklyPlanPanel({ open, onClose }: Props) {
   const [theme, setTheme] = useState("");
   const [phil, setPhil] = useState("游戏化学习");
@@ -45,6 +54,11 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!theme.trim()) return;
+    const userToken = getStoredUserToken();
+    if (!userToken) {
+      setError("请先登录后再生成周计划");
+      return;
+    }
     setLoading(true);
     setError(null);
     setPlan(null);
@@ -52,6 +66,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
       const res = await generateWeekly({
         theme: theme.trim(),
         phil: phil.trim(),
+        user_token: userToken,
         class_level: classLevel,
         model,
         ref_doc: documentFile ?? undefined,
@@ -93,6 +108,11 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
       setDocumentNote("请填写主题，或上传能识别标题的文档");
       return;
     }
+    const userToken = getStoredUserToken();
+    if (!userToken) {
+      setDocumentNote("请先登录后再生成文档");
+      return;
+    }
     setDocumentBusy("process");
     setDocumentNote("");
     try {
@@ -102,6 +122,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
         class_level: classLevel,
         client: "web",
         user_id: getStoredUserId(),
+        user_token: userToken,
       });
       const safeTheme = theme.trim().replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "_");
       downloadBlob(blob, `周计划_${safeTheme || "纸笺"}.docx`);
@@ -115,10 +136,15 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
 
   const handleGenerateDaily = async (day: string) => {
     if (!plan || dailyLoading) return;
+    const userToken = getStoredUserToken();
+    if (!userToken) {
+      setDailyError("请先登录后再生成日教案");
+      return;
+    }
     setDailyLoading(day);
     setDailyError(null);
     try {
-      const blob = await generateDaily({ weekly_plan: plan, day, phil });
+      const blob = await generateDaily({ weekly_plan: plan, day, phil, user_token: userToken });
       const safeName = (plan.week_theme ?? theme).replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "_");
       downloadBlob(blob, `日教案_${safeName}_${day}.docx`);
     } catch (err) {

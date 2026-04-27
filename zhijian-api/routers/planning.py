@@ -24,6 +24,9 @@ from docx.opc.exceptions import PackageNotFoundError
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 
+from core.auth import require_permission
+from core.settings import MAX_UPLOAD_FILE_SIZE
+from core.utils import _read_upload_with_limit
 from word_engine.docx_filler import _build_content_disposition
 from word_engine.aspose_filler import _export_http_headers
 from services.planning_service import (
@@ -42,6 +45,7 @@ router = APIRouter()
 # ── /generate-weekly ──────────────────────────────────────────────────
 @router.post("/generate-weekly", tags=["周日联动"])
 async def generate_weekly(
+    user_token: str = Form(..., description="登录 token"),
     theme:       str = Form(...,  description="周主题"),
     phil:        str = Form(...,  description="教育理念"),
     activities:  str = Form("[]", description="活动类型列表（JSON）"),
@@ -49,7 +53,6 @@ async def generate_weekly(
     model:       str = Form("",   description="指定模型，空则使用默认快模型"),
     ref_doc:     Optional[UploadFile] = File(None,  description="临时参考文档（不存储，用完即走）"),
     doc_id:      str = Form("",   description="已存储文档的 ID（从用户空间读取，优先级高于 ref_doc）"),
-    user_id:     str = Form("",   description="用户 ID（配合 doc_id 或扫描全部空间使用）"),
     scan_space:  str = Form("0",  description="是否扫描用户全部文档空间（1=是）"),
 ):
     """
@@ -61,6 +64,9 @@ async def generate_weekly(
     2. scan_space=1  扫描用户空间全部文档，拼合注入（Agent 模式）
     3. ref_doc   临时上传文件，用完不存储（兼容旧流程）
     """
+    account = require_permission(user_token, "generate")
+    account_id = str(account.get("account_id", "")).strip()
+
     try:
         acts_list: list[str] = json.loads(activities) if activities else []
         if not isinstance(acts_list, list):
@@ -73,8 +79,8 @@ async def generate_weekly(
     doc_info: dict = {}
 
     # ── 优先级 1：从用户空间读已存储文档 ──
-    if doc_id.strip() and user_id.strip():
-        md = get_doc_md(user_id.strip(), doc_id.strip())
+    if doc_id.strip():
+        md = get_doc_md(account_id, doc_id.strip())
         if md:
             doc_md = md
             doc_info = {"source": "doc_space", "doc_id": doc_id.strip()}
@@ -82,9 +88,9 @@ async def generate_weekly(
             doc_info = {"source": "doc_space", "doc_id": doc_id.strip(), "error": "文档不存在"}
 
     # ── 优先级 2：Agent 扫描全部空间 ──
-    elif scan_space.strip() == "1" and user_id.strip():
-        doc_md = get_all_docs_md(user_id.strip())
-        doc_info = {"source": "space_scan", "user_id": user_id.strip()}
+    elif scan_space.strip() == "1":
+        doc_md = get_all_docs_md(account_id)
+        doc_info = {"source": "space_scan", "user_id": account_id}
 
     # ── 优先级 3：临时上传（兼容旧流程） ──
     elif ref_doc is not None:
@@ -95,9 +101,7 @@ async def generate_weekly(
                 status_code=400,
                 detail="参考文件仅支持 .docx、.pdf、.jpg、.jpeg、.png、.webp 格式",
             )
-        file_bytes = await ref_doc.read()
-        if not file_bytes:
-            raise HTTPException(status_code=400, detail="上传的文件为空")
+        file_bytes = await _read_upload_with_limit(ref_doc, MAX_UPLOAD_FILE_SIZE)
         ctx = extract_doc_context(file_bytes, filename)
         if ctx.ok:
             doc_md = to_markdown(ctx)
@@ -121,11 +125,13 @@ async def generate_weekly(
 # ── /generate-term-plan ───────────────────────────────────────────────
 @router.post("/generate-term-plan", tags=["园部计划"])
 async def generate_term_plan(
+    user_token:  str = Form(..., description="登录 token"),
     term_theme:  str = Form(..., description="学期主题"),
     start_month: int = Form(2,   description="起始月份（1-12）"),
     month_count: int = Form(5,   description="学期月数（1-6）"),
 ):
     """园部计划骨架生成：输出学期→月→周三级结构。"""
+    require_permission(user_token, "generate")
     if not (1 <= start_month <= 12):
         raise HTTPException(status_code=400, detail="start_month 必须在 1-12 之间")
     skeleton = build_term_month_week_skeleton(term_theme, start_month, month_count)
@@ -135,6 +141,7 @@ async def generate_term_plan(
 # ── /apply-daily-feedback ─────────────────────────────────────────────
 @router.post("/apply-daily-feedback", tags=["周日联动"])
 async def apply_daily_feedback(
+    user_token:         str = Form(..., description="登录 token"),
     weekly_plan:       str = Form(..., description="周计划 JSON"),
     day:               str = Form(..., description="目标星期，如 周一"),
     completion_score:  int = Form(..., description="执行完成度（1-5）"),
@@ -146,6 +153,7 @@ async def apply_daily_feedback(
     日计划执行后反馈回流周计划：
     将某天的完成度与复盘意见写回 weekly_plan，形成可迭代闭环。
     """
+    require_permission(user_token, "generate")
     if not (1 <= completion_score <= 5):
         raise HTTPException(status_code=400, detail="completion_score 必须在 1-5 之间")
     try:
@@ -199,6 +207,7 @@ async def roadmap():
 # ── /generate-daily ───────────────────────────────────────────────────
 @router.post("/generate-daily", tags=["周日联动"])
 async def generate_daily(
+    user_token:  str            = Form(..., description="登录 token"),
     weekly_plan: str            = Form(..., description="周计划 JSON（由 /generate-weekly 返回或前端暂存）"),
     day:         str            = Form(..., description="目标星期，如 周一"),
     phil:        str            = Form(..., description="教育理念"),
@@ -212,13 +221,12 @@ async def generate_daily(
     · 有模板：识别模板关键字单元格并回填
     · 无模板：生成结构化（非表格）日计划文档
     """
+    require_permission(user_token, "generate")
     template_bytes: Optional[bytes] = None
     if template is not None:
         if not (template.filename or "").lower().endswith(".docx"):
             raise HTTPException(status_code=400, detail="仅支持 .docx 格式")
-        template_bytes = await template.read()
-        if not template_bytes:
-            raise HTTPException(status_code=400, detail="上传的文件为空")
+        template_bytes = await _read_upload_with_limit(template, MAX_UPLOAD_FILE_SIZE)
 
     try:
         plan: dict = json.loads(weekly_plan)
@@ -289,11 +297,13 @@ async def generate_daily(
 # ── /preview-daily ────────────────────────────────────────────────────
 @router.post("/preview-daily", tags=["调试"])
 async def preview_daily(
+    user_token: str = Form(..., description="登录 token"),
     weekly_plan: str = Form(...),
     day:         str = Form(...),
     phil:        str = Form(...),
 ):
     """返回日教案 AI 内容 JSON，用于前端预览调试（不生成 Word）。"""
+    require_permission(user_token, "generate")
     try:
         plan = json.loads(weekly_plan)
     except json.JSONDecodeError:

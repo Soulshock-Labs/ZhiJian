@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 import asyncio
 from datetime import datetime, timezone
 
+from core.auth import require_permission
 from core.settings import PARTNER_REDEEM_SOURCE, PARTNER_REDEEM_TOKENS, PARTNER_WEBHOOK_URLS
 from core.state import logger
 from core.utils import _parse_iso_datetime, _utc_iso
@@ -14,8 +15,9 @@ from services.redeem_service import _generate_unique_code, _redeem_code_core
 from services.webhook_service import _dispatch_webhook
 router = APIRouter()
 @router.get("/redeem-codes", tags=["兑换"])
-async def redeem_codes():
-    """返回可用卡密列表，便于前端展示入口说明。"""
+async def redeem_codes(user_token: str):
+    """仅平台管理员可查看卡密列表。"""
+    require_permission(user_token, "manage_platform")
     codes = _load_redeem_codes()
     items = []
     for code, item in codes.items():
@@ -97,10 +99,11 @@ async def redeem_code(payload: dict = Body(...)):
     - 核销并发放对应服务
     - 如卡密携带 callback_url，异步通知第三方（含重试）
     """
+    account = require_permission(str(payload.get("user_token", "")).strip(), "generate")
     code = str(payload.get("code", ""))
     result = _redeem_code_core(
         raw_code=code,
-        user_id=str(payload.get("user_id", "")),
+        user_id=str(account.get("account_id", "")).strip(),
         source=str(payload.get("source", "")) or "unknown",
     )
     if result.get("ok"):
@@ -110,7 +113,7 @@ async def redeem_code(payload: dict = Body(...)):
             webhook_body = {
                 "event": "redeemed",
                 "code": code.strip().upper(),
-                "user_id": str(payload.get("user_id", "")).strip().lower(),
+                "user_id": str(account.get("account_id", "")).strip().lower(),
                 "order_id": cb_order_id,
                 "redeemed_at_utc": _utc_iso(),
                 "status": "redeemed",

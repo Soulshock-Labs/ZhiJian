@@ -10,16 +10,18 @@ from uuid import uuid4
 from docx.opc.exceptions import PackageNotFoundError
 
 from ai_service import _extract_template_outline, generate_content
-from core.settings import OPENAI_API_KEY, VOICE_TRANSCRIBE_MODEL, _TEMP_TEMPLATE_DIR
+from core.auth import require_permission
+from core.settings import MAX_UPLOAD_FILE_SIZE, OPENAI_API_KEY, VOICE_TRANSCRIBE_MODEL, _TEMP_TEMPLATE_DIR
 from core.settings import _WEEKLY_DRAFT_LOG_FILE
 from core.state import _TEMP_EXPORTS, _TEMP_TEMPLATES, voice_client
-from core.utils import _append_jsonl, _utc_iso
+from core.utils import _append_jsonl, _read_upload_with_limit, _utc_iso
 from services.generate_service import _build_mini_doc_payload
 from word_engine.aspose_filler import _export_http_headers
 from word_engine.docx_filler import _build_content_disposition, fill_word_template
 router = APIRouter()
 @router.post("/generate-mini", tags=["核心接口"])
 async def generate_mini(
+    user_token: str = Form(..., description="登录 token"),
     theme: str = Form(..., description="教学主题"),
     template: UploadFile = File(..., description="Word 模板文件 (.doc/.docx)"),
     phil: str = Form("五大领域", description="教育理念"),
@@ -33,6 +35,7 @@ async def generate_mini(
 
     负责接收老师上传的模板，生成后先落盘，再返回一个可下载的临时链接。
     """
+    require_permission(user_token, "generate")
     if not (template.filename or "").lower().endswith(".docx"):
         raise HTTPException(
             status_code=400,
@@ -46,9 +49,7 @@ async def generate_mini(
     if not isinstance(acts_list, list):
         acts_list = []
 
-    template_bytes = await template.read()
-    if len(template_bytes) == 0:
-        raise HTTPException(status_code=400, detail="上传的文件为空")
+    template_bytes = await _read_upload_with_limit(template, MAX_UPLOAD_FILE_SIZE)
 
     _append_jsonl(_WEEKLY_DRAFT_LOG_FILE, {
         "ts": _utc_iso(),
@@ -100,6 +101,7 @@ async def generate_mini(
     )
 @router.post("/mini-template/upload", tags=["核心接口"])
 async def upload_mini_template(
+    user_token: str = Form(..., description="登录 token"),
     template: UploadFile = File(..., description="Word 模板文件 (.docx)"),
 ):
     """
@@ -108,13 +110,12 @@ async def upload_mini_template(
     - 先把老师模板保存到云端临时目录
     - 返回 template_id，后续生成只需传 template_id
     """
+    require_permission(user_token, "generate")
     original_name = os.path.basename(template.filename or "template.docx")
     if not original_name.lower().endswith(".docx"):
         raise HTTPException(status_code=400, detail="仅支持 .docx 格式的 Word 文件")
 
-    template_bytes = await template.read()
-    if not template_bytes:
-        raise HTTPException(status_code=400, detail="上传的文件为空")
+    template_bytes = await _read_upload_with_limit(template, MAX_UPLOAD_FILE_SIZE)
 
     template_id = uuid4().hex
     template_path = _TEMP_TEMPLATE_DIR / f"{template_id}.docx"
@@ -134,6 +135,7 @@ async def upload_mini_template(
     }
 @router.post("/generate-mini-by-template", tags=["核心接口"])
 async def generate_mini_by_template(
+    user_token: str = Form(..., description="登录 token"),
     theme: str = Form(..., description="教学主题"),
     template_id: str = Form(..., description="模板ID（由 /mini-template/upload 返回）"),
     phil: str = Form("五大领域", description="教育理念"),
@@ -147,6 +149,7 @@ async def generate_mini_by_template(
 
     先从云端临时模板池读取模板，再执行和 /generate-mini 一致的生成流程。
     """
+    require_permission(user_token, "generate")
     temp_info = _TEMP_TEMPLATES.get((template_id or "").strip())
     if not temp_info:
         raise HTTPException(status_code=404, detail="模板不存在或已过期，请重新上传")
@@ -237,6 +240,7 @@ async def download_mini_export(token: str):
     )
 @router.post("/transcribe-voice-mini", tags=["语音输入"])
 async def transcribe_voice_mini(
+    user_token: str = Form(..., description="登录 token"),
     audio: UploadFile = File(..., description="录音文件"),
     prompt: str = Form("", description="转写提示词"),
 ):
@@ -245,6 +249,7 @@ async def transcribe_voice_mini(
 
     当前优先使用 OpenAI 语音转文字能力；未配置 OPENAI_API_KEY 时返回可读错误。
     """
+    require_permission(user_token, "generate")
     if voice_client is None:
         raise HTTPException(
             status_code=501,
@@ -253,9 +258,7 @@ async def transcribe_voice_mini(
 
     original_name = os.path.basename(audio.filename or "voice.mp3")
     suffix = Path(original_name).suffix or ".mp3"
-    audio_bytes = await audio.read()
-    if not audio_bytes:
-        raise HTTPException(status_code=400, detail="录音文件为空")
+    audio_bytes = await _read_upload_with_limit(audio, MAX_UPLOAD_FILE_SIZE, empty_detail="录音文件为空")
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         tmp.write(audio_bytes)

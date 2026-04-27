@@ -75,7 +75,7 @@ export function BetaRedeemPanel() {
     if (!cardCode) { setRedeemNote("请填写卡密"); return; }
     setBusy("redeem");
     try {
-      const res = await redeemCode({ user_id: user.user_id, code: cardCode });
+      const res = await redeemCode({ user_id: user.user_id, user_token: user.token, code: cardCode });
       setRedeemNote(resultText(res) || (res.ok ? "兑换成功" : "兑换失败"));
       if (res.ok) setCode("");
     } catch (error) {

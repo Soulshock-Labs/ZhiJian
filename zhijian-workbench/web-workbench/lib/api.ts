@@ -370,6 +370,79 @@ export type RedeemResponse = {
   granted?: Record<string, unknown>;
 };
 
+export type InternalBetaAccount = {
+  account_id: string;
+  member_no: string;
+  role: string;
+  org_id: string;
+  created_at_utc?: string;
+  updated_at_utc?: string;
+};
+
+export type InternalBetaAccountsResponse = {
+  ok: boolean;
+  viewer_member_no: string;
+  count: number;
+  accounts: InternalBetaAccount[];
+};
+
+export type InternalRedeemCode = {
+  code: string;
+  status: string;
+  token_type?: string;
+  description?: string;
+  expires_at?: string;
+  used_by?: string;
+  used_at_utc?: string;
+  batch?: string;
+  service?: RedeemService;
+};
+
+export type InternalRedeemCodesResponse = {
+  ok: boolean;
+  count: number;
+  summary: {
+    unused: number;
+    used: number;
+    expired: number;
+  };
+  codes: InternalRedeemCode[];
+};
+
+export type AdminUserRow = {
+  account_id: string;
+  member_no: string;
+  role: string;
+  permissions: string[];
+  org_id: string;
+  note?: string;
+  phone?: string;
+  openid?: string;
+  created_at_utc?: string;
+  updated_at_utc?: string;
+  service?: {
+    membership_until?: string | null;
+    balance?: number;
+    quota?: number;
+  };
+};
+
+export type AdminUsersResponse = {
+  ok: boolean;
+  count: number;
+  users: AdminUserRow[];
+};
+
+export type AuthorizeUserPayload = {
+  user_token: string;
+  member_no?: string;
+  account_id?: string;
+  role?: string;
+  org_id?: string;
+  note?: string;
+  membership_until?: string;
+};
+
 export function registerBetaUser(params: {
   user_id: string;
   phone?: string;
@@ -424,14 +497,40 @@ export function queryRedeemCode(code: string): Promise<RedeemResponse> {
 
 export function redeemCode(params: {
   user_id: string;
+  user_token: string;
   code: string;
   source?: string;
 }): Promise<RedeemResponse> {
   return apiPost<RedeemResponse>("/redeem", {
     user_id: params.user_id,
+    user_token: params.user_token,
     code: params.code,
     source: params.source ?? "web_workbench_redeem",
   });
+}
+
+export function getInternalBetaAccounts(userToken: string): Promise<InternalBetaAccountsResponse> {
+  return apiGet<InternalBetaAccountsResponse>(`/user/internal-beta/accounts?user_token=${encodeURIComponent(userToken)}`);
+}
+
+export function getInternalBetaRedeemCodes(userToken: string): Promise<InternalRedeemCodesResponse> {
+  return apiGet<InternalRedeemCodesResponse>(`/user/internal-beta/redeem-codes?user_token=${encodeURIComponent(userToken)}`);
+}
+
+export function getAdminUsers(userToken: string): Promise<AdminUsersResponse> {
+  return apiGet<AdminUsersResponse>(`/user/admin/users?user_token=${encodeURIComponent(userToken)}`);
+}
+
+export function authorizeUser(payload: AuthorizeUserPayload): Promise<{
+  ok: boolean;
+  account_id: string;
+  member_no: string;
+  role: string;
+  org_id: string;
+  note?: string;
+  membership_until?: string | null;
+}> {
+  return apiPost("/user/admin/authorize", payload);
 }
 
 // ---------- /generate-weekly ----------
@@ -464,6 +563,7 @@ export type WeeklyPlanResponse = {
 export function generateWeekly(params: {
   theme: string;
   phil: string;
+  user_token: string;
   class_level?: string;
   activities?: string;
   model?: string;
@@ -474,6 +574,7 @@ export function generateWeekly(params: {
     const body = new FormData();
     body.append("theme", params.theme);
     body.append("phil", params.phil);
+    body.append("user_token", params.user_token);
     body.append("class_level", params.class_level ?? "中班");
     body.append("activities", params.activities ?? "[]");
     body.append("model", params.model ?? "");
@@ -487,6 +588,7 @@ export function generateWeekly(params: {
   return apiPostForm<WeeklyPlanResponse>("/generate-weekly", {
     theme: params.theme,
     phil: params.phil,
+    user_token: params.user_token,
     class_level: params.class_level ?? "中班",
     activities: params.activities ?? "[]",
     model: params.model ?? "",
@@ -499,6 +601,7 @@ export async function generateDaily(params: {
   weekly_plan: WeeklyPlan;
   day: string;
   phil: string;
+  user_token: string;
 }): Promise<Blob> {
   const url = `${API_BASE}/generate-daily`;
   const ctrl = new AbortController();
@@ -511,6 +614,7 @@ export async function generateDaily(params: {
       signal: ctrl.signal,
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
+        user_token: params.user_token,
         weekly_plan: JSON.stringify(params.weekly_plan),
         day: params.day,
         phil: params.phil,
