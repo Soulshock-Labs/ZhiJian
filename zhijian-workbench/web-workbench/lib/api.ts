@@ -394,22 +394,22 @@ export type AuthResponse = {
 };
 
 export function registerUser(params: {
-  phone: string;
   password: string;
+  member_no?: string;  // 仅测试用，生产环境不传
 }): Promise<AuthResponse> {
   return apiPost<AuthResponse>("/user/register", {
-    phone: params.phone,
-    password: params.password,
+    password:  params.password,
+    member_no: params.member_no ?? "",
   });
 }
 
 export function loginUser(params: {
-  phone: string;
-  password: string;
+  member_no: string;   // 会员号即用户名
+  password:  string;
 }): Promise<AuthResponse> {
   return apiPost<AuthResponse>("/user/login", {
-    phone: params.phone,
-    password: params.password,
+    member_no: params.member_no,
+    password:  params.password,
   });
 }
 
