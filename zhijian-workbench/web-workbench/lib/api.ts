@@ -380,6 +380,39 @@ export function registerBetaUser(params: {
   });
 }
 
+// ---------- 注册 / 登录（手机号 + 密码） ----------
+
+export type AuthResponse = {
+  ok: boolean;
+  is_new?: boolean;
+  user_id: string;
+  user_token: string;
+  role: string;
+  org_id: string;
+  service?: UserServiceState;
+  created_at_utc?: string;
+};
+
+export function registerUser(params: {
+  phone: string;
+  password: string;
+}): Promise<AuthResponse> {
+  return apiPost<AuthResponse>("/user/register", {
+    phone: params.phone,
+    password: params.password,
+  });
+}
+
+export function loginUser(params: {
+  phone: string;
+  password: string;
+}): Promise<AuthResponse> {
+  return apiPost<AuthResponse>("/user/login", {
+    phone: params.phone,
+    password: params.password,
+  });
+}
+
 export function queryRedeemCode(code: string): Promise<RedeemResponse> {
   return apiGet<RedeemResponse>(`/redeem/query?code=${encodeURIComponent(code)}`);
 }

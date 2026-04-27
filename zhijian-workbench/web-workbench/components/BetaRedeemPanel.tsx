@@ -1,21 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
+import { AuthModal } from "./AuthModal";
+import { useAuth } from "@/lib/useAuth";
 import {
   type RedeemResponse,
+  type AuthResponse,
   queryRedeemCode,
   redeemCode,
-  registerBetaUser,
 } from "@/lib/api";
-
-const USER_ID_KEY = "user_id";
-const REDEEM_USER_KEY = "STA_REDEEM_USER_ID";
-
-function normalizeInput(value: string): string {
-  return value.trim();
-}
 
 function serviceLabel(response?: RedeemResponse): string {
   const service = response?.service ?? {};
@@ -40,59 +35,27 @@ function resultText(response?: RedeemResponse): string {
 }
 
 export function BetaRedeemPanel() {
-  const [account, setAccount] = useState("");
+  const { user, isLoggedIn, login } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
   const [code, setCode] = useState("");
-  const [busy, setBusy] = useState<"register" | "query" | "redeem" | "">("");
-  const [registerNote, setRegisterNote] = useState("内测版 · 轻量高效");
+  const [busy, setBusy] = useState<"query" | "redeem" | "">("");
   const [redeemNote, setRedeemNote] = useState("等待卡密");
 
-  const canSubmit = useMemo(() => Boolean(normalizeInput(account)), [account]);
-  const canUseCode = useMemo(() => canSubmit && Boolean(normalizeInput(code)), [account, code, canSubmit]);
-
-  useEffect(() => {
-    try {
-      const remembered = localStorage.getItem(USER_ID_KEY) || localStorage.getItem(REDEEM_USER_KEY) || "";
-      if (remembered) setAccount(remembered);
-    } catch {
-      // ignore storage
-    }
-  }, []);
-
-  function rememberAccount(value: string) {
-    try {
-      localStorage.setItem(USER_ID_KEY, value);
-      localStorage.setItem(REDEEM_USER_KEY, value);
-    } catch {
-      // ignore storage
-    }
+  function handleAuthSuccess(data: AuthResponse) {
+    login({
+      token:   data.user_token,
+      user_id: data.user_id,
+      role:    data.role   || "teacher",
+      org_id:  data.org_id || "",
+    });
+    setAuthOpen(false);
   }
 
-  async function handleRegister() {
-    const userId = normalizeInput(account);
-    if (!userId) {
-      setRegisterNote("请填写账号");
-      return;
-    }
-    setBusy("register");
-    try {
-      const res = await registerBetaUser({ user_id: userId });
-      rememberAccount(res.user_id || userId);
-      const quota = res.service?.quota ?? 0;
-      const member = res.service?.is_active_member ? "会员已开通" : "内测账号已记录";
-      setRegisterNote(`${member}${quota ? ` · ${quota} 次` : ""}`);
-    } catch (error) {
-      setRegisterNote(error instanceof Error ? error.message : "内测登记失败");
-    } finally {
-      setBusy("");
-    }
-  }
+  const canUseCode = isLoggedIn && Boolean(code.trim());
 
   async function handleQuery() {
-    const cardCode = normalizeInput(code).toUpperCase();
-    if (!cardCode) {
-      setRedeemNote("请填写卡密");
-      return;
-    }
+    const cardCode = code.trim().toUpperCase();
+    if (!cardCode) { setRedeemNote("请填写卡密"); return; }
     setBusy("query");
     try {
       const res = await queryRedeemCode(cardCode);
@@ -105,16 +68,12 @@ export function BetaRedeemPanel() {
   }
 
   async function handleRedeem() {
-    const userId = normalizeInput(account);
-    const cardCode = normalizeInput(code).toUpperCase();
-    if (!userId || !cardCode) {
-      setRedeemNote(!userId ? "请填写账号" : "请填写卡密");
-      return;
-    }
+    if (!user) return;
+    const cardCode = code.trim().toUpperCase();
+    if (!cardCode) { setRedeemNote("请填写卡密"); return; }
     setBusy("redeem");
     try {
-      rememberAccount(userId);
-      const res = await redeemCode({ user_id: userId, code: cardCode });
+      const res = await redeemCode({ user_id: user.user_id, code: cardCode });
       setRedeemNote(resultText(res) || (res.ok ? "兑换成功" : "兑换失败"));
       if (res.ok) setCode("");
     } catch (error) {
@@ -126,6 +85,7 @@ export function BetaRedeemPanel() {
 
   return (
     <section id="beta-redeem" className="pb-9 grid gap-3 lg:grid-cols-[0.82fr_1fr] max-w-[980px]">
+      {/* ── 左卡：账号状态 ── */}
       <Card variant="raised" size="sm" className="min-h-[218px] bg-[color-mix(in_oklch,var(--color-paper-hi),var(--color-white)_28%)]">
         <div className="flex h-[66px] items-start justify-between gap-3">
           <div>
@@ -133,7 +93,9 @@ export function BetaRedeemPanel() {
               <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
               AI 就绪
             </span>
-            <h2 className="font-wenkai text-h3 font-normal text-success-ink mt-2">内测中心</h2>
+            <h2 className="font-wenkai text-h3 font-normal text-success-ink mt-2">
+              {isLoggedIn ? "账号中心" : "内测中心"}
+            </h2>
             <p className="text-meta text-ink-2 mt-0.5">纸笺 · 幼师工作台 · v1.2.1</p>
           </div>
           <span className="h-7 px-3 rounded-pill bg-success border border-success inline-flex items-center text-meta font-semibold leading-none text-white shadow-xs">
@@ -141,29 +103,41 @@ export function BetaRedeemPanel() {
           </span>
         </div>
 
-        <div className="mt-4">
-          <label className="sr-only">账号</label>
-          <input
-            value={account}
-            onChange={(event) => setAccount(event.target.value)}
-            className="h-8 w-full px-3 rounded-sm border border-rule bg-white text-body-sm text-ink placeholder:text-ink-4 focus:border-brand focus:shadow-focus"
-            placeholder="手机号 / 邮箱"
-          />
-        </div>
-
-        <div className="mt-3 flex flex-col sm:flex-row gap-3 sm:items-center">
-          <button
-            type="button"
-            disabled={!canSubmit || Boolean(busy)}
-            onClick={handleRegister}
-            className="h-8 px-5 rounded-pill bg-success text-white text-body-sm font-semibold border border-success shadow-sm hover:brightness-105 active:brightness-95 disabled:opacity-45 disabled:pointer-events-none sm:min-w-[124px]"
-          >
-            {busy === "register" ? "登记中" : "加入内测"}
-          </button>
-          <p className="text-meta text-ink-2">{registerNote}</p>
-        </div>
+        {isLoggedIn && user ? (
+          /* 已登录 — 显示账号信息 */
+          <div className="mt-5 space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-full bg-brand text-white grid place-items-center text-body-sm font-semibold">
+                {user.user_id.replace(/\D/g, "").slice(-4) || user.user_id[0]?.toUpperCase()}
+              </div>
+              <div>
+                <p className="text-body-sm font-medium text-ink">{user.user_id}</p>
+                <p className="text-meta text-ink-3">
+                  {{ teacher: "幼师", org_admin: "园长", platform_admin: "管理员" }[user.role] ?? user.role}
+                </p>
+              </div>
+            </div>
+            <p className="text-meta text-ink-3 pt-1">已登录，可在右侧兑换卡密</p>
+          </div>
+        ) : (
+          /* 未登录 — 引导注册 */
+          <div className="mt-4 space-y-3">
+            <p className="text-meta text-ink-2">注册账号即可使用 AI 生成功能，支持手机号密码登录</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setAuthOpen(true)}
+                className="h-8 px-5 rounded-pill bg-success text-white text-body-sm font-semibold border border-success shadow-sm hover:brightness-105 active:brightness-95 whitespace-nowrap"
+              >
+                注册 / 登录
+              </button>
+              <p className="text-meta text-ink-3 self-center">内测版 · 轻量高效</p>
+            </div>
+          </div>
+        )}
       </Card>
 
+      {/* ── 右卡：兑换中心 ── */}
       <Card variant="raised" size="sm" className="min-h-[218px] bg-[color-mix(in_oklch,var(--color-paper-hi),var(--color-white)_24%)]">
         <div className="flex h-[66px] items-start justify-between gap-3">
           <div>
@@ -179,41 +153,66 @@ export function BetaRedeemPanel() {
           </a>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <input
-            value={account}
-            onChange={(event) => setAccount(event.target.value)}
-            className="h-8 w-full px-3 rounded-sm border border-rule bg-white text-body-sm text-ink placeholder:text-ink-4 focus:border-brand focus:shadow-focus"
-            placeholder="手机号 / 邮箱"
-          />
-          <input
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            className="h-8 w-full px-3 rounded-sm border border-rule bg-white text-body-sm text-ink placeholder:text-ink-4 focus:border-brand focus:shadow-focus"
-            placeholder="卡密"
-          />
-        </div>
+        {isLoggedIn ? (
+          <>
+            <div className="mt-4 flex items-center gap-3">
+              <div className="flex-1">
+                <p className="text-meta text-ink-3 mb-1.5">当前账号</p>
+                <div className="h-8 px-3 rounded-sm border border-rule bg-paper-sunk flex items-center text-body-sm text-ink-2">
+                  {user?.user_id}
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-meta text-ink-3 mb-1.5">卡密</p>
+                <input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="h-8 w-full px-3 rounded-sm border border-rule bg-white text-body-sm text-ink placeholder:text-ink-4 focus:border-brand focus:shadow-focus"
+                  placeholder="请输入卡密"
+                />
+              </div>
+            </div>
 
-        <div className="mt-3 flex flex-col sm:flex-row gap-3 sm:items-center">
-          <button
-            type="button"
-            disabled={!canUseCode || Boolean(busy)}
-            onClick={handleRedeem}
-            className="h-8 px-5 rounded-pill bg-success text-white text-body-sm font-semibold border border-success shadow-sm hover:brightness-105 active:brightness-95 disabled:opacity-45 disabled:pointer-events-none"
-          >
-            {busy === "redeem" ? "兑换中" : "立即兑换"}
-          </button>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={!normalizeInput(code) || Boolean(busy)}
-            onClick={handleQuery}
-          >
-            {busy === "query" ? "查询中" : "查询状态"}
-          </Button>
-          <p className="text-meta text-ink-2 sm:ml-auto">{redeemNote}</p>
-        </div>
+            <div className="mt-3 flex flex-col sm:flex-row gap-3 sm:items-center">
+              <button
+                type="button"
+                disabled={!canUseCode || Boolean(busy)}
+                onClick={handleRedeem}
+                className="h-8 px-5 rounded-pill bg-success text-white text-body-sm font-semibold border border-success shadow-sm hover:brightness-105 active:brightness-95 disabled:opacity-45 disabled:pointer-events-none"
+              >
+                {busy === "redeem" ? "兑换中" : "立即兑换"}
+              </button>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={!code.trim() || Boolean(busy)}
+                onClick={handleQuery}
+              >
+                {busy === "query" ? "查询中" : "查询状态"}
+              </Button>
+              <p className="text-meta text-ink-2 sm:ml-auto">{redeemNote}</p>
+            </div>
+          </>
+        ) : (
+          <div className="mt-5 flex flex-col items-start gap-3">
+            <p className="text-meta text-ink-2">请先登录账号，再使用卡密兑换权益</p>
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className="h-8 px-5 rounded-pill bg-brand text-white text-body-sm font-semibold border border-brand shadow-sm hover:brightness-105 active:brightness-95"
+            >
+              登录账号
+            </button>
+          </div>
+        )}
       </Card>
+
+      <AuthModal
+        open={authOpen}
+        defaultTab="login"
+        onClose={() => setAuthOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </section>
   );
 }
