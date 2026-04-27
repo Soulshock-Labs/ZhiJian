@@ -404,13 +404,21 @@ async def admin_authorize_user(payload: dict = Body(...)):
 
     target_member_no = str(payload.get("member_no", "")).strip()
     target_account_id = str(payload.get("account_id", "")).strip()
-    role = str(payload.get("role", "")).strip().lower()
-    org_id = str(payload.get("org_id", "")).strip()
-    note = str(payload.get("note", "")).strip()
-    membership_until = str(payload.get("membership_until", "")).strip()
 
-    if role and role not in {"guest", "teacher", "org_admin", "platform_admin"}:
-        raise HTTPException(status_code=400, detail="角色无效")
+    # 用 sentinel 区分"未传"和"传了空字符串（表示清空）"
+    UNSET = object()
+    def _field(key):
+        return payload[key] if key in payload else UNSET
+
+    role             = _field("role")
+    org_id           = _field("org_id")
+    note             = _field("note")
+    membership_until = _field("membership_until")
+
+    if role is not UNSET:
+        role = str(role or "").strip().lower()
+        if role and role not in {"guest", "teacher", "org_admin", "platform_admin"}:
+            raise HTTPException(status_code=400, detail="角色无效")
 
     accounts = _load_user_accounts()
     target: dict | None = None
@@ -430,22 +438,26 @@ async def admin_authorize_user(payload: dict = Body(...)):
     if not target or not target_key:
         raise HTTPException(status_code=404, detail="目标账号不存在")
 
-    if role:
-        target["role"] = role
-    if org_id:
-        target["org_id"] = org_id
-    if note:
-        target["note"] = note
+    # 传了就更新（空字符串 = 清空）
+    if role is not UNSET:
+        target["role"] = role or target.get("role", "guest")  # role 不允许清空为空串
+    if org_id is not UNSET:
+        target["org_id"] = str(org_id or "").strip()
+    if note is not UNSET:
+        target["note"] = str(note or "").strip()
     target["updated_at_utc"] = _utc_iso()
     accounts[target_key] = target
     _save_user_accounts(accounts)
 
-    if membership_until:
+    final_membership_until = None
+    if membership_until is not UNSET:
         user_services = _load_user_services()
-        entry = user_services.get(target_key, {"membership_until": None, "balance": 0, "quota": 0, "rewards": []})
-        entry["membership_until"] = membership_until
-        user_services[target_key] = entry
+        svc = user_services.get(target_key, {"membership_until": None, "balance": 0, "quota": 0, "rewards": []})
+        val = str(membership_until or "").strip()
+        svc["membership_until"] = val or None   # 空字符串 = 清空会员
+        user_services[target_key] = svc
         _save_user_services(user_services)
+        final_membership_until = svc["membership_until"]
 
     return {
         "ok": True,
@@ -454,5 +466,5 @@ async def admin_authorize_user(payload: dict = Body(...)):
         "role": target.get("role", "guest"),
         "org_id": target.get("org_id", ""),
         "note": target.get("note", ""),
-        "membership_until": membership_until or None,
+        "membership_until": final_membership_until,
     }

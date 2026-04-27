@@ -388,8 +388,8 @@ export function AuthModal({
             <p className="text-meta text-ink-3 mt-4">3秒后自动进入…</p>
           </div>
         ) : (
-          /* Form */
-          <form onSubmit={handleSubmit} className="px-6 pt-5 pb-6 flex flex-col gap-4">
+          /* Form — 兑换模式下禁用表单默认提交，避免回车误触 handleSubmit */
+          <form onSubmit={redeemOnlyMode ? (e) => e.preventDefault() : handleSubmit} className="px-6 pt-5 pb-6 flex flex-col gap-4">
             {spotlightSection === "redeem" && (
               <div
                 ref={redeemCardRef}

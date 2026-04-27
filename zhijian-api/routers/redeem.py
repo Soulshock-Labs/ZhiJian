@@ -32,11 +32,8 @@ async def redeem_codes(user_token: str):
 @router.get("/redeem/query", tags=["兑换"])
 async def query_redeem_code(code: str):
     """
-    只读查询卡密状态（不核销，不写入任何数据）：
-    - unused:  未使用（含 token_type / service / expires_at）
-    - used:    已使用（含 used_at_utc / used_by）
-    - expired: 已过期
-    - invalid: 不存在
+    只读查询卡密状态（不核销，不写入任何数据）。
+    只返回 valid/used/expired/invalid 最小状态，不暴露账号信息。
     """
     normalized = str(code or "").strip().upper()
     if not normalized:
@@ -46,25 +43,20 @@ async def query_redeem_code(code: str):
     item = codes.get(normalized)
 
     if not item:
-        return {"ok": False, "status": "invalid", "message": "无效"}
+        return {"ok": False, "status": "invalid", "message": "无效卡密"}
 
     expires_at = str(item.get("expires_at", "")).strip()
     expire_dt = _parse_iso_datetime(expires_at)
-
-    token_type = str(item.get("token_type", "")).strip()
-    token_type_label = "礼品券" if token_type == "gift" else ("系统券" if token_type == "auto" else "")
+    service = item.get("service", {})
+    description = item.get("description", "")
 
     if item.get("status") == "used":
         return {
             "ok": False,
             "status": "used",
             "message": "已使用",
-            "token_type": token_type,
-            "token_type_label": token_type_label,
-            "used_at_utc": item.get("used_at_utc", ""),
-            "used_by": item.get("used_by", ""),
-            "service": item.get("service", {}),
-            "description": item.get("description", ""),
+            "service": service,
+            "description": description,
         }
 
     if expire_dt is not None and datetime.now(timezone.utc) > expire_dt:
@@ -72,22 +64,17 @@ async def query_redeem_code(code: str):
             "ok": False,
             "status": "expired",
             "message": "已过期",
-            "token_type": token_type,
-            "token_type_label": token_type_label,
-            "expires_at": expires_at,
-            "service": item.get("service", {}),
-            "description": item.get("description", ""),
+            "service": service,
+            "description": description,
         }
 
     return {
         "ok": True,
         "status": "unused",
         "message": "未使用",
-        "token_type": token_type,
-        "token_type_label": token_type_label,
         "expires_at": expires_at,
-        "service": item.get("service", {}),
-        "description": item.get("description", ""),
+        "service": service,
+        "description": description,
     }
 @router.post("/redeem", tags=["兑换"])
 async def redeem_code(payload: dict = Body(...)):
