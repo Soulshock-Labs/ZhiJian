@@ -98,7 +98,7 @@ export function BetaRedeemPanel() {
             <h2 className="font-wenkai text-h3 font-normal text-success-ink mt-2">
               {isLoggedIn ? "账号中心" : "内测中心"}
             </h2>
-            <p className="text-meta text-ink-2 mt-0.5">纸笺 · 幼师工作台 · v1.2.1</p>
+            <p className="text-meta text-ink-2 mt-0.5">小纸笺 · 幼师工作台 · v1.2.1</p>
           </div>
           <span className="h-7 px-3 rounded-pill bg-success border border-success inline-flex items-center text-meta font-semibold leading-none text-white shadow-xs">
             内测版

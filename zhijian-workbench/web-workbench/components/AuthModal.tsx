@@ -161,7 +161,7 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
             <span className="w-6 h-6 rounded-xs bg-brand text-white grid place-items-center font-wenkai text-[13px]">
               笺
             </span>
-            <span className="font-wenkai text-body tracking-wider text-ink">纸笺幼师</span>
+            <span className="font-wenkai text-body tracking-wider text-ink">小纸笺</span>
           </div>
           <button
             onClick={handleClose}
@@ -193,7 +193,7 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = "login" }: Au
           <div className="rounded-lg border border-rule bg-paper-sunk px-4 py-3">
             <p className="text-body-sm font-semibold text-ink">内测中心</p>
             <p className="mt-1 text-meta text-ink-3">
-              当前为内测版，注册后即可进入体验，后续可在工作台继续完善资料。
+              小纸笺内测已开放，注册后即可进入工作台体验，后续可继续完善资料。
             </p>
           </div>
           <div className="rounded-lg border border-rule bg-paper-sunk px-4 py-3">

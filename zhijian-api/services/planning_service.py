@@ -545,7 +545,7 @@ def _build_daily_structured_docx_bytes(
 
     try:
         doc.core_properties.comments = (
-            f"纸笺幼师导出 · v{APP_VERSION} · 排版引擎 python-docx（结构化日计划）"
+            f"小纸笺导出 · v{APP_VERSION} · 排版引擎 python-docx（结构化日计划）"
         )
     except Exception:
         pass
@@ -592,7 +592,7 @@ def _fill_daily_template_docx_bytes(
                 _write_cell_preserve_style(target, content)
     try:
         doc.core_properties.comments = (
-            f"纸笺幼师导出 · v{APP_VERSION} · 排版引擎 python-docx（Aspose 回退）"
+            f"小纸笺导出 · v{APP_VERSION} · 排版引擎 python-docx（Aspose 回退）"
         )
     except Exception:
         pass

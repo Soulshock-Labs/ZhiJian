@@ -189,7 +189,7 @@ def test_webhook_loop() -> bool:
 
 def main() -> int:
     print("\n" + "=" * 50)
-    print("纸笺幼师 · Smoke Test")
+    print("小纸笺 · Smoke Test")
     print("=" * 50)
 
     results = [

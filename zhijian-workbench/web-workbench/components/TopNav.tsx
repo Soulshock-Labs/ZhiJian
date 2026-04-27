@@ -51,7 +51,7 @@ export function TopNav() {
           <span className="w-7 h-7 rounded-xs bg-brand text-white grid place-items-center font-wenkai text-[16px]">
             笺
           </span>
-          <span>纸笺</span>
+          <span>小纸笺</span>
         </div>
         <nav className="flex gap-2 ml-7">
           {links.map((l, i) => (
@@ -81,7 +81,7 @@ export function TopNav() {
 
           <input
             className="hidden lg:block h-8 w-[180px] px-3 rounded-sm border border-rule bg-white text-meta text-ink placeholder:text-ink-4 focus:outline-none focus:border-brand focus:shadow-focus"
-            placeholder="搜索教案、模板、孩子"
+            placeholder="搜索教案、模板、主题"
           />
 
           {isLoggedIn && user ? (

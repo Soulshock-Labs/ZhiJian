@@ -70,7 +70,7 @@ def _aw_stamp_export_provenance(doc: "aw.Document") -> None:
     """在文档属性中写入导出标记，便于确认走了 Aspose 管线。"""
     try:
         doc.built_in_document_properties.comments = (
-            f"纸笺幼师导出 · v{APP_VERSION} · 排版引擎 Aspose.Words"
+            f"小纸笺导出 · v{APP_VERSION} · 排版引擎 Aspose.Words"
         )
         cdp = doc.custom_document_properties
         for name, val in (("ZhibanExportEngine", "Aspose.Words"), ("ZhibanAppVersion", APP_VERSION)):

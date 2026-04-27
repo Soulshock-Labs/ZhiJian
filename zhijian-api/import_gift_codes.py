@@ -1,7 +1,7 @@
 """
 批量导入礼品卡密（token_type=gift）
 用法：
-    python import_gift_codes.py 纸笺幼师月度会员_平台标准_100条.csv
+python import_gift_codes.py 小纸笺月度会员_平台标准_100条.csv
 
 说明：
   - 读取 CSV，第 1 列（索引 0）为卡密字符串
@@ -105,7 +105,7 @@ def import_csv(csv_path: Path) -> None:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("用法：python import_gift_codes.py <csv文件路径>")
-        print("示例：python import_gift_codes.py 纸笺幼师月度会员_平台标准_100条.csv")
+        print("示例：python import_gift_codes.py 小纸笺月度会员_平台标准_100条.csv")
         sys.exit(1)
 
     csv_file = Path(sys.argv[1])

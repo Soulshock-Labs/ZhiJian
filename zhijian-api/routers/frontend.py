@@ -15,7 +15,7 @@ async def serve_frontend():
     if os.path.exists(_FRONTEND):
         return FileResponse(_FRONTEND, media_type="text/html")
     return {
-        "service": "纸笺幼师 API",
+        "service": "小纸笺 API",
         "status": "running",
         "model": AI_MODEL,
         "api_key_configured": bool(DASHSCOPE_API_KEY),
