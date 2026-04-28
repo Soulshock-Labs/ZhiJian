@@ -14,10 +14,12 @@ interface Item {
   active?: boolean;
   panel?: SideNavPanel;
   disabled?: boolean;
+  href?: string;
 }
 
 export function SideNav() {
   const { user } = useAuth();
+  const isPlatformAdmin = user?.role === "platform_admin";
   const knowledgeLabel =
     user?.role === "platform_admin"
       ? "纸笺知识库"
@@ -52,7 +54,8 @@ export function SideNav() {
     {
       title: "纸笺集",
       items: [
-        { label: "我的 Agent", disabled: true },
+        ...(isPlatformAdmin ? [{ label: "管理后台", href: "#admin-console" } satisfies Item] : []),
+        { label: "小纸笺", disabled: true },
         { label: "会员权益", disabled: true },
       ],
     },
@@ -67,7 +70,13 @@ export function SideNav() {
             <button
               key={it.label}
               disabled={it.disabled}
-              onClick={() => it.panel && emit(it.panel)}
+              onClick={() => {
+                if (it.href) {
+                  window.location.hash = it.href.replace(/^#/, "");
+                  return;
+                }
+                if (it.panel) emit(it.panel);
+              }}
               className={[
                 "w-full flex items-center gap-3 h-10 px-3 rounded-sm text-body-sm transition-colors text-left",
                 it.active

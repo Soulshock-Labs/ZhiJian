@@ -13,6 +13,13 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/lib/useAuth";
 
+const roleLabel: Record<string, string> = {
+  teacher: "幼师",
+  org_admin: "园长",
+  guest: "游客",
+  platform_admin: "管理员",
+};
+
 function formatDate(value?: string | null): string {
   if (!value) return "未设置";
   const date = new Date(value);
@@ -215,14 +222,14 @@ export function AdminConsolePanel() {
               <span className="h-2 w-2 rounded-full bg-success" />
               管理后台
             </div>
-            <h2 className="mt-4 text-[32px] leading-tight text-ink">账号权限与内测控制台</h2>
-            <p className="mt-2 max-w-3xl text-body text-ink-2">
+            <h2 className="mt-4 text-h1 leading-tight text-ink">账号权限与内测控制台</h2>
+            <p className="mt-2 max-w-3xl text-body-sm text-ink-2">
               当前登录账号为 {memberNo}。1001 可查看另外 99 个内测号与 103 个兑换码使用情况；10001 额外可查看全量用户并执行授权。
             </p>
           </div>
           <div className="rounded-[24px] border border-rule bg-paper px-5 py-4 text-right">
             <p className="text-meta text-ink-3">当前角色</p>
-            <p className="mt-1 font-num text-[28px] text-ink">{user?.role}</p>
+            <p className="mt-1 text-h3 leading-tight text-ink">{roleLabel[user?.role ?? ""] ?? user?.role}</p>
             <p className="text-meta text-ink-3">会员号 {memberNo}</p>
           </div>
         </div>
@@ -233,34 +240,34 @@ export function AdminConsolePanel() {
           </div>
         ) : null}
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-4">
-          <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
-            <p className="text-meta text-ink-3">内测账号</p>
-            <p className="mt-2 font-num text-[30px] text-ink">{betaAccounts.length}</p>
-            <p className="text-meta text-ink-3">{memberNo === "1001" ? "你可查看另外 99 个" : "当前整组内测账号"}</p>
+          <div className="mt-6 grid gap-4 lg:grid-cols-4">
+            <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
+              <p className="text-meta text-ink-3">内测账号</p>
+              <p className="mt-2 font-num text-[2rem] leading-none text-ink">{betaAccounts.length}</p>
+              <p className="text-meta text-ink-3">{memberNo === "1001" ? "你可查看另外 99 个" : "当前整组内测账号"}</p>
+            </div>
+            <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
+              <p className="text-meta text-ink-3">兑换码库存</p>
+              <p className="mt-2 font-num text-[2rem] leading-none text-ink">{redeemCodes.length}</p>
+              <p className="text-meta text-ink-3">30 天月卡为主</p>
+            </div>
+            <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
+              <p className="text-meta text-ink-3">未使用</p>
+              <p className="mt-2 font-num text-[2rem] leading-none text-success-ink">{redeemSummary.unused}</p>
+              <p className="text-meta text-ink-3">可直接兑换</p>
+            </div>
+            <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
+              <p className="text-meta text-ink-3">主账号可见用户</p>
+              <p className="mt-2 font-num text-[2rem] leading-none text-ink">{canManageUsers ? allUsers.length : "--"}</p>
+              <p className="text-meta text-ink-3">{canManageUsers ? "含权限字段" : "仅 10001 可查看"}</p>
+            </div>
           </div>
-          <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
-            <p className="text-meta text-ink-3">兑换码库存</p>
-            <p className="mt-2 font-num text-[30px] text-ink">{redeemCodes.length}</p>
-            <p className="text-meta text-ink-3">30 天月卡为主</p>
-          </div>
-          <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
-            <p className="text-meta text-ink-3">未使用</p>
-            <p className="mt-2 font-num text-[30px] text-success-ink">{redeemSummary.unused}</p>
-            <p className="text-meta text-ink-3">可直接兑换</p>
-          </div>
-          <div className="rounded-[24px] border border-rule bg-paper px-5 py-4">
-            <p className="text-meta text-ink-3">主账号可见用户</p>
-            <p className="mt-2 font-num text-[30px] text-ink">{canManageUsers ? allUsers.length : "--"}</p>
-            <p className="text-meta text-ink-3">{canManageUsers ? "含权限字段" : "仅 10001 可查看"}</p>
-          </div>
-        </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[1.05fr_1.15fr]">
           <div className="rounded-[26px] border border-rule bg-paper px-5 py-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-h3 text-ink">内测账号列表</p>
+                <p className="text-h4 text-ink">内测账号列表</p>
                 <p className="text-meta text-ink-3">1001 可见 1002-1100；10001 可见整组</p>
               </div>
               <div className="rounded-full bg-white px-3 py-1 text-meta font-num text-ink-3">
@@ -294,7 +301,7 @@ export function AdminConsolePanel() {
           <div className="rounded-[26px] border border-rule bg-paper px-5 py-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-h3 text-ink">兑换码使用情况</p>
+                <p className="text-h4 text-ink">兑换码使用情况</p>
                 <p className="text-meta text-ink-3">当前 103 个码，其中大部分为 30 天月卡</p>
               </div>
               <div className="flex gap-2 text-meta">
@@ -331,43 +338,43 @@ export function AdminConsolePanel() {
           <div className="mt-6 grid gap-6 xl:grid-cols-[0.86fr_1.14fr]">
             <div className="rounded-[26px] border border-rule bg-paper px-5 py-5">
               <div>
-                <p className="text-h3 text-ink">审核授权</p>
+                <p className="text-h4 text-ink">审核授权</p>
                 <p className="text-meta text-ink-3">10001 可按会员号调整角色、园所和会员到期时间</p>
               </div>
               <div className="mt-4 space-y-3">
                 <input
                   value={form.member_no}
                   onChange={(e) => setForm((prev) => ({ ...prev, member_no: e.target.value }))}
-                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body text-ink outline-none focus:border-brand"
+                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body-sm text-ink outline-none focus:border-brand"
                   placeholder="目标会员号，例如 60232"
                 />
                 <select
                   value={form.role}
                   onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
-                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body text-ink outline-none focus:border-brand"
+                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body-sm text-ink outline-none focus:border-brand"
                 >
                   <option value="">角色不变</option>
-                  <option value="teacher">teacher</option>
-                  <option value="org_admin">org_admin</option>
-                  <option value="guest">guest</option>
-                  <option value="platform_admin">platform_admin</option>
+                  <option value="teacher">幼师</option>
+                  <option value="org_admin">园长</option>
+                  <option value="guest">游客</option>
+                  <option value="platform_admin">管理员</option>
                 </select>
                 <input
                   value={form.org_id}
                   onChange={(e) => setForm((prev) => ({ ...prev, org_id: e.target.value }))}
-                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body text-ink outline-none focus:border-brand"
+                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body-sm text-ink outline-none focus:border-brand"
                   placeholder="org_id，可选"
                 />
                 <input
                   value={form.membership_until}
                   onChange={(e) => setForm((prev) => ({ ...prev, membership_until: e.target.value }))}
-                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body text-ink outline-none focus:border-brand"
+                  className="h-11 w-full rounded-2xl border border-rule bg-white px-4 text-body-sm text-ink outline-none focus:border-brand"
                   placeholder="会员到期，如 2027-12-31T23:59:59+00:00"
                 />
                 <textarea
                   value={form.note}
                   onChange={(e) => setForm((prev) => ({ ...prev, note: e.target.value }))}
-                  className="min-h-[110px] w-full rounded-[22px] border border-rule bg-white px-4 py-3 text-body text-ink outline-none focus:border-brand"
+                  className="min-h-[110px] w-full rounded-[22px] border border-rule bg-white px-4 py-3 text-body-sm text-ink outline-none focus:border-brand"
                   placeholder="备注，例如：评审体验账号 / 内部管理员"
                 />
                 <div className="grid grid-cols-3 gap-2">
@@ -408,14 +415,14 @@ export function AdminConsolePanel() {
             <div className="rounded-[26px] border border-rule bg-paper px-5 py-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-h3 text-ink">全量用户与权限</p>
+                  <p className="text-h4 text-ink">全量用户与权限</p>
                   <p className="text-meta text-ink-3">可搜索会员号、手机号、openid、角色、备注</p>
                 </div>
                 <div className="flex w-full max-w-[620px] flex-wrap items-center gap-2">
                   <select
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
-                    className="h-10 rounded-2xl border border-rule bg-white px-4 text-body text-ink outline-none focus:border-brand"
+                    className="h-10 rounded-2xl border border-rule bg-white px-4 text-body-sm text-ink outline-none focus:border-brand"
                   >
                     <option value="all">全部角色</option>
                     <option value="teacher">teacher</option>

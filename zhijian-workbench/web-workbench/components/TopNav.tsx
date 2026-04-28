@@ -56,7 +56,7 @@ export function TopNav() {
     platform_admin:   "管理员",
   };
   const topControlBase =
-    "inline-flex h-10 items-center justify-center rounded-pill border border-rule bg-paper-hi px-5 text-meta font-semibold leading-none text-ink transition-colors whitespace-nowrap";
+    "inline-flex h-9 items-center justify-center rounded-pill border border-rule bg-paper-hi px-4 text-meta font-semibold leading-none text-ink transition-colors whitespace-nowrap";
 
   return (
     <>
@@ -88,15 +88,6 @@ export function TopNav() {
         </nav>
         <div className="flex-1" />
         <div className="flex items-center gap-3">
-          {isLoggedIn && user?.role === "platform_admin" ? (
-            <a
-              href="#admin-console"
-              className={`${topControlBase} hover:bg-paper-sunk`}
-            >
-              管理后台
-            </a>
-          ) : null}
-
           {isLoggedIn ? (
             <button
               type="button"
@@ -116,7 +107,7 @@ export function TopNav() {
           )}
 
           <input
-            className="hidden lg:block h-10 w-[172px] rounded-pill border border-rule bg-white px-4 text-meta text-ink placeholder:text-ink-4 focus:outline-none focus:border-brand focus:shadow-focus"
+            className="hidden lg:block h-9 w-[156px] rounded-pill border border-rule bg-white px-4 text-meta text-ink placeholder:text-ink-4 focus:outline-none focus:border-brand focus:shadow-focus"
             placeholder="搜索教案、模板、主题"
           />
 
@@ -124,7 +115,7 @@ export function TopNav() {
             /* ── 已登录：显示次数 + 头像 + 下拉 ── */
             <div className="flex items-center gap-2">
               {/* Token 用量占位，后续接真实数据 */}
-              <button className="flex h-10 min-w-[132px] flex-col items-start justify-center gap-1 rounded-pill border border-rule bg-paper-hi px-4 text-meta text-ink-2 hover:bg-paper-sunk whitespace-nowrap">
+              <button className="flex h-9 min-w-[118px] flex-col items-start justify-center gap-0.5 rounded-pill border border-rule bg-paper-hi px-4 text-meta text-ink-2 hover:bg-paper-sunk whitespace-nowrap">
                 <span className="text-[10px] text-ink-3 leading-none">本月用量</span>
                 <div className="flex items-center gap-1.5 w-full">
                   <div className="flex-1 h-1 rounded-full bg-rule overflow-hidden">
@@ -136,7 +127,7 @@ export function TopNav() {
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen((v) => !v)}
-                  className="flex h-10 items-center gap-2 rounded-pill border border-transparent px-3 text-meta text-ink-2 hover:bg-paper-sunk transition-colors"
+                  className="flex h-9 items-center gap-2 rounded-pill border border-transparent px-2.5 text-meta text-ink-2 hover:bg-paper-sunk transition-colors"
                 >
                   <div className="w-7 h-7 rounded-full bg-brand text-white grid place-items-center text-micro font-semibold select-none">
                     {avatarLabel}
