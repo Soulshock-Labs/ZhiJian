@@ -1,5 +1,6 @@
 // pages/generate/generate.js
 const app = getApp();
+const { request, downloadDoc } = require('../../utils/request');
 
 Page({
   data: {
@@ -56,9 +57,7 @@ Page({
         content: '登录后才能使用 AI 生成功能',
         confirmText: '去登录',
         success: (res) => {
-          if (res.confirm) {
-            wx.switchTab({ url: '/pages/profile/profile' });
-          }
+          if (res.confirm) wx.switchTab({ url: '/pages/profile/profile' });
         },
       });
       return;
@@ -66,33 +65,25 @@ Page({
 
     this.setData({ step: 'thinking' });
 
-    // 调用后端 API
-    wx.request({
-      url: 'https://api.zhijian.me/generate/weekly',
-      method: 'POST',
-      data: {
-        theme: theme.trim(),
-        class_level: classOptions[classIndex],
-        phil: philOptions[philIndex],
-        user_token: userToken,
-        model: 'deepseek-chat',
-      },
-      success: (res) => {
-        if (res.data && res.data.weekly_plan) {
-          const days = (res.data.weekly_plan.days || []).map(d => ({
-            day: d.day,
-            title: d.task || d.activity_name || d.domain || d.day,
-            focus: d.focus || d.domain || d.hint || '',
-          }));
-          this.setData({ step: 'result', planDays: days });
-        } else {
-          this._handleError('生成失败，请重试');
-        }
-      },
-      fail: () => {
-        this._handleError('网络异常，请检查连接');
-      },
-    });
+    // 使用统一 request 封装，自动带 user_token + 正确后端地址
+    request('/generate-weekly', 'POST', {
+      theme: theme.trim(),
+      class_level: classOptions[classIndex],
+      phil: philOptions[philIndex],
+      activities: JSON.stringify(['区域活动', '户外活动']),
+      user_token: userToken,
+    })
+      .then((res) => {
+        const days = (res.days || []).map(d => ({
+          day: d.day,
+          title: d.task || d.activity_name || d.domain || d.day,
+          focus: d.focus || d.domain || d.hint || '',
+        }));
+        this.setData({ step: 'result', planDays: days });
+      })
+      .catch(() => {
+        this._handleError('生成失败，请重试');
+      });
   },
 
   _handleError(msg) {
@@ -101,44 +92,36 @@ Page({
   },
 
   downloadWord() {
+    const { theme, classOptions, classIndex, philOptions, philIndex } = this.data;
     const userToken = app.globalData.userToken;
     wx.showLoading({ title: '生成文档中…' });
-    wx.request({
-      url: 'https://api.zhijian.me/generate/weekly/document',
-      method: 'POST',
-      responseType: 'arraybuffer',
-      data: {
-        theme: this.data.theme,
-        class_level: this.data.classOptions[this.data.classIndex],
-        phil: this.data.philOptions[this.data.philIndex],
+
+    downloadDoc(
+      '/generate-weekly',
+      'POST',
+      {
+        theme,
+        class_level: classOptions[classIndex],
+        phil: philOptions[philIndex],
+        activities: JSON.stringify(['区域活动', '户外活动']),
         user_token: userToken,
+        export_format: 'docx',
       },
-      success: (res) => {
+      `周计划_${theme}.docx`,
+    )
+      .then((filePath) => {
         wx.hideLoading();
-        const fileName = `周计划_${this.data.theme}.docx`;
-        const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
-        const fs = wx.getFileSystemManager();
-        fs.writeFile({
-          filePath,
-          data: res.data,
-          encoding: 'binary',
-          success: () => {
-            wx.openDocument({ filePath, showMenu: true });
-          },
-          fail: () => wx.showToast({ title: '保存失败', icon: 'none' }),
-        });
-      },
-      fail: () => {
+        wx.openDocument({ filePath, showMenu: true });
+      })
+      .catch(() => {
         wx.hideLoading();
         wx.showToast({ title: '下载失败，请重试', icon: 'none' });
-      },
-    });
+      });
   },
 
   downloadDaily(e) {
     const day = e.currentTarget.dataset.day;
-    wx.showToast({ title: `${day} 日教案下载中…`, icon: 'loading', duration: 1500 });
-    // 实际接入参考 downloadWord 逻辑，endpoint: /generate/daily
+    wx.showToast({ title: `${day} 日教案暂未开放`, icon: 'none', duration: 1500 });
   },
 
   reset() {
