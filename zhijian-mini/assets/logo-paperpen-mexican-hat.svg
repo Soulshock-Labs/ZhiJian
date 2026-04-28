@@ -1,0 +1,62 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="104" y1="96" x2="916" y2="928" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#121513"/>
+      <stop offset="0.56" stop-color="#1A201B"/>
+      <stop offset="1" stop-color="#101311"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="250" y1="210" x2="786" y2="816" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F9E8B8"/>
+      <stop offset="0.44" stop-color="#E8C97C"/>
+      <stop offset="1" stop-color="#C49949"/>
+    </linearGradient>
+    <linearGradient id="goldSoft" x1="296" y1="250" x2="742" y2="778" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F3DFAD"/>
+      <stop offset="1" stop-color="#D3A960"/>
+    </linearGradient>
+    <filter id="shadow" x="166" y="168" width="692" height="728" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="18"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.6 0 0 0 0 0.45 0 0 0 0 0.2 0 0 0 0.34 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="240" fill="url(#bg)"/>
+  <ellipse cx="512" cy="892" rx="320" ry="60" fill="#090C0A" opacity="0.58"/>
+
+  <g filter="url(#shadow)">
+    <rect x="236" y="194" width="552" height="636" rx="224" stroke="url(#gold)" stroke-width="10"/>
+    <rect x="276" y="234" width="472" height="556" rx="196" stroke="url(#goldSoft)" stroke-width="3.5" opacity="0.9"/>
+  </g>
+
+  <ellipse cx="512" cy="472" rx="346" ry="130" fill="#111612" stroke="url(#gold)" stroke-width="10"/>
+  <ellipse cx="512" cy="458" rx="270" ry="86" fill="#151B16" stroke="url(#goldSoft)" stroke-width="5"/>
+  <ellipse cx="512" cy="446" rx="194" ry="58" fill="#121813" stroke="url(#goldSoft)" stroke-width="3.8"/>
+
+  <path d="M252 468C344 396 680 396 772 468" stroke="#F8E8C1" stroke-opacity="0.24" stroke-width="6" stroke-linecap="round"/>
+  <path d="M282 514C372 558 652 558 742 514" stroke="#C79A4E" stroke-opacity="0.55" stroke-width="4.2" stroke-linecap="round"/>
+
+  <path d="M324 446C370 430 414 420 460 414" stroke="url(#goldSoft)" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M700 446C654 430 610 420 564 414" stroke="url(#goldSoft)" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M404 520C438 532 586 532 620 520" stroke="url(#goldSoft)" stroke-width="4.2" stroke-linecap="round" opacity="0.85"/>
+
+  <path d="M512 560C512 610 510 644 510 694" stroke="url(#goldSoft)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="4 10" opacity="0.74"/>
+
+  <g>
+    <ellipse cx="512" cy="792" rx="102" ry="38" fill="#080B09" opacity="0.72"/>
+    <path d="M430 744C430 662 468 610 512 610C556 610 594 662 594 744C594 838 552 886 512 886C472 886 430 838 430 744Z" fill="#171C19" stroke="url(#gold)" stroke-width="7"/>
+    <ellipse cx="512" cy="678" rx="46" ry="36" fill="#1A221D" stroke="url(#goldSoft)" stroke-width="3.8"/>
+    <circle cx="498" cy="676" r="5.8" fill="#E8CB82"/>
+    <path d="M522 676C527 671 535 671 540 676" stroke="#E8CB82" stroke-width="4.8" stroke-linecap="round"/>
+    <path d="M502 700C510 709 522 709 530 700" stroke="#E8CB82" stroke-width="4.8" stroke-linecap="round"/>
+    <ellipse cx="486" cy="692" rx="7" ry="4" fill="#C69958" opacity="0.64"/>
+    <ellipse cx="546" cy="692" rx="7" ry="4" fill="#C69958" opacity="0.64"/>
+    <path d="M470 734C486 748 538 748 554 734" stroke="url(#goldSoft)" stroke-width="4.2" stroke-linecap="round" opacity="0.88"/>
+  </g>
+
+  <path d="M230 836C390 900 630 892 800 796" stroke="url(#goldSoft)" stroke-width="6" stroke-linecap="round" opacity="0.84"/>
+</svg>

@@ -1,0 +1,86 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 520) rotate(90) scale(360 340)">
+      <stop offset="0" stop-color="#151922"/>
+      <stop offset="0.6" stop-color="#090B0E"/>
+      <stop offset="1" stop-color="#050607"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(520 520) rotate(90) scale(230 220)">
+      <stop offset="0" stop-color="#2B3140" stop-opacity="0.86"/>
+      <stop offset="1" stop-color="#0A0B0D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="heel" x1="262" y1="208" x2="776" y2="784" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD84A"/>
+      <stop offset="0.28" stop-color="#FFBD1A"/>
+      <stop offset="0.62" stop-color="#B86CFF"/>
+      <stop offset="1" stop-color="#F4F4F4"/>
+    </linearGradient>
+    <linearGradient id="heelSoft" x1="282" y1="236" x2="744" y2="756" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF3C0"/>
+      <stop offset="0.48" stop-color="#FDE76F"/>
+      <stop offset="1" stop-color="#E4D7FF"/>
+    </linearGradient>
+    <filter id="glow" x="120" y="120" width="784" height="784" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur in="shape" stdDeviation="7" result="b1"/>
+      <feColorMatrix in="b1" type="matrix" values="1 0 0 0 0.98 0 1 0 0 0.78 0 0 1 0 0.16 0 0 0 0.62 0" result="g1"/>
+      <feGaussianBlur in="shape" stdDeviation="2.2" result="b2"/>
+      <feColorMatrix in="b2" type="matrix" values="1 0 0 0 0.9 0 1 0 0 0.84 0 0 1 0 0.22 0 0 0 0.24 0" result="g2"/>
+      <feMerge>
+        <feMergeNode in="g1"/>
+        <feMergeNode in="g2"/>
+        <feMergeNode in="shape"/>
+      </feMerge>
+    </filter>
+    <filter id="spark" x="520" y="198" width="110" height="110" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 1 0 1 0 0 0.84 0 0 1 0 0.18 0 0 0 0.72 0"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="240" fill="#060709"/>
+  <ellipse cx="512" cy="522" rx="340" ry="320" fill="url(#bg)"/>
+  <ellipse cx="520" cy="530" rx="210" ry="192" fill="url(#halo)"/>
+  <ellipse cx="510" cy="856" rx="286" ry="52" fill="#030406" opacity="0.78"/>
+
+  <g>
+  <g filter="url(#glow)">
+    <g transform="translate(160 0)">
+      <!-- upper strap / opening -->
+      <path d="M150 286C214 228 302 202 398 210C466 216 525 238 570 272" stroke="url(#heel)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M174 304C232 258 310 236 394 240C452 243 500 258 538 286" stroke="url(#heelSoft)" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+      <path d="M560 274L594 240" stroke="#FFF0B2" stroke-width="7" stroke-linecap="round" opacity="0.75"/>
+    </g>
+
+    <!-- main shoe body -->
+    <path d="M360 320C344 392 344 454 357 506C369 556 394 600 432 636C471 672 519 697 577 709C646 723 710 719 764 698" stroke="url(#heel)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- toe / front curve -->
+    <path d="M396 604C450 612 501 609 549 594C592 580 631 558 664 530" stroke="url(#heelSoft)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- heel line -->
+    <path d="M678 532C647 582 627 633 615 686C607 721 602 752 599 780" stroke="url(#heel)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- heel stem -->
+    <path d="M598 780C564 778 532 778 501 780C472 782 445 786 418 792" stroke="url(#heel)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M414 792L384 852" stroke="url(#heel)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- sole / bottom sweep -->
+    <path d="M438 660C474 690 516 709 564 717C620 727 676 724 732 706" stroke="url(#heelSoft)" stroke-width="8" stroke-linecap="round" opacity="0.82"/>
+    <path d="M736 706L794 742" stroke="url(#heel)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- inner accent line -->
+    <path d="M420 356C406 420 408 474 426 522C442 564 470 598 508 624" stroke="#FFF7CF" stroke-width="6.5" stroke-linecap="round" opacity="0.62"/>
+    <path d="M512 624C547 635 582 638 618 632" stroke="#FFF7CF" stroke-width="6.5" stroke-linecap="round" opacity="0.62"/>
+  </g>
+
+  <g filter="url(#spark)">
+    <circle cx="590" cy="274" r="10" fill="#FFE15B"/>
+    <circle cx="590" cy="274" r="4.2" fill="#FFF8D8"/>
+  </g>
+  <path d="M590 274L552 312" stroke="#FFF8D8" stroke-width="5.5" stroke-linecap="round" opacity="0.62"/>
+  </g>
+</svg>

@@ -1,0 +1,56 @@
+<view class="page">
+  <view class="shell">
+    <view class="redeem-card">
+      <view class="title">兑换中心</view>
+      <view class="desc">输入手机号或账号 + 卡密，即可立即核销并发放权益。</view>
+
+      <view class="form-item">
+        <view class="label">账号 / 手机号</view>
+        <input
+          class="input"
+          placeholder="例如 13800138000"
+          value="{{userId}}"
+          bindinput="onUserIdInput"
+          maxlength="64"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="label">卡密</view>
+        <input
+          class="input"
+          placeholder="例如 VIP2026"
+          value="{{code}}"
+          bindinput="onCodeInput"
+          maxlength="64"
+        />
+      </view>
+
+      <button
+        class="submit-btn"
+        loading="{{submitting}}"
+        disabled="{{submitting || querying}}"
+        hover-class="submit-btn-hover"
+        hover-start-time="0"
+        hover-stay-time="120"
+        bindtap="submitRedeem">
+        {{submitting ? '兑换中...' : '立即兑换'}}
+      </button>
+      <button
+        class="query-btn"
+        loading="{{querying}}"
+        disabled="{{submitting || querying}}"
+        hover-class="query-btn-hover"
+        hover-start-time="0"
+        hover-stay-time="120"
+        bindtap="queryCode">
+        {{querying ? '查询中...' : '查询状态'}}
+      </button>
+    </view>
+
+    <view class="redeem-card result-card" wx:if="{{resultText}}">
+      <view class="result-title">兑换结果</view>
+      <view class="result-text">{{resultText}}</view>
+    </view>
+  </view>
+</view>

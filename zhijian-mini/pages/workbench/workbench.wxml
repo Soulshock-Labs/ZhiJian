@@ -1,0 +1,111 @@
+<!-- pages/workbench/workbench.wxml -->
+<view class="page">
+
+  <!-- ── 顶部 Header ── -->
+  <view class="header">
+    <view class="header-brand">
+      <view class="brand-sq"><text class="brand-sq-text">笺</text></view>
+      <view class="brand-text">
+        <text class="brand-small">小</text>
+        <text class="brand-main">纸笺</text>
+      </view>
+    </view>
+    <view class="header-right">
+      <view class="header-week-badge">
+        <text class="header-week-text">{{weekLabel}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ── Hero + 吉祥物 ── -->
+  <view class="hero">
+    <view class="hero-text">
+      <text class="hero-eyebrow">{{dateLabel}}</text>
+      <text class="hero-title">{{greeting}}</text>
+      <text class="hero-sub">用 AI 生成教案、记录成长、沟通家长。</text>
+      <view class="hero-progress">
+        <view class="progress-track">
+          <view class="progress-fill" style="width:{{weekPct}}%"></view>
+        </view>
+        <text class="progress-label">本周 {{weekPct}}%</text>
+      </view>
+    </view>
+    <image class="hero-chick" src="../../assets/chick-default.svg" mode="aspectFit" />
+  </view>
+
+  <!-- ── 快速操作 ── -->
+  <view class="section-label">快速开始</view>
+  <view class="quick-list">
+    <view class="quick-item card" bindtap="goGenerate">
+      <view class="quick-icon bg-brand-light">
+        <text class="quick-icon-emoji">📋</text>
+      </view>
+      <view class="quick-content">
+        <text class="quick-title">生成本周周计划</text>
+        <text class="quick-sub">填写主题，AI 生成五天活动方案</text>
+      </view>
+      <view class="tag tag-brand">
+        <text>待完成</text>
+      </view>
+    </view>
+
+    <view class="quick-item card disabled">
+      <view class="quick-icon bg-success-light">
+        <text class="quick-icon-emoji">📝</text>
+      </view>
+      <view class="quick-content">
+        <text class="quick-title">写今日观察记录</text>
+        <text class="quick-sub">记录孩子精彩表现</text>
+      </view>
+      <view class="tag tag-muted">
+        <text>即将上线</text>
+      </view>
+    </view>
+
+    <view class="quick-item card disabled">
+      <view class="quick-icon bg-info-light">
+        <text class="quick-icon-emoji">💬</text>
+      </view>
+      <view class="quick-content">
+        <text class="quick-title">给家长发条消息</text>
+        <text class="quick-sub">AI 辅助撰写沟通文案</text>
+      </view>
+      <view class="tag tag-muted">
+        <text>即将上线</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ── 知识库 ── -->
+  <view class="section-label">我的知识库</view>
+  <view class="kvault card" style="margin: 0 32rpx 32rpx;">
+    <view class="kvault-head">
+      <text class="kvault-title">{{kvFiles.length}} 个文件</text>
+      <text class="kvault-upload" bindtap="uploadDoc">+ 上传</text>
+    </view>
+    <view wx:for="{{kvFiles}}" wx:key="name" class="kv-file">
+      <view class="kv-icon"><text>{{item.icon}}</text></view>
+      <text class="kv-name">{{item.name}}</text>
+      <text class="kv-meta">{{item.date}}</text>
+    </view>
+    <view wx:if="{{kvFiles.length === 0}}" class="kv-empty">
+      <text class="kv-empty-text">暂无文件，上传后可作为教案参考</text>
+    </view>
+  </view>
+
+  <!-- ── 最近生成 ── -->
+  <view class="section-label">最近生成</view>
+  <view class="recent-list" style="margin: 0 32rpx 48rpx;">
+    <view wx:for="{{recentItems}}" wx:key="id" class="recent-item" bindtap="openRecent" data-id="{{item.id}}">
+      <view class="recent-icon" style="background:{{item.iconBg}}">
+        <text>{{item.icon}}</text>
+      </view>
+      <view class="recent-content">
+        <text class="recent-title">{{item.title}}</text>
+        <text class="recent-meta">{{item.meta}}</text>
+      </view>
+      <text class="recent-arrow">›</text>
+    </view>
+  </view>
+
+</view>

@@ -1,0 +1,83 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 506) rotate(90) scale(352 340)">
+      <stop offset="0" stop-color="#131823"/>
+      <stop offset="0.56" stop-color="#0B0D10"/>
+      <stop offset="1" stop-color="#060709"/>
+    </radialGradient>
+    <radialGradient id="core" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 506) rotate(90) scale(244 228)">
+      <stop offset="0" stop-color="#1A2231" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#0A0B0E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="line" x1="244" y1="214" x2="790" y2="778" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD94A"/>
+      <stop offset="0.28" stop-color="#FFC31F"/>
+      <stop offset="0.56" stop-color="#9E73FF"/>
+      <stop offset="1" stop-color="#F3F3F3"/>
+    </linearGradient>
+    <linearGradient id="lineSoft" x1="280" y1="240" x2="742" y2="744" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF5C6"/>
+      <stop offset="0.46" stop-color="#FDE96E"/>
+      <stop offset="1" stop-color="#E8D8FF"/>
+    </linearGradient>
+    <filter id="glow" x="128" y="120" width="768" height="784" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur in="shape" stdDeviation="8" result="blur1"/>
+      <feColorMatrix in="blur1" type="matrix" values="1 0 0 0 0.98 0 1 0 0 0.78 0 0 1 0 0.18 0 0 0 0.55 0" result="g1"/>
+      <feGaussianBlur in="shape" stdDeviation="2.6" result="blur2"/>
+      <feColorMatrix in="blur2" type="matrix" values="1 0 0 0 0.89 0 1 0 0 0.84 0 0 1 0 0.24 0 0 0 0.28 0" result="g2"/>
+      <feMerge>
+        <feMergeNode in="g1"/>
+        <feMergeNode in="g2"/>
+        <feMergeNode in="shape"/>
+      </feMerge>
+    </filter>
+    <filter id="spark" x="546" y="204" width="100" height="100" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 1 0 1 0 0 0.84 0 0 1 0 0.18 0 0 0 0.68 0"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="240" fill="#07080A"/>
+  <ellipse cx="512" cy="512" rx="350" ry="330" fill="url(#core)"/>
+  <ellipse cx="512" cy="854" rx="292" ry="54" fill="#030406" opacity="0.74"/>
+
+  <g filter="url(#glow)">
+    <!-- top mark -->
+    <path d="M286 260H428L388 304L460 356" stroke="url(#line)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M387 304L455 354" stroke="#FFF0B1" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+    <path d="M360 236C370 266 385 290 408 312" stroke="url(#lineSoft)" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- main body -->
+    <path d="M342 266C306 318 294 380 298 454C303 535 331 606 384 666C436 725 503 756 582 760C654 764 717 747 774 712" stroke="url(#line)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M441 262C430 336 432 403 450 482" stroke="url(#lineSoft)" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- diagonal sweep -->
+    <path d="M434 490C457 475 485 466 515 466C557 466 594 478 624 501" stroke="url(#line)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M510 466C521 507 543 542 575 570" stroke="url(#lineSoft)" stroke-width="11" stroke-linecap="round"/>
+
+    <!-- right loop / corner -->
+    <path d="M576 570C602 558 627 553 652 554C684 555 713 564 740 580" stroke="url(#line)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M740 580C716 618 700 651 690 682C684 702 679 725 676 750" stroke="url(#lineSoft)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- lower arm / wedge -->
+    <path d="M676 750C625 730 568 720 505 721C457 722 410 727 364 737" stroke="url(#line)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M336 641C388 676 446 700 510 711C578 723 647 718 718 694" stroke="url(#lineSoft)" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+    <path d="M320 644L284 560" stroke="url(#line)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M742 690L784 738" stroke="url(#line)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- finger detail -->
+    <path d="M470 542C487 524 506 513 528 512" stroke="#FFF7CF" stroke-width="7" stroke-linecap="round" opacity="0.68"/>
+    <path d="M503 564C521 545 543 534 568 533" stroke="#FFF7CF" stroke-width="7" stroke-linecap="round" opacity="0.68"/>
+    <path d="M540 586C560 568 583 558 609 557" stroke="#FFF7CF" stroke-width="7" stroke-linecap="round" opacity="0.68"/>
+  </g>
+
+  <g filter="url(#spark)">
+    <circle cx="606" cy="296" r="11" fill="#FFE25D"/>
+    <circle cx="606" cy="296" r="4.5" fill="#FFF8DA"/>
+  </g>
+  <path d="M606 296L572 338" stroke="#FFF8DA" stroke-width="5.5" stroke-linecap="round" opacity="0.66"/>
+</svg>

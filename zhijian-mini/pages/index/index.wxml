@@ -1,0 +1,49 @@
+<view
+  class="page"
+  bindtouchstart="onDescGestureStart"
+  bindtouchmove="onDescGestureMove"
+  bindtouchend="onDescGestureEnd"
+  bindtouchcancel="onDescGestureEnd">
+  <view class="shell">
+    <view class="card entry">
+      <view class="entry-brand">
+        <view class="brand-badge">纸</view>
+        <view>
+          <text class="brand">纸笺</text>
+          <text class="entry-slogan">把时间还给老师，把目光留给孩子</text>
+        </view>
+      </view>
+
+      <view class="entry-center">
+        <button
+          class="entry-btn"
+          mark:descBlock="1"
+          catchtouchmove="catchVoid"
+          bindtap="openWorkbench">
+          工作消消乐
+        </button>
+      </view>
+
+      <view class="entry-footer">
+        <view class="entry-redeem">
+          <button
+            class="entry-btn entry-btn-redeem"
+            mark:descBlock="1"
+            catchtouchmove="catchVoid"
+            bindtap="openRedeem">
+            卡密兑换
+          </button>
+        </view>
+        <view class="entry-copy">
+          <view class="desc-window">
+            <view
+              class="desc-strip"
+              style="transform: translateY({{descTranslateY}}rpx); transition: {{descTransition}};">
+              <text class="desc-text" wx:for="{{descLines}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

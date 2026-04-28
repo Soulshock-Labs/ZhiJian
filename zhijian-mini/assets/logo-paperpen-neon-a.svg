@@ -1,0 +1,72 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 506) rotate(90) scale(360 344)">
+      <stop offset="0" stop-color="#141922"/>
+      <stop offset="0.6" stop-color="#090B0E"/>
+      <stop offset="1" stop-color="#050607"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 500) rotate(90) scale(236 224)">
+      <stop offset="0" stop-color="#242F3C" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#101217" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="neon" x1="244" y1="224" x2="784" y2="784" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD94A"/>
+      <stop offset="0.32" stop-color="#FFC11E"/>
+      <stop offset="0.66" stop-color="#B56CFF"/>
+      <stop offset="1" stop-color="#F2F2F2"/>
+    </linearGradient>
+    <linearGradient id="soft" x1="280" y1="240" x2="740" y2="750" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF4C4"/>
+      <stop offset="0.5" stop-color="#FDE86A"/>
+      <stop offset="1" stop-color="#E5D8FF"/>
+    </linearGradient>
+    <filter id="glow" x="128" y="124" width="768" height="780" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur in="shape" stdDeviation="7.5" result="b1"/>
+      <feColorMatrix in="b1" type="matrix" values="1 0 0 0 0.97 0 1 0 0 0.76 0 0 1 0 0.16 0 0 0 0.62 0" result="g1"/>
+      <feGaussianBlur in="shape" stdDeviation="2.1" result="b2"/>
+      <feColorMatrix in="b2" type="matrix" values="1 0 0 0 0.88 0 1 0 0 0.84 0 0 1 0 0.22 0 0 0 0.3 0" result="g2"/>
+      <feMerge>
+        <feMergeNode in="g1"/>
+        <feMergeNode in="g2"/>
+        <feMergeNode in="shape"/>
+      </feMerge>
+    </filter>
+    <filter id="spark" x="545" y="202" width="100" height="100" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 1 0 1 0 0 0.84 0 0 1 0 0.18 0 0 0 0.68 0"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="240" fill="#07080A"/>
+  <ellipse cx="512" cy="516" rx="344" ry="332" fill="url(#bg)"/>
+  <ellipse cx="512" cy="506" rx="220" ry="208" fill="url(#halo)"/>
+  <ellipse cx="512" cy="856" rx="286" ry="52" fill="#030406" opacity="0.76"/>
+
+  <g filter="url(#glow)">
+    <path d="M282 246H404L370 296L444 352" stroke="url(#neon)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M368 294L438 352" stroke="#FFF0B4" stroke-width="6" stroke-linecap="round" opacity="0.84"/>
+    <path d="M365 250C322 303 304 368 305 447C306 529 331 604 385 665C436 723 503 756 582 760C654 764 718 746 774 710" stroke="url(#neon)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M421 258C411 329 414 399 433 478" stroke="url(#soft)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M426 490C454 469 486 458 523 458C563 458 598 470 629 495" stroke="url(#neon)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M509 458C519 499 540 536 569 565" stroke="url(#soft)" stroke-width="11" stroke-linecap="round"/>
+    <path d="M567 565C590 553 615 548 641 549C671 550 695 558 718 574" stroke="url(#neon)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M718 574C695 615 677 652 664 687C656 707 649 729 646 754" stroke="url(#soft)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M646 754C599 734 551 723 500 722C460 721 418 725 373 734" stroke="url(#neon)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M317 639C370 676 432 700 503 710C576 720 646 715 715 691" stroke="url(#soft)" stroke-width="8" stroke-linecap="round" opacity="0.82"/>
+    <path d="M319 639L285 554" stroke="url(#neon)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M742 688L788 738" stroke="url(#neon)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M468 540C486 520 506 509 529 508" stroke="#FFF7CE" stroke-width="7" stroke-linecap="round" opacity="0.66"/>
+    <path d="M503 562C523 542 546 531 571 530" stroke="#FFF7CE" stroke-width="7" stroke-linecap="round" opacity="0.66"/>
+    <path d="M538 584C560 565 585 555 611 554" stroke="#FFF7CE" stroke-width="7" stroke-linecap="round" opacity="0.66"/>
+  </g>
+
+  <g filter="url(#spark)">
+    <circle cx="606" cy="296" r="11" fill="#FFE15F"/>
+    <circle cx="606" cy="296" r="4.4" fill="#FFF8D8"/>
+  </g>
+  <path d="M606 296L570 339" stroke="#FFF8D8" stroke-width="5.5" stroke-linecap="round" opacity="0.62"/>
+</svg>

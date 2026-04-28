@@ -1,0 +1,110 @@
+<!-- pages/profile/profile.wxml -->
+<view class="page">
+
+  <!-- ── 已登录状态 ── -->
+  <block wx:if="{{isLoggedIn}}">
+
+    <!-- User card -->
+    <view class="user-card">
+      <view class="avatar">
+        <text class="avatar-letter">{{avatarLetter}}</text>
+      </view>
+      <view class="user-info">
+        <text class="user-name">{{roleName}}{{memberPrefix}}</text>
+        <text class="user-role">会员号 {{maskedMember}} · {{roleLabel}}</text>
+      </view>
+      <view class="user-badge"><text class="user-badge-text">内测版</text></view>
+    </view>
+
+    <!-- Usage -->
+    <view class="usage-card">
+      <view class="usage-head">
+        <text class="usage-label">本月 AI 用量</text>
+        <text class="usage-pct">{{usagePct}}%</text>
+      </view>
+      <view class="usage-track">
+        <view class="usage-fill" style="width:{{usagePct}}%"></view>
+      </view>
+      <text class="usage-sub">已用 {{usedCount}} 次 / 共 {{totalCount}} 次</text>
+    </view>
+
+    <!-- Menu items -->
+    <view class="section-label">我的内容</view>
+    <view class="menu-list">
+      <view wx:for="{{menuItems}}" wx:key="label" class="menu-item" bindtap="onMenuItem" data-action="{{item.action}}">
+        <text class="menu-icon">{{item.icon}}</text>
+        <text class="menu-label">{{item.label}}</text>
+        <text class="menu-count" wx:if="{{item.count}}">{{item.count}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="section-label">账号设置</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="openRedeem">
+        <text class="menu-icon">🎟</text>
+        <text class="menu-label">兑换内测码</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="openAbout">
+        <text class="menu-icon">ℹ️</text>
+        <text class="menu-label">关于小纸笺</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item danger" bindtap="logout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label">退出登录</text>
+      </view>
+    </view>
+
+  </block>
+
+  <!-- ── 未登录状态 ── -->
+  <block wx:else>
+    <view class="login-page">
+      <image class="login-chick" src="../../assets/chick-default.svg" mode="aspectFit"/>
+      <view class="login-brand">
+        <view class="login-sq"><text class="login-sq-text">笺</text></view>
+        <view>
+          <text class="login-name-small">小</text>
+          <text class="login-name">纸笺</text>
+        </view>
+      </view>
+      <text class="login-title">欢迎使用幼师智能助手</text>
+      <text class="login-sub">登录后解锁 AI 生成教案、周计划、家园沟通等功能</text>
+
+      <view class="login-actions">
+        <button class="btn btn-primary btn-lg w-full" bindtap="openLogin">登录 / 注册</button>
+        <button class="btn btn-ghost btn-md w-full" style="margin-top:20rpx" bindtap="openRedeem">内测兑换码注册</button>
+      </view>
+
+      <text class="login-agree">继续使用即表示同意用户协议与隐私政策</text>
+    </view>
+  </block>
+
+  <!-- ── 登录弹窗 ── -->
+  <view class="modal-mask" wx:if="{{loginModalVisible}}" bindtap="closeLogin">
+    <view class="modal-box" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">{{loginTab === 'login' ? '登录' : '注册'}}</text>
+        <text class="modal-close" bindtap="closeLogin">✕</text>
+      </view>
+      <view class="modal-tabs">
+        <view class="modal-tab {{loginTab === 'login' ? 'active' : ''}}" bindtap="setTab" data-tab="login">
+          <text>登录</text>
+        </view>
+        <view class="modal-tab {{loginTab === 'register' ? 'active' : ''}}" bindtap="setTab" data-tab="register">
+          <text>注册</text>
+        </view>
+      </view>
+      <view class="modal-body">
+        <input class="form-input" placeholder="手机号 / 邮箱" placeholder-style="color:#b8ad9c" bindinput="onAccountInput" value="{{loginAccount}}"/>
+        <input class="form-input" style="margin-top:20rpx" placeholder="密码" password="true" placeholder-style="color:#b8ad9c" bindinput="onPasswordInput" value="{{loginPassword}}"/>
+        <button class="btn btn-primary btn-md w-full" style="margin-top:32rpx" bindtap="doLogin">
+          {{loginTab === 'login' ? '登录' : '注册'}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+</view>

@@ -1,0 +1,74 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="104" x2="910" y2="926" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#121513"/>
+      <stop offset="0.55" stop-color="#1B201C"/>
+      <stop offset="1" stop-color="#111412"/>
+    </linearGradient>
+    <radialGradient id="coreGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(504 540) rotate(90) scale(364 352)">
+      <stop offset="0" stop-color="#2A302B"/>
+      <stop offset="1" stop-color="#141915" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="252" y1="234" x2="772" y2="808" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8E5AD"/>
+      <stop offset="0.45" stop-color="#E8C97A"/>
+      <stop offset="1" stop-color="#C79D4F"/>
+    </linearGradient>
+    <linearGradient id="goldSoft" x1="290" y1="286" x2="734" y2="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F5E3B4"/>
+      <stop offset="1" stop-color="#D6AC63"/>
+    </linearGradient>
+    <filter id="goldShadow" x="172" y="170" width="680" height="714" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="18"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.6 0 0 0 0 0.45 0 0 0 0 0.2 0 0 0 0.35 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+    <filter id="innerLight" x="244" y="230" width="536" height="544" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="10" result="effect1_foregroundBlur_1_1"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="240" fill="url(#bg)"/>
+  <ellipse cx="510" cy="884" rx="312" ry="58" fill="#0A0D0B" opacity="0.55"/>
+  <ellipse cx="510" cy="540" rx="352" ry="364" fill="url(#coreGlow)"/>
+
+  <g filter="url(#goldShadow)">
+    <rect x="236" y="194" width="552" height="636" rx="224" stroke="url(#gold)" stroke-width="10"/>
+    <rect x="276" y="234" width="472" height="556" rx="196" stroke="url(#goldSoft)" stroke-width="3.5" opacity="0.85"/>
+  </g>
+
+  <g filter="url(#innerLight)">
+    <circle cx="360" cy="332" r="112" stroke="url(#goldSoft)" stroke-width="8" opacity="0.7"/>
+  </g>
+
+  <path d="M260 670C364 582 528 570 710 680" stroke="url(#gold)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M296 722C414 658 558 664 682 754" stroke="url(#goldSoft)" stroke-width="8" stroke-linecap="round" opacity="0.92"/>
+  <path d="M302 646C414 572 552 576 694 668" stroke="#F7E7BC" stroke-opacity="0.22" stroke-width="5" stroke-linecap="round"/>
+
+  <g transform="translate(570 206) rotate(16)">
+    <path d="M26 36L246 172L148 202L190 302L130 328L86 226L10 282L26 36Z" fill="#161B17" stroke="url(#gold)" stroke-width="9" stroke-linejoin="round"/>
+    <path d="M50 74L212 174L142 194L176 280L136 298L100 208L40 250L50 74Z" stroke="url(#goldSoft)" stroke-width="4.2" stroke-linejoin="round" opacity="0.9"/>
+    <path d="M148 202L120 212" stroke="url(#goldSoft)" stroke-width="4.2" stroke-linecap="round"/>
+  </g>
+
+  <path d="M562 420C508 528 450 632 392 746" stroke="url(#goldSoft)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="4 11" opacity="0.74"/>
+
+  <g transform="translate(-54 84) rotate(-7 466 638)">
+    <ellipse cx="466" cy="638" rx="80" ry="74" fill="#181E1A"/>
+    <path d="M402 640C402 607 416 583 438 571C451 563 470 563 484 571C508 585 520 610 520 640C520 674 497 700 461 700C425 700 402 674 402 640Z" stroke="url(#gold)" stroke-width="7"/>
+    <path d="M432 604C438 592 448 585 461 581" stroke="url(#goldSoft)" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="448" cy="638" r="5.5" fill="#E8CB82"/>
+    <path d="M468 638C472 633 480 633 485 638" stroke="#E8CB82" stroke-width="4.6" stroke-linecap="round"/>
+    <path d="M452 660C458 668 471 667 477 658" stroke="#E8CB82" stroke-width="4.6" stroke-linecap="round"/>
+    <ellipse cx="436" cy="654" rx="6" ry="3.5" fill="#C69958" opacity="0.65"/>
+    <ellipse cx="490" cy="654" rx="6" ry="3.5" fill="#C69958" opacity="0.65"/>
+  </g>
+
+  <path d="M250 804C386 850 592 844 760 772" stroke="url(#goldSoft)" stroke-width="6" stroke-linecap="round" opacity="0.82"/>
+</svg>
