@@ -12,6 +12,8 @@ const DEFAULT_DOWNLOAD_TIMEOUT = 45000
 const DEFAULT_UPLOAD_TIMEOUT = 60000
 
 const USER_TOKEN_KEY = 'user_token'
+const USER_ID_KEY = 'user_id'
+const REDEEM_USER_KEY = 'STA_REDEEM_USER_ID'
 
 let activeApiBase = API_BASE
 
@@ -29,6 +31,10 @@ function attachUserToken(payload = {}, path = '') {
     const token = wx.getStorageSync(USER_TOKEN_KEY)
     if (token && data.user_token === undefined) {
       data.user_token = token
+    }
+    const userId = wx.getStorageSync(USER_ID_KEY) || wx.getStorageSync(REDEEM_USER_KEY)
+    if (userId && data.user_id === undefined) {
+      data.user_id = userId
     }
   } catch (err) {
     // ignore storage errors

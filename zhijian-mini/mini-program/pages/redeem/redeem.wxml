@@ -1,6 +1,6 @@
 <view class="page">
   <view class="shell">
-    <view class="card block">
+    <view class="redeem-card">
       <view class="title">兑换中心</view>
       <view class="desc">输入手机号或账号 + 卡密，即可立即核销并发放权益。</view>
 
@@ -26,15 +26,29 @@
         />
       </view>
 
-      <button class="submit-btn" loading="{{submitting}}" disabled="{{submitting || querying}}" bindtap="submitRedeem">
+      <button
+        class="submit-btn"
+        loading="{{submitting}}"
+        disabled="{{submitting || querying}}"
+        hover-class="submit-btn-hover"
+        hover-start-time="0"
+        hover-stay-time="120"
+        bindtap="submitRedeem">
         {{submitting ? '兑换中...' : '立即兑换'}}
       </button>
-      <button class="query-btn" loading="{{querying}}" disabled="{{submitting || querying}}" bindtap="queryCode">
+      <button
+        class="query-btn"
+        loading="{{querying}}"
+        disabled="{{submitting || querying}}"
+        hover-class="query-btn-hover"
+        hover-start-time="0"
+        hover-stay-time="120"
+        bindtap="queryCode">
         {{querying ? '查询中...' : '查询状态'}}
       </button>
     </view>
 
-    <view class="card block" wx:if="{{resultText}}">
+    <view class="redeem-card result-card" wx:if="{{resultText}}">
       <view class="result-title">兑换结果</view>
       <view class="result-text">{{resultText}}</view>
     </view>
