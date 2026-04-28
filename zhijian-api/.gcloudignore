@@ -1,14 +1,53 @@
-# 注意：勿在此排除 redeem_codes.json（真实卡密仅本机存在、不入 Git，但部署需上传）
+# 注意：redeem_codes.json 保留，线上需要读取
 .gcloudignore
 .git
 .gitignore
-__pycache__/
+
+# Python 缓存
+__pycache__
+**/__pycache__
 *.pyc
+*.pyo
+
+# 虚拟环境
 venv/
 .venv/
+
+# 环境与密钥
 .env
 .env.*
+gcloud-service-key.json
+service-account*.json
+
+# Node（后端不需要）
+node_modules/
+package.json
+package-lock.json
+index.js
+vibe-test.js
+
+# 本地运行数据
+user_accounts.json
+user_services.json
+account_index.json
+member_no_counter.json
+redeem_logs.jsonl
+weekly_draft_sessions.jsonl
+feedback_messages.jsonl
+app_public_stats.json
+
+# 临时文件
+output_*.docx
+filled_*.docx
+*.tmp
+*.tmp.*
+
+# 知识库本地存储
 knowledge_base/library/**
 knowledge_base/incoming/**
 knowledge_base/archives/**
+
+# 开发工具
 android-app/**
+scripts/**
+*.md

@@ -1,17 +1,53 @@
+# 环境与密钥
 .env
 .env.*
-__pycache__/
-*.pyc
-venv/
-.venv/
-.git/
-.gitignore
-*.md
 gcloud-service-key.json
 service-account*.json
+
+# Git
+.git/
+.gitignore
+.gcloudignore
+
+# Python 缓存
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# 虚拟环境
+venv/
+.venv/
+
+# Node（后端不需要）
+node_modules/
+package.json
+package-lock.json
+index.js
+vibe-test.js
+
+# 本地运行数据（线上用 GCS / Firestore，不打进镜像）
+user_accounts.json
+user_services.json
+account_index.json
+member_no_counter.json
+redeem_logs.jsonl
+weekly_draft_sessions.jsonl
+feedback_messages.jsonl
+app_public_stats.json
+
+# 临时文件
 output_*.docx
 filled_*.docx
+*.tmp
+*.tmp.*
+
+# 知识库本地存储
 knowledge_base/library/
 knowledge_base/incoming/
 knowledge_base/archives/
+
+# 开发工具
 android-app/
+scripts/
+*.md
