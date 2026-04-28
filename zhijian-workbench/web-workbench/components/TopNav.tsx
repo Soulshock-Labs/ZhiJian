@@ -121,8 +121,15 @@ export function TopNav() {
           {isLoggedIn && user ? (
             /* ── 已登录：显示次数 + 头像 + 下拉 ── */
             <div className="flex items-center gap-2">
-              <button className="h-8 px-4 rounded-pill bg-paper-hi border border-rule text-meta text-ink-2 hover:bg-paper-sunk whitespace-nowrap">
-                <span className="font-num">128</span> 次
+              {/* Token 用量占位，后续接真实数据 */}
+              <button className="h-8 px-3 rounded-pill bg-paper-hi border border-rule text-meta text-ink-2 hover:bg-paper-sunk whitespace-nowrap flex flex-col items-start justify-center gap-0.5 min-w-[80px]">
+                <span className="text-[10px] text-ink-3 leading-none">本月用量</span>
+                <div className="flex items-center gap-1.5 w-full">
+                  <div className="flex-1 h-1 rounded-full bg-rule overflow-hidden">
+                    <div className="h-full rounded-full bg-brand" style={{ width: "18%" }} />
+                  </div>
+                  <span className="font-num text-[11px] leading-none text-ink-2">18%</span>
+                </div>
               </button>
               <div className="relative">
                 <button
