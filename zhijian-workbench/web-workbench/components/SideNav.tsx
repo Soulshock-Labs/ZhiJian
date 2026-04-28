@@ -49,6 +49,13 @@ export function SideNav() {
         { label: "我的班级", disabled: true },
       ],
     },
+    {
+      title: "纸笺集",
+      items: [
+        { label: "我的 Agent", disabled: true },
+        { label: "会员权益", disabled: true },
+      ],
+    },
   ];
 
   return (
