@@ -55,6 +55,8 @@ export function TopNav() {
     guest:            "游客",
     platform_admin:   "管理员",
   };
+  const topControlBase =
+    "inline-flex h-10 items-center justify-center rounded-pill border border-rule bg-paper-hi px-5 text-meta font-semibold leading-none text-ink transition-colors whitespace-nowrap";
 
   return (
     <>
@@ -89,7 +91,7 @@ export function TopNav() {
           {isLoggedIn && user?.role === "platform_admin" ? (
             <a
               href="#admin-console"
-              className="h-8 px-4 rounded-pill bg-paper-hi border border-rule text-meta font-semibold text-ink hover:bg-paper-sunk whitespace-nowrap transition-colors"
+              className={`${topControlBase} hover:bg-paper-sunk`}
             >
               管理后台
             </a>
@@ -99,7 +101,7 @@ export function TopNav() {
             <button
               type="button"
               onClick={openRedeemEntry}
-              className="inline-flex h-8 items-center justify-center px-4 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-meta font-semibold leading-none text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap transition-colors"
+              className={`${topControlBase} border-[color-mix(in_oklch,var(--color-success),transparent_65%)] bg-success-tint text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)]`}
             >
               兑换中心
             </button>
@@ -107,14 +109,14 @@ export function TopNav() {
             <button
               type="button"
               onClick={openRedeemEntry}
-              className="inline-flex h-8 items-center justify-center px-4 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-meta font-semibold leading-none text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap transition-colors"
+              className={`${topControlBase} border-[color-mix(in_oklch,var(--color-success),transparent_65%)] bg-success-tint text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)]`}
             >
               内测兑换
             </button>
           )}
 
           <input
-            className="hidden lg:block h-8 w-[180px] px-3 rounded-sm border border-rule bg-white text-meta text-ink placeholder:text-ink-4 focus:outline-none focus:border-brand focus:shadow-focus"
+            className="hidden lg:block h-10 w-[172px] rounded-pill border border-rule bg-white px-4 text-meta text-ink placeholder:text-ink-4 focus:outline-none focus:border-brand focus:shadow-focus"
             placeholder="搜索教案、模板、主题"
           />
 
@@ -122,7 +124,7 @@ export function TopNav() {
             /* ── 已登录：显示次数 + 头像 + 下拉 ── */
             <div className="flex items-center gap-2">
               {/* Token 用量占位，后续接真实数据 */}
-              <button className="h-8 px-3 rounded-pill bg-paper-hi border border-rule text-meta text-ink-2 hover:bg-paper-sunk whitespace-nowrap flex flex-col items-start justify-center gap-0.5 min-w-[80px]">
+              <button className="flex h-10 min-w-[132px] flex-col items-start justify-center gap-1 rounded-pill border border-rule bg-paper-hi px-4 text-meta text-ink-2 hover:bg-paper-sunk whitespace-nowrap">
                 <span className="text-[10px] text-ink-3 leading-none">本月用量</span>
                 <div className="flex items-center gap-1.5 w-full">
                   <div className="flex-1 h-1 rounded-full bg-rule overflow-hidden">
@@ -134,12 +136,12 @@ export function TopNav() {
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen((v) => !v)}
-                  className="flex items-center gap-1.5 h-8 px-2 rounded-pill hover:bg-paper-sunk transition-colors"
+                  className="flex h-10 items-center gap-2 rounded-pill border border-transparent px-3 text-meta text-ink-2 hover:bg-paper-sunk transition-colors"
                 >
                   <div className="w-7 h-7 rounded-full bg-brand text-white grid place-items-center text-micro font-semibold select-none">
                     {avatarLabel}
                   </div>
-                  <span className="text-meta text-ink-2 hidden lg:block max-w-[72px] truncate">
+                  <span className="hidden max-w-[72px] truncate text-meta leading-none text-ink-2 lg:block">
                     {roleLabel[user.role] ?? user.role}
                   </span>
                   <svg className="w-3 h-3 text-ink-3" viewBox="0 0 12 12" fill="none">
