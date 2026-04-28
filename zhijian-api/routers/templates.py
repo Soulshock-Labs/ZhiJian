@@ -78,7 +78,7 @@ async def clean_download_template(
     template: UploadFile = File(..., description=”老师上传的原始模板 .docx”),
 ):
     “””
-    基于老师上传模板生成”净空版标准模板”：
+    基于老师上传模板生成「净空版标准模板」：
     - 仅删除教师填写/测试内容
     - 保留所有样式、间距、字体、表格结构
     “””
