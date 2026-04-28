@@ -1,4 +1,7 @@
 {
-  "navigationBarTitleText": "纸笺",
-  "enablePullDownRefresh": true
+  "navigationBarTitleText": "小纸笺 · 工作台",
+  "navigationBarBackgroundColor": "#fbf7ed",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f6f1e7",
+  "enablePullDownRefresh": false
 }

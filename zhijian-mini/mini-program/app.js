@@ -1,34 +1,37 @@
-const { API_BASE } = require('./utils/config')
-const { request } = require('./utils/request')
-
+// app.js
 App({
-  onLaunch() {
-    const logs = wx.getStorageSync('logs') || []
-    logs.unshift(Date.now())
-    wx.setStorageSync('logs', logs)
-
-    wx.login({
-      success: (res) => {
-        const code = res.code
-        if (!code) {
-          return
-        }
-        request('/user/wxlogin', 'POST', { code })
-          .then((data) => {
-            if (data && data.user_token) {
-              wx.setStorageSync('user_token', data.user_token)
-            }
-            if (data && data.openid) {
-              wx.setStorageSync('openid', data.openid)
-            }
-          })
-          .catch(() => {})
-      },
-      fail: () => {},
-    })
-  },
   globalData: {
     userInfo: null,
-    apiBase: API_BASE,
-  }
-})
+    isLoggedIn: false,
+    userToken: '',
+    memberNo: '',
+    role: 'teacher',
+  },
+
+  onLaunch() {
+    const token = wx.getStorageSync('zj_user_token') || '';
+    const memberNo = wx.getStorageSync('zj_member_no') || '';
+    if (token) {
+      this.globalData.isLoggedIn = true;
+      this.globalData.userToken = token;
+      this.globalData.memberNo = memberNo;
+    }
+  },
+
+  login(info) {
+    this.globalData.isLoggedIn = true;
+    this.globalData.userToken = info.token;
+    this.globalData.memberNo = info.memberNo || '';
+    this.globalData.role = info.role || 'teacher';
+    wx.setStorageSync('zj_user_token', info.token);
+    wx.setStorageSync('zj_member_no', info.memberNo || '');
+  },
+
+  logout() {
+    this.globalData.isLoggedIn = false;
+    this.globalData.userToken = '';
+    this.globalData.memberNo = '';
+    wx.removeStorageSync('zj_user_token');
+    wx.removeStorageSync('zj_member_no');
+  },
+});

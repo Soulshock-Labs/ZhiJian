@@ -1,25 +1,143 @@
-/**app.wxss**/
+/* app.wxss — 全局设计 Token + 基础样式 */
+
+/* ── 颜色 Token ── */
 page {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(255, 212, 140, .18), transparent 28%),
-    radial-gradient(circle at 88% 10%, rgba(112, 198, 190, .16), transparent 18%),
-    linear-gradient(180deg, #f8f3e8 0%, #f4f8f5 46%, #f9f7f2 100%);
-  color: #18322a;
+  --color-paper:        #f6f1e7;
+  --color-paper-hi:     #fbf7ed;
+  --color-paper-sunk:   #efe8da;
+  --color-ink:          #2a2520;
+  --color-ink-2:        #5a5148;
+  --color-ink-3:        #8a8178;
+  --color-ink-4:        #b8ad9c;
+  --color-rule:         #d9d0bd;
+  --color-rule-soft:    #ebe3d1;
+  --color-brand:        #e07040;
+  --color-brand-light:  #fdf0ea;
+  --color-brand-dark:   #c05a30;
+  --color-success:      #4a9468;
+  --color-success-tint: #edf7f2;
+  --color-success-ink:  #2e6645;
+  --color-warn:         #d4860a;
+  --color-warn-tint:    #fef3dc;
+  --color-danger:       #c0402a;
+  --color-danger-tint:  #fdecea;
+
+  /* ── 字体 ── */
+  --font-sans: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+
+  /* ── 间距 ── */
+  --sp-1: 8rpx;
+  --sp-2: 16rpx;
+  --sp-3: 24rpx;
+  --sp-4: 32rpx;
+  --sp-5: 40rpx;
+  --sp-6: 48rpx;
+  --sp-7: 64rpx;
+  --sp-8: 80rpx;
+
+  /* ── 圆角 ── */
+  --radius-xs:   8rpx;
+  --radius-sm:   16rpx;
+  --radius-md:   24rpx;
+  --radius-lg:   28rpx;
+  --radius-xl:   40rpx;
+  --radius-pill: 9999rpx;
+
+  /* ── 字号 ── */
+  --fs-xs:   20rpx;
+  --fs-sm:   24rpx;
+  --fs-base: 28rpx;
+  --fs-md:   30rpx;
+  --fs-lg:   32rpx;
+  --fs-xl:   36rpx;
+  --fs-2xl:  40rpx;
+  --fs-3xl:  48rpx;
+
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.7;
 }
 
-.container {
-  height: 100%;
+/* ── Reset ── */
+view, text, input, button, image {
+  box-sizing: border-box;
+}
+
+/* ── 通用工具类 ── */
+.flex        { display: flex; }
+.flex-col    { display: flex; flex-direction: column; }
+.items-center{ align-items: center; }
+.justify-between { justify-content: space-between; }
+.flex-1      { flex: 1; }
+.text-center { text-align: center; }
+.w-full      { width: 100%; }
+
+/* ── 颜色工具 ── */
+.text-brand   { color: var(--color-brand); }
+.text-muted   { color: var(--color-ink-3); }
+.text-ink2    { color: var(--color-ink-2); }
+.bg-paper     { background: var(--color-paper); }
+.bg-paper-hi  { background: var(--color-paper-hi); }
+
+/* ── 通用按钮 ── */
+.btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 200rpx 0;
-  box-sizing: border-box;
-} 
-
-.safe-shell {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 28rpx;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  border: none;
+  line-height: 1;
 }
+.btn::after { border: none; }
+.btn-primary {
+  background: var(--color-brand);
+  color: #fff;
+  box-shadow: 0 4rpx 24rpx rgba(224,112,64,.3);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-brand);
+  border: 2rpx solid var(--color-brand);
+}
+.btn-paper {
+  background: var(--color-paper-hi);
+  color: var(--color-ink-2);
+  border: 2rpx solid var(--color-rule);
+}
+.btn-md { height: 80rpx; padding: 0 40rpx; }
+.btn-sm { height: 64rpx; padding: 0 32rpx; font-size: var(--fs-sm); }
+.btn-lg { height: 96rpx; padding: 0 48rpx; font-size: var(--fs-lg); }
+
+/* ── Card ── */
+.card {
+  background: var(--color-paper-hi);
+  border-radius: var(--radius-md);
+  border: 2rpx solid var(--color-rule-soft);
+}
+
+/* ── Section label ── */
+.section-label {
+  font-size: var(--fs-xs);
+  color: var(--color-ink-4);
+  letter-spacing: 2rpx;
+  text-transform: uppercase;
+  font-family: monospace;
+  padding: 32rpx 32rpx 12rpx;
+}
+
+/* ── Tag / badge ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 18rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+.tag-brand   { background: var(--color-brand-light); color: var(--color-brand); }
+.tag-success { background: var(--color-success-tint); color: var(--color-success-ink); }
+.tag-muted   { background: var(--color-paper-sunk); color: var(--color-ink-4); }

@@ -21,11 +21,9 @@ export function SideNav() {
   const { user } = useAuth();
   const isPlatformAdmin = user?.role === "platform_admin";
   const knowledgeLabel =
-    user?.role === "platform_admin"
-      ? "纸笺知识库"
-      : user?.role === "org_admin"
-        ? "园本知识库"
-        : "我的知识库";
+    user?.role === "platform_admin" ? "纸笺知识库"
+    : user?.role === "org_admin" ? "园本知识库"
+    : "我的知识库";
 
   const groups: { title: string; items: Item[] }[] = [
     {
@@ -62,37 +60,68 @@ export function SideNav() {
   ];
 
   return (
-    <aside className="w-[var(--sidenav-w)] bg-paper border-r border-rule px-3 py-5 flex flex-col gap-1">
+    <aside
+      className="flex flex-col gap-0.5 px-2.5 py-4 overflow-y-auto"
+      style={{
+        width: "220px",
+        flexShrink: 0,
+        background: "var(--color-paper-hi)",
+        borderRight: "1px solid var(--color-rule-soft)",
+      }}
+    >
       {groups.map((g) => (
         <div key={g.title}>
-          <div className="eyebrow px-3 pt-4 pb-2">{g.title}</div>
+          {/* Section label */}
+          <div
+            className="px-3 pt-3 pb-1.5"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "9px",
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              color: "var(--color-ink-4)",
+            }}
+          >
+            {g.title}
+          </div>
+
           {g.items.map((it) => (
             <button
               key={it.label}
               disabled={it.disabled}
               onClick={() => {
-                if (it.href) {
-                  window.location.hash = it.href.replace(/^#/, "");
-                  return;
-                }
+                if (it.href) { window.location.hash = it.href.replace(/^#/, ""); return; }
                 if (it.panel) emit(it.panel);
               }}
-              className={[
-                "w-full flex items-center gap-3 h-10 px-3 rounded-sm text-body-sm transition-colors text-left",
+              className="w-full flex items-center gap-2.5 h-9 px-3 rounded-sm text-body-sm transition-all text-left border"
+              style={
                 it.active
-                  ? "bg-brand-tint text-brand font-medium"
+                  ? { background: "oklch(0.94 0.05 55 / 0.8)", color: "var(--color-brand)", fontWeight: 500, borderColor: "oklch(0.62 0.14 40 / 0.15)" }
                   : it.disabled
-                    ? "text-ink-4 cursor-not-allowed"
-                    : "text-ink-2 hover:bg-paper-sunk hover:text-ink cursor-pointer",
-              ].join(" ")}
+                  ? { color: "var(--color-ink-4)", cursor: "not-allowed", opacity: 0.6, background: "transparent", borderColor: "transparent" }
+                  : { color: "var(--color-ink-3)", background: "transparent", borderColor: "transparent" }
+              }
+              onMouseEnter={e => { if (!it.disabled && !it.active) { (e.currentTarget as HTMLButtonElement).style.background = "var(--color-paper-sunk)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-ink-2)"; } }}
+              onMouseLeave={e => { if (!it.disabled && !it.active) { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-ink-3)"; } }}
             >
-              <span className="w-[18px] h-[18px] flex-none rounded-xs bg-current opacity-40" />
+              {/* dot */}
+              <span
+                className="flex-shrink-0 rounded-full opacity-50"
+                style={{ width: "6px", height: "6px", background: "currentColor" }}
+              />
               <span>{it.label}</span>
               {it.badge && (
-                <span className="ml-auto font-num text-meta text-ink-3">{it.badge}</span>
+                <span className="ml-auto font-num text-meta" style={{ color: "var(--color-ink-4)" }}>
+                  {it.badge}
+                </span>
               )}
               {it.disabled && !it.badge && (
-                <span className="ml-auto text-[10px] text-ink-4">即将上线</span>
+                <span
+                  className="ml-auto text-[9px] px-1.5 py-0.5 rounded-[10px]"
+                  style={{ background: "var(--color-paper-sunk)", color: "var(--color-ink-4)" }}
+                >
+                  即将上线
+                </span>
               )}
             </button>
           ))}

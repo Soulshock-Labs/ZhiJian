@@ -33,10 +33,12 @@ const config: Config = {
         "danger-ink":"var(--color-danger-ink)",
       },
       fontFamily: {
-        sans:   ["var(--font-sans)"],
-        wenkai: ["var(--font-wenkai)"],
-        mono:   ["var(--font-mono)"],
-        num:    ["var(--font-num)"],
+        sans:     ["var(--font-sans)"],
+        wenkai:   ["var(--font-wenkai)"],
+        mono:     ["var(--font-mono)"],
+        num:      ["var(--font-num)"],
+        mashan:   ["'Ma Shan Zheng'", "serif"],
+        serifsc:  ["'Noto Serif SC'", "serif"],
       },
       fontSize: {
         display: ["var(--fs-display)", { lineHeight: "var(--lh-display)" }],

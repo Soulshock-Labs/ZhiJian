@@ -1,23 +1,37 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/redeem/redeem",
     "pages/workbench/workbench",
-    "pages/logs/logs"
+    "pages/generate/generate",
+    "pages/profile/profile"
   ],
-  "window": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "纸笺",
-    "navigationBarBackgroundColor": "#f8f3e8",
-    "backgroundTextStyle": "light"
+  "tabBar": {
+    "color": "#b8ad9c",
+    "selectedColor": "#e07040",
+    "backgroundColor": "#fbf7ed",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/workbench/workbench",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/generate/generate",
+        "text": "生成"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
   },
-  "permission": {
-    "scope.record": {
-      "desc": "用于把老师口述内容转成主题文字"
-    }
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fbf7ed",
+    "navigationBarTitleText": "小纸笺",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f1e7"
   },
   "style": "v2",
-  "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
 }
