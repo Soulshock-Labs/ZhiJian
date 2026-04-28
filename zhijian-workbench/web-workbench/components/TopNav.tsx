@@ -46,9 +46,8 @@ export function TopNav() {
   }
 
   // 头像优先显示会员号后4位，其次用 account_id 派生
-  const avatarLabel = user
-    ? user.member_no.slice(-4) || user.account_id.replace(/\D/g, "").slice(-4) || user.account_id[0]?.toUpperCase() || "U"
-    : "";
+  const maskedMemberPrefix = user?.member_no?.[0] ? `${user.member_no[0]}****` : "未分配";
+  const avatarLabel = user?.member_no?.[0] || user?.account_id?.[0]?.toUpperCase() || "U";
 
   const roleLabel: Record<string, string> = {
     teacher:          "幼师",
@@ -97,17 +96,18 @@ export function TopNav() {
           ) : null}
 
           {isLoggedIn ? (
-            <a
-              href={user?.role === "platform_admin" ? "#admin-console" : "#"}
-              className="h-7 px-3 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-micro font-semibold text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap"
+            <button
+              type="button"
+              onClick={openRedeemEntry}
+              className="inline-flex h-8 items-center justify-center px-4 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-meta font-semibold leading-none text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap transition-colors"
             >
               兑换中心
-            </a>
+            </button>
           ) : (
             <button
               type="button"
               onClick={openRedeemEntry}
-              className="h-8 px-4 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-meta font-semibold text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap transition-colors"
+              className="inline-flex h-8 items-center justify-center px-4 rounded-pill bg-success-tint border border-[color-mix(in_oklch,var(--color-success),transparent_65%)] text-meta font-semibold leading-none text-success-ink hover:bg-[color-mix(in_oklch,var(--color-success-tint),var(--color-white)_22%)] whitespace-nowrap transition-colors"
             >
               内测兑换
             </button>
@@ -146,9 +146,9 @@ export function TopNav() {
                     onMouseLeave={() => setMenuOpen(false)}
                   >
                     <div className="px-4 py-3 border-b border-rule">
-                      <p className="text-body-sm font-medium text-ink truncate">{user.user_id}</p>
-                      <p className="text-meta text-ink-3 mt-0.5">
-                        会员号 {user.member_no || "未分配"} · {roleLabel[user.role] ?? user.role}
+                      <p className="text-body-sm font-medium text-ink">当前账号</p>
+                      <p className="mt-0.5 text-meta text-ink-3">
+                        会员号 {maskedMemberPrefix} · {roleLabel[user.role] ?? user.role}
                       </p>
                     </div>
                     <button
