@@ -72,20 +72,20 @@ async def download_standard_template(template_id: str):
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": _build_content_disposition(filename)},
     )
-@router.post(“/template/clean-download”, tags=[“模板中心”])
+@router.post("/template/clean-download", tags=["模板中心"])
 async def clean_download_template(
-    user_token: str = Form(..., description=”登录 token”),
-    template: UploadFile = File(..., description=”老师上传的原始模板 .docx”),
+    user_token: str = Form(..., description="登录 token"),
+    template: UploadFile = File(..., description="老师上传的原始模板 .docx"),
 ):
-    “””
+    """
     基于老师上传模板生成「净空版标准模板」：
     - 仅删除教师填写/测试内容
     - 保留所有样式、间距、字体、表格结构
-    “””
-    require_permission(user_token, “generate”)
-    if not (template.filename or “”).lower().endswith(“.docx”):
-        raise HTTPException(status_code=400, detail=”仅支持 .docx 格式”)
-    source = await _read_upload_with_limit(template, MAX_UPLOAD_FILE_SIZE, empty_detail=”上传的文件为空”)
+    """
+    require_permission(user_token, "generate")
+    if not (template.filename or "").lower().endswith(".docx"):
+        raise HTTPException(status_code=400, detail="仅支持 .docx 格式")
+    source = await _read_upload_with_limit(template, MAX_UPLOAD_FILE_SIZE, empty_detail="上传的文件为空")
 
     try:
         cleaned = clean_template_keep_style(source)
