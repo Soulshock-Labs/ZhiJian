@@ -10,12 +10,11 @@ steps:
       - build
       - --cache-from=gcr.io/$PROJECT_ID/zhijian-api:latest
       - -t=gcr.io/$PROJECT_ID/zhijian-api:latest
-      - -t=gcr.io/$PROJECT_ID/zhijian-api:$SHORT_SHA
       - .
 
-  # 推送两个 tag（latest + commit sha，方便回滚）
+  # 推送镜像
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/zhijian-api']
+    args: ['push', 'gcr.io/$PROJECT_ID/zhijian-api:latest']
 
   # 部署到 Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -24,7 +23,7 @@ steps:
       - run
       - deploy
       - zhijian-api
-      - --image=gcr.io/$PROJECT_ID/zhijian-api:$SHORT_SHA
+      - --image=gcr.io/$PROJECT_ID/zhijian-api:latest
       - --region=asia-east1
       - --allow-unauthenticated
       - --memory=2Gi
