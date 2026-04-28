@@ -1,4 +1,4 @@
-const CLOUD_API_BASE = 'https://zhijian-api-46126657817.asia-east1.run.app'
+const CLOUD_API_BASE = 'https://api.zhijian.me'
 const LOCAL_API_BASE = 'http://127.0.0.1:8000'
 const API_OVERRIDE_KEY = 'STA_API_BASE'
 
