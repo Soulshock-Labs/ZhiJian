@@ -29,10 +29,12 @@ def _build_mini_doc_payload(
     token = uuid4().hex
     export_path = _TEMP_EXPORT_DIR / f"{token}.docx"
     export_path.write_bytes(filled_bytes)
+    import time
     _TEMP_EXPORTS[token] = {
         "path": str(export_path),
         "filename": original_name,
         "engine": export_engine,
+        "created_at": str(time.time()),
     }
     return {
         "status": "ok",

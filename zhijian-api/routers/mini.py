@@ -218,11 +218,19 @@ async def generate_mini_by_template(
         original_name=original_name,
         export_engine=export_engine,
     )
+_EXPORT_TTL_SECONDS = 1800  # 30 分钟
+
 @router.get("/mini-export/{token}", tags=["核心接口"])
 async def download_mini_export(token: str):
+    import time
     info = _TEMP_EXPORTS.get(token)
     if not info:
         raise HTTPException(status_code=404, detail="文件不存在或已过期")
+
+    created_at = float(info.get("created_at", 0))
+    if time.time() - created_at > _EXPORT_TTL_SECONDS:
+        _TEMP_EXPORTS.pop(token, None)
+        raise HTTPException(status_code=410, detail="下载链接已过期，请重新生成")
 
     path = Path(info["path"])
     if not path.exists():
