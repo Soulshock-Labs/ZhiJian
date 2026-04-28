@@ -26,9 +26,11 @@ from core.state import FIRESTORE_ENABLED, _fs, logger
 from core.utils import _utc_iso
 from services.data_store import (
     _load_account_index,
+    _load_user_account,
     _load_user_accounts,
     _next_member_no,
     _save_account_index,
+    _save_user_account,
     _save_user_accounts,
 )
 
@@ -223,17 +225,25 @@ def _create_account(password_hash: str, member_no: str = "", role: str = "teache
     注册：只需密码，系统自动分配会员号。
     member_no 可手动指定（测试用），不指定则自动递增。
     """
-    accounts = _load_user_accounts()
     index    = _load_account_index()
-    _ensure_new_format(accounts, index)
 
     now = _utc_iso()
     aid = _new_account_id()
-    mno = member_no.strip() if member_no.strip() else _next_member_no()
+    requested_member_no = member_no.strip()
 
-    # 检查会员号唯一性（测试账号手动指定时）
-    if _index_key_member_no(mno) in index:
-        raise HTTPException(status_code=409, detail=f"会员号 {mno} 已存在")
+    if requested_member_no:
+        mno = requested_member_no
+        if _index_key_member_no(mno) in index:
+            raise HTTPException(status_code=409, detail=f"会员号 {mno} 已存在")
+    else:
+        mno = ""
+        for _ in range(50):
+            candidate = _next_member_no()
+            if _index_key_member_no(candidate) not in index:
+                mno = candidate
+                break
+        if not mno:
+            raise HTTPException(status_code=500, detail="会员号分配失败，请稍后重试")
 
     entry: dict = {
         "account_id":     aid,
@@ -254,9 +264,8 @@ def _create_account(password_hash: str, member_no: str = "", role: str = "teache
         "created_at_utc": now,
         "updated_at_utc": now,
     }
-    accounts[aid] = entry
     index[_index_key_member_no(mno)] = aid
-    _save_user_accounts(accounts)
+    _save_user_account(aid, entry)
     _save_account_index(index)
     logger.info("新账号：aid=%s member_no=%s", aid, mno)
     return entry
@@ -264,26 +273,22 @@ def _create_account(password_hash: str, member_no: str = "", role: str = "teache
 
 def _get_account_by_phone(phone: str) -> dict | None:
     """按手机号查账号（小程序绑定用），不存在返回 None。"""
-    accounts = _load_user_accounts()
     index    = _load_account_index()
-    _ensure_new_format(accounts, index)
 
     aid = index.get(_index_key_phone(phone))
     if not aid:
         return None
-    return accounts.get(aid)
+    return _load_user_account(aid)
 
 
 def _get_account_by_member_no(member_no: str) -> dict | None:
     """按会员号查账号（Web/Android 登录用），不存在返回 None。"""
-    accounts = _load_user_accounts()
     index    = _load_account_index()
-    _ensure_new_format(accounts, index)
 
     aid = index.get(_index_key_member_no(member_no.strip()))
     if not aid:
         return None
-    return accounts.get(aid)
+    return _load_user_account(aid)
 
 
 def _generate_user_token(account_id: str) -> str:
@@ -296,17 +301,17 @@ def _issue_token(account_id: str) -> str:
     生成并写入 token，返回 token 字符串。
     同时更新 account.active_tokens 和 index。
     """
-    accounts = _load_user_accounts()
+    account = _load_user_account(account_id)
     index    = _load_account_index()
 
-    if account_id not in accounts:
+    if not account:
         raise HTTPException(status_code=404, detail="账号不存在")
 
     token = _new_token()
-    _add_token(accounts[account_id], index, token)
-    accounts[account_id]["updated_at_utc"] = _utc_iso()
+    _add_token(account, index, token)
+    account["updated_at_utc"] = _utc_iso()
 
-    _save_user_accounts(accounts)
+    _save_user_account(account_id, account)
     _save_account_index(index)
     return token
 

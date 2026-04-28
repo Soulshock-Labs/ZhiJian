@@ -254,7 +254,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
               </div>
 
               {error && (
-                <p className="text-body-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+            <p className="rounded-md border border-[color-mix(in_oklch,var(--color-danger),transparent_72%)] bg-[color-mix(in_oklch,var(--color-danger),white_92%)] px-3 py-2 text-body-sm text-danger-ink">
                   {error}
                 </p>
               )}
@@ -341,7 +341,7 @@ export function WeeklyPlanPanel({ open, onClose }: Props) {
               </div>
 
               {dailyError && (
-                <p className="text-body-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2 mt-3">
+            <p className="mt-3 rounded-md border border-[color-mix(in_oklch,var(--color-danger),transparent_72%)] bg-[color-mix(in_oklch,var(--color-danger),white_92%)] px-3 py-2 text-body-sm text-danger-ink">
                   {dailyError}
                 </p>
               )}

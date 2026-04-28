@@ -352,6 +352,57 @@ def _load_user_accounts() -> dict[str, dict]:
         logger.warning("读取用户账户失败：%s", e)
     return _merge_object_dicts(remote, local)
 
+def _load_user_account(account_id: str) -> dict | None:
+    """按 account_id 读取单个用户账户，避免全表扫描。"""
+    remote: dict | None = None
+    if FIRESTORE_ENABLED:
+        try:
+            doc = _fs().collection("users").document(account_id).get()
+            if doc.exists:
+                data = doc.to_dict()
+                if isinstance(data, dict):
+                    remote = data
+        except Exception as e:
+            logger.warning("Firestore 读取单个用户账户失败，回退本地：%s", e)
+
+    local: dict | None = None
+    if _USER_ACCOUNTS_FILE.exists():
+        try:
+            data = json.loads(_USER_ACCOUNTS_FILE.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                entry = data.get(account_id)
+                if isinstance(entry, dict):
+                    local = entry
+        except Exception as e:
+            logger.warning("读取本地单个用户账户失败：%s", e)
+
+    if remote and local:
+        merged = dict(remote)
+        merged.update(local)
+        return merged
+    return local or remote
+
+def _save_user_account(account_id: str, entry: dict) -> None:
+    """写单个用户账户，避免每次注册都批量回写整库。"""
+    if FIRESTORE_ENABLED:
+        try:
+            _fs().collection("users").document(account_id).set(entry, merge=True)
+        except Exception as e:
+            logger.warning("Firestore 写单个用户账户失败：%s", e)
+    try:
+        data: dict[str, dict] = {}
+        if _USER_ACCOUNTS_FILE.exists():
+            raw = json.loads(_USER_ACCOUNTS_FILE.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                data = raw
+        data[account_id] = entry
+        _USER_ACCOUNTS_FILE.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except Exception as e:
+        logger.warning("保存单个用户账户失败：%s", e)
+
 def _save_user_accounts(data: dict[str, dict]) -> None:
     """写用户账户：同时写 Firestore 和本地 JSON（双保险）。"""
     if FIRESTORE_ENABLED:
@@ -424,8 +475,31 @@ def _save_account_index(index: dict[str, str]) -> None:
 _MEMBER_NO_START = 60001
 
 
+def _max_existing_member_no() -> int:
+    """扫描账号索引，返回已存在的最大会员号。"""
+    try:
+        index = _load_account_index()
+    except Exception as e:
+        logger.warning("读取现有会员号失败，跳过高水位校准：%s", e)
+        return _MEMBER_NO_START - 1
+
+    max_no = _MEMBER_NO_START - 1
+    for key in index.keys():
+        if not str(key).startswith("member_no:"):
+            continue
+        try:
+            member_no = int(str(key).split(":", 1)[1].strip())
+        except Exception:
+            continue
+        if member_no >= _MEMBER_NO_START:
+            max_no = max(max_no, member_no)
+    return max_no
+
+
 def _next_member_no() -> str:
     """生成下一个会员号（递增，线程安全靠单进程 Cloud Run 保证）。"""
+    existing_max = _max_existing_member_no()
+
     if FIRESTORE_ENABLED:
         try:
             ref = _fs().collection("meta").document("member_no_counter")
@@ -435,7 +509,7 @@ def _next_member_no() -> str:
             def _tx(transaction, ref):  # type: ignore[misc]
                 snap = ref.get(transaction=transaction)
                 current = int(snap.get("value")) if snap.exists and snap.get("value") is not None else _MEMBER_NO_START - 1
-                current = max(current, _MEMBER_NO_START - 1)
+                current = max(current, _MEMBER_NO_START - 1, existing_max)
                 next_no = current + 1
                 transaction.set(ref, {"value": next_no})
                 return next_no
@@ -450,7 +524,7 @@ def _next_member_no() -> str:
             current = int(json.loads(_MEMBER_NO_FILE.read_text(encoding="utf-8")).get("value", _MEMBER_NO_START - 1))
         else:
             current = _MEMBER_NO_START - 1
-        current = max(current, _MEMBER_NO_START - 1)
+        current = max(current, _MEMBER_NO_START - 1, existing_max)
         next_no = current + 1
         _MEMBER_NO_FILE.write_text(
             json.dumps({"value": next_no}, ensure_ascii=False), encoding="utf-8"

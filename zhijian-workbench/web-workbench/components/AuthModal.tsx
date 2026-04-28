@@ -9,7 +9,7 @@
  * 手机号只在小程序绑定时使用，Web 完全不涉及。
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useAuth, type AuthUser } from "@/lib/useAuth";
 import {
   ApiError,
@@ -49,6 +49,99 @@ const INPUT_CLS =
   "h-10 w-full px-3 rounded-sm border border-rule bg-white text-body-sm text-ink placeholder:text-ink-4 focus:outline-none focus:border-brand focus:shadow-focus transition-colors";
 
 const LABEL_CLS = "block text-meta text-ink-3 mb-1.5 font-medium";
+
+function getRoleOption(role: RegisterRole) {
+  return REGISTER_ROLE_OPTIONS.find((option) => option.value === role) ?? REGISTER_ROLE_OPTIONS[0];
+}
+
+function RoleSelect({
+  value,
+  onChange,
+  disabled = false,
+}: {
+  value: RegisterRole;
+  onChange: (value: RegisterRole) => void;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+  const selected = getRoleOption(value);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(event: MouseEvent) {
+      if (!wrapRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <button
+        type="button"
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listboxId}
+        onClick={() => !disabled && setOpen((current) => !current)}
+        className={[
+          "flex h-10 w-full items-center justify-between rounded-sm border border-rule bg-white px-3 text-left text-body-sm text-ink transition-colors",
+          "focus:outline-none focus:border-brand focus:shadow-focus",
+          disabled ? "opacity-50" : "hover:border-[color-mix(in_oklch,var(--color-brand),transparent_55%)]",
+          open ? "border-brand shadow-focus" : "",
+        ].join(" ")}
+      >
+        <span>{selected.label} · {selected.hint}</span>
+        <span className={["text-ink-3 transition-transform", open ? "rotate-180" : ""].join(" ")}>▾</span>
+      </button>
+
+      {open ? (
+        <div
+          id={listboxId}
+          role="listbox"
+          className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 overflow-hidden rounded-md border border-rule bg-white shadow-[0_18px_34px_rgba(47,38,28,0.16)]"
+        >
+          {REGISTER_ROLE_OPTIONS.map((option) => {
+            const active = option.value === value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={[
+                  "flex w-full items-center px-4 py-3 text-left text-body-sm transition-colors",
+                  active
+                    ? "bg-[#213754] text-white"
+                    : "text-ink hover:bg-[color-mix(in_oklch,#213754,white_90%)]",
+                ].join(" ")}
+              >
+                <span>{option.label} · {option.hint}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function AuthModal({
   open,
@@ -396,7 +489,7 @@ export function AuthModal({
                 className="rounded-xl border border-brand bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(247,245,242,0.98))] px-4 py-4 shadow-[0_0_0_3px_rgba(210,106,61,0.10),0_16px_30px_rgba(76,60,40,0.10)]"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="inline-flex h-6 items-center gap-1 rounded-pill bg-success-tint px-2.5 text-micro font-medium leading-none text-success-ink">
+                  <span className="inline-flex h-6 items-center gap-1 rounded-pill bg-brand-tint px-2.5 text-micro font-medium leading-none text-brand">
                     <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
                     权益
                   </span>
@@ -404,7 +497,7 @@ export function AuthModal({
                 </div>
                 <div className="mt-3 flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-wenkai text-[1.55rem] leading-none text-success-ink">兑换中心</h3>
+                    <h3 className="font-wenkai text-[1.55rem] leading-none text-brand">兑换中心</h3>
                     <p className="mt-2 text-meta leading-6 text-ink-2">
                       当前入口对应 30 天月度会员卡。输入卡号后可先查状态，登录后立即兑换并写入你的账号权益。
                     </p>
@@ -549,28 +642,7 @@ export function AuthModal({
                           </p>
                           <div>
                             <label className={LABEL_CLS}>身份</label>
-                            <div className="grid gap-2">
-                              {REGISTER_ROLE_OPTIONS.map((option) => {
-                                const active = registerRole === option.value;
-                                return (
-                                  <button
-                                    key={option.value}
-                                    type="button"
-                                    onClick={() => setRegisterRole(option.value)}
-                                    className={[
-                                      "w-full rounded-lg border px-3 py-3 text-left transition-colors",
-                                      active
-                                        ? "border-brand bg-[color-mix(in_oklch,var(--color-brand),white_88%)] shadow-sm"
-                                        : "border-rule bg-white hover:border-brand/40 hover:bg-paper-hi",
-                                    ].join(" ")}
-                                    disabled={busy}
-                                  >
-                                    <p className="text-body-sm font-semibold text-ink">{option.label}</p>
-                                    <p className="mt-1 text-meta text-ink-3">{option.hint}</p>
-                                  </button>
-                                );
-                              })}
-                            </div>
+                            <RoleSelect value={registerRole} onChange={setRegisterRole} disabled={busy} />
                           </div>
                           <div className="grid gap-3 sm:grid-cols-2">
                             <div>
@@ -607,7 +679,7 @@ export function AuthModal({
                             {busy ? "分配中…" : "分配新号码并继续兑换"}
                           </button>
                           {newMemberNo ? (
-                            <p className="rounded-lg bg-success-tint px-3 py-2 text-body-sm text-success-ink">
+                            <p className="rounded-lg bg-brand-tint px-3 py-2 text-body-sm text-brand">
                               已分配会员号 {newMemberNo}，当前已绑定到账户，可直接兑换。
                             </p>
                           ) : null}
@@ -622,7 +694,7 @@ export function AuthModal({
             {redeemOnlyMode ? (
               <>
                 {error && (
-                  <p className="text-meta text-[var(--color-danger,#c94040)] bg-[color-mix(in_oklch,#c94040,transparent_90%)] rounded-md px-3 py-2">
+                  <p className="rounded-md bg-[color-mix(in_oklch,var(--color-danger),transparent_90%)] px-3 py-2 text-meta text-danger-ink">
                     {error}
                   </p>
                 )}
@@ -659,28 +731,7 @@ export function AuthModal({
                 {tab === "register" && (
                   <div>
                     <label className={LABEL_CLS}>身份</label>
-                    <div className="grid gap-2">
-                      {REGISTER_ROLE_OPTIONS.map((option) => {
-                        const active = registerRole === option.value;
-                        return (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => setRegisterRole(option.value)}
-                            className={[
-                              "w-full rounded-lg border px-3 py-3 text-left transition-colors",
-                              active
-                                ? "border-brand bg-[color-mix(in_oklch,var(--color-brand),white_88%)] shadow-sm"
-                                : "border-rule bg-white hover:border-brand/40 hover:bg-paper-hi",
-                            ].join(" ")}
-                            disabled={busy}
-                          >
-                            <p className="text-body-sm font-semibold text-ink">{option.label}</p>
-                            <p className="mt-1 text-meta text-ink-3">{option.hint}</p>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <RoleSelect value={registerRole} onChange={setRegisterRole} disabled={busy} />
                   </div>
                 )}
 
@@ -713,7 +764,7 @@ export function AuthModal({
                 )}
 
                 {error && (
-                  <p className="text-meta text-[var(--color-danger,#c94040)] bg-[color-mix(in_oklch,#c94040,transparent_90%)] rounded-md px-3 py-2">
+                  <p className="rounded-md bg-[color-mix(in_oklch,var(--color-danger),transparent_90%)] px-3 py-2 text-meta text-danger-ink">
                     {error}
                   </p>
                 )}

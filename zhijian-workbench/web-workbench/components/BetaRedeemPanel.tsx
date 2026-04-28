@@ -91,11 +91,11 @@ export function BetaRedeemPanel() {
       <Card variant="raised" size="sm" className="min-h-[218px] bg-[color-mix(in_oklch,var(--color-paper-hi),var(--color-white)_28%)]">
         <div className="flex h-[66px] items-start justify-between gap-3">
           <div>
-            <span className="inline-flex h-5 items-center gap-1 rounded-pill bg-success-tint px-2.5 text-micro font-medium leading-none text-success-ink">
+            <span className="inline-flex h-5 items-center gap-1 rounded-pill bg-brand-tint px-2.5 text-micro font-medium leading-none text-brand">
               <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
               AI 就绪
             </span>
-            <h2 className="font-wenkai text-h3 font-normal text-success-ink mt-2">
+          <h2 className="mt-2 font-wenkai text-h3 font-normal text-brand">
               {isLoggedIn ? "账号中心" : "内测中心"}
             </h2>
             <p className="text-meta text-ink-2 mt-0.5">小纸笺 · 幼师工作台 · v1.2.1</p>
@@ -143,11 +143,11 @@ export function BetaRedeemPanel() {
       <Card variant="raised" size="sm" className="min-h-[218px] bg-[color-mix(in_oklch,var(--color-paper-hi),var(--color-white)_24%)]">
         <div className="flex h-[66px] items-start justify-between gap-3">
           <div>
-            <span className="inline-flex h-5 items-center gap-1 rounded-pill bg-success-tint px-2.5 text-micro font-medium leading-none text-success-ink">
+            <span className="inline-flex h-5 items-center gap-1 rounded-pill bg-brand-tint px-2.5 text-micro font-medium leading-none text-brand">
               <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
               权益
             </span>
-            <h2 className="font-wenkai text-h3 font-normal text-success-ink mt-2">兑换中心</h2>
+          <h2 className="mt-2 font-wenkai text-h3 font-normal text-brand">兑换中心</h2>
             <p className="text-meta text-ink-2 mt-0.5">卡密兑换 · 次数 · 会员 · 余额</p>
           </div>
           <a href="#top" className="h-7 px-3 rounded-pill bg-paper-hi border border-rule inline-flex items-center text-meta leading-none text-ink-2 hover:bg-paper-sunk">

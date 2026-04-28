@@ -45,6 +45,11 @@ async function request<T>(
       throw new ApiError(res.status, `${res.status} ${res.statusText}`, body);
     }
     return body as T;
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`请求超时，请稍后重试（>${Math.round(timeoutMs / 1000)} 秒）`);
+    }
+    throw error;
   } finally {
     clearTimeout(timer);
   }
@@ -62,7 +67,11 @@ export function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
   return request<T>(path, { ...init, method: "GET" });
 }
 
-export function apiPost<T>(path: string, body: unknown, init?: RequestInit): Promise<T> {
+export function apiPost<T>(
+  path: string,
+  body: unknown,
+  init?: RequestInit & { timeoutMs?: number },
+): Promise<T> {
   return request<T>(path, {
     ...init,
     method: "POST",
@@ -443,6 +452,42 @@ export type AuthorizeUserPayload = {
   membership_until?: string;
 };
 
+export type DocSpaceItem = {
+  doc_id: string;
+  filename: string;
+  file_type?: string;
+  ext?: string;
+  size_bytes?: number;
+  md_chars?: number;
+  created_at?: string;
+  char_count?: number;
+  table_count?: number;
+};
+
+export type DocSpaceUploadResponse = {
+  status: string;
+  doc_id: string;
+  filename: string;
+  file_type?: string;
+  size_bytes?: number;
+  md_chars?: number;
+  created_at?: string;
+  message?: string;
+};
+
+export type DocSpaceListResponse = {
+  status: string;
+  count: number;
+  docs: DocSpaceItem[];
+};
+
+export type DocSpaceMarkdownResponse = {
+  status: string;
+  doc_id: string;
+  md: string;
+  chars: number;
+};
+
 export function registerBetaUser(params: {
   user_id: string;
   phone?: string;
@@ -478,7 +523,7 @@ export function registerUser(params: {
     password:  params.password,
     role:      params.role ?? "teacher",
     member_no: params.member_no ?? "",
-  });
+  }, { timeoutMs: 90_000 });
 }
 
 export function loginUser(params: {
@@ -531,6 +576,32 @@ export function authorizeUser(payload: AuthorizeUserPayload): Promise<{
   membership_until?: string | null;
 }> {
   return apiPost("/user/admin/authorize", payload);
+}
+
+export function uploadDocToSpace(file: File, userToken: string): Promise<DocSpaceUploadResponse> {
+  const body = new FormData();
+  body.append("user_token", userToken);
+  body.append("file", file);
+  return request<DocSpaceUploadResponse>("/doc-space/upload", {
+    method: "POST",
+    body,
+    timeoutMs: 120_000,
+  });
+}
+
+export function listDocSpace(userToken: string): Promise<DocSpaceListResponse> {
+  return apiGet<DocSpaceListResponse>(`/doc-space/list?user_token=${encodeURIComponent(userToken)}`);
+}
+
+export function getDocSpaceMarkdown(docId: string, userToken: string): Promise<DocSpaceMarkdownResponse> {
+  return apiGet<DocSpaceMarkdownResponse>(`/doc-space/${encodeURIComponent(docId)}/md?user_token=${encodeURIComponent(userToken)}`);
+}
+
+export function deleteDocFromSpace(docId: string, userToken: string): Promise<{ status: string; doc_id: string; message?: string }> {
+  return request(`/doc-space/${encodeURIComponent(docId)}?user_token=${encodeURIComponent(userToken)}`, {
+    method: "DELETE",
+    timeoutMs: 30_000,
+  });
 }
 
 // ---------- /generate-weekly ----------
