@@ -109,7 +109,7 @@ export function TaskCards() {
                   </div>
                 </div>
               )}
-              {t.id === "daily" && Object.keys(dailyDrafts).length > 0 && (
+              {t.id === "daily" && (
                 <div className="mt-3 grid grid-cols-5 gap-1.5">
                   {["周一", "周二", "周三", "周四", "周五"].map((day) => {
                     const status = dailyDrafts[day];

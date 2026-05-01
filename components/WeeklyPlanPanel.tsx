@@ -412,6 +412,7 @@ export function WeeklyPlanPanel({
       }));
     } catch (err) {
       if (dailyRunRef.current !== runId) return;
+      if (err instanceof Error && (err.name === "AbortError" || err.message.includes("aborted"))) return;
       const message = err instanceof Error ? err.message : `${day} 日教案生成失败，请重试`;
       setDailyDrafts(prev => ({
         ...prev,
