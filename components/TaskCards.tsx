@@ -110,26 +110,24 @@ export function TaskCards() {
                 </div>
               )}
               {t.id === "daily" && (
-                <div className="mt-3 grid grid-cols-5 gap-1.5">
+                <div className="mt-4 grid grid-cols-5 gap-2">
                   {["周一", "周二", "周三", "周四", "周五"].map((day) => {
                     const status = dailyDrafts[day];
                     return (
-                      <div
-                        key={day}
-                        className={[
-                          "flex flex-col items-center gap-1 rounded-lg py-2 text-meta transition-colors",
-                          status === "ready" ? "bg-brand/10 text-brand" :
-                          status === "preparing" || status === "queued" ? "bg-paper-sunk text-ink-3" :
-                          "bg-paper-sunk/50 text-ink-4",
-                        ].join(" ")}
-                      >
-                        <span className="text-[11px] font-medium">{day}</span>
-                        <span className="text-[13px] leading-none">
-                          {status === "ready" ? "✅" :
-                           status === "preparing" ? "⏳" :
-                           status === "queued" ? "🕐" :
-                           status === "error" ? "❌" : "·"}
-                        </span>
+                      <div key={day} className="flex flex-col items-center gap-1.5">
+                        <span className="text-[11px] text-ink-3">{day}</span>
+                        <div className={[
+                          "w-7 h-7 rounded-sm border flex items-center justify-center text-[13px] transition-colors",
+                          status === "ready" ? "border-brand bg-brand/10 text-brand" :
+                          status === "preparing" || status === "queued" ? "border-ink-3 bg-paper-sunk text-ink-3" :
+                          status === "error" ? "border-red-400 bg-red-50 text-red-400" :
+                          "border-rule-soft bg-transparent",
+                        ].join(" ")}>
+                          {status === "ready" ? "✓" :
+                           status === "preparing" ? "…" :
+                           status === "queued" ? "…" :
+                           status === "error" ? "✕" : ""}
+                        </div>
                       </div>
                     );
                   })}
