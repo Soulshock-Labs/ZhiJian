@@ -88,7 +88,7 @@ export function TaskCards() {
             >
               <Tag tone={t.tone} dot>{t.tag}</Tag>
               <div className="mt-3">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
                   <CardTitle>{t.title}</CardTitle>
                   {t.id === "daily" && (
                     <div className="flex items-center gap-1 shrink-0">
