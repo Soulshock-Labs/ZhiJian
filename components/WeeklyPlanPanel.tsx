@@ -169,6 +169,14 @@ export function WeeklyPlanPanel({
   ]);
 
   useEffect(() => {
+    const simplified: Record<string, "queued" | "preparing" | "ready" | "error"> = {};
+    for (const [day, draft] of Object.entries(dailyDrafts)) {
+      simplified[day] = draft.status;
+    }
+    onDailyDraftsChange?.(simplified);
+  }, [dailyDrafts, onDailyDraftsChange]);
+
+  useEffect(() => {
     if (!open || !seed) return;
     setTheme(seed.theme ?? "");
     setPhil(seed.phil ?? "游戏化学习");

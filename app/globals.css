@@ -112,7 +112,7 @@ html,body{margin:0;background:var(--color-paper);color:var(--color-ink);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  animation: wait-shimmer 3.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: wait-shimmer 5.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .wait-shimmer-bar {
@@ -125,7 +125,7 @@ html,body{margin:0;background:var(--color-paper);color:var(--color-ink);
     oklch(0.62 0.14 40) 100%
   );
   background-size: 300% 100%;
-  animation: wait-shimmer 3.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: wait-shimmer 4.65s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 @keyframes weekly-panel-enter {
   0% {

@@ -22,6 +22,11 @@ export function TaskCards() {
     label: "",
   });
   const [panelSource, setPanelSource] = useState<"weekly" | "daily">("weekly");
+  const [dailyDrafts, setDailyDrafts] = useState<Record<string, "queued" | "preparing" | "ready" | "error">>({});
+
+  const handleDailyDraftsChange = useCallback((drafts: Record<string, "queued" | "preparing" | "ready" | "error">) => {
+    setDailyDrafts(drafts);
+  }, []);
 
   const handleCardClick = (id: string) => {
     if (id === "weekly") {
@@ -104,6 +109,32 @@ export function TaskCards() {
                   </div>
                 </div>
               )}
+              {t.id === "daily" && Object.keys(dailyDrafts).length > 0 && (
+                <div className="mt-3 grid grid-cols-5 gap-1.5">
+                  {["周一", "周二", "周三", "周四", "周五"].map((day) => {
+                    const status = dailyDrafts[day];
+                    return (
+                      <div
+                        key={day}
+                        className={[
+                          "flex flex-col items-center gap-1 rounded-lg py-2 text-meta transition-colors",
+                          status === "ready" ? "bg-brand/10 text-brand" :
+                          status === "preparing" || status === "queued" ? "bg-paper-sunk text-ink-3" :
+                          "bg-paper-sunk/50 text-ink-4",
+                        ].join(" ")}
+                      >
+                        <span className="text-[11px] font-medium">{day}</span>
+                        <span className="text-[13px] leading-none">
+                          {status === "ready" ? "✅" :
+                           status === "preparing" ? "⏳" :
+                           status === "queued" ? "🕐" :
+                           status === "error" ? "❌" : "·"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
               {t.id === "daily" && weeklyMinimized && dailyProgress.active && (
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-meta text-ink-3">
@@ -137,6 +168,7 @@ export function TaskCards() {
           }}
           onProgressChange={handleWeeklyProgress}
           onDailyProgressChange={handleDailyProgress}
+          onDailyDraftsChange={handleDailyDraftsChange}
         />
       )}
     </>
