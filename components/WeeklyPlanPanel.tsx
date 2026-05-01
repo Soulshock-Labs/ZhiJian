@@ -19,6 +19,7 @@ type Props = {
   onMinimize?: () => void;
   onProgressChange?: (state: { active: boolean; progress: number; seconds: number; label: string }) => void;
   onDailyProgressChange?: (state: { active: boolean; progress: number; seconds: number; label: string }) => void;
+  onDailyDraftsChange?: (drafts: Record<string, "queued" | "preparing" | "ready" | "error">) => void;
   animateFrom?: "weekly" | "daily";
   seed?: WeeklyPlanSeed | null;
 };
@@ -96,6 +97,7 @@ export function WeeklyPlanPanel({
   onMinimize,
   onProgressChange,
   onDailyProgressChange,
+  onDailyDraftsChange,
   animateFrom = "weekly",
   seed,
 }: Props) {
