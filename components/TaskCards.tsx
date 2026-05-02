@@ -90,7 +90,7 @@ export function TaskCards() {
               <div className="mt-3">
                 <CardTitle>{t.title}</CardTitle>
                 {t.id === "daily" && (
-                  <div className="mt-3 flex items-start gap-2">
+                  <div className="mt-3 flex items-start gap-2 pl-4">
                     <span className="text-[12px] text-ink-3 leading-none mt-[18px]">周</span>
                     {(["周一", "周二", "周三", "周四", "周五"] as const).map((day, i) => {
                       const status = dailyDrafts[day];
@@ -114,7 +114,10 @@ export function TaskCards() {
                     })}
                   </div>
                 )}
-                <CardBody>{t.body}</CardBody>
+                {t.id === "daily"
+                  ? <p className="text-body-sm text-ink-2 mt-2 pl-4">{t.body}</p>
+                  : <CardBody>{t.body}</CardBody>
+                }
               </div>
               <CardFooter>
                 <span>{t.meta}</span>
