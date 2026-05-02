@@ -103,7 +103,7 @@ export function TaskCards() {
                             status === "ready" ? "border-brand bg-brand text-white" :
                             status === "preparing" || status === "queued" ? "border-ink-3 bg-paper-sunk text-ink-3" :
                             status === "error" ? "border-red-400 bg-red-50 text-red-400" :
-                            "border-rule-soft bg-white",
+                            "border-rule-soft bg-paper-sunk",
                           ].join(" ")}>
                             {status === "ready" ? "✓" :
                              status === "preparing" || status === "queued" ? "…" :
