@@ -91,20 +91,15 @@ export function TaskCards() {
                 <CardTitle>{t.title}</CardTitle>
                 {t.id === "daily" && (
                   <div className="mt-3 flex items-start gap-2">
-                    {/* 周 标签列 */}
-                    <div className="flex flex-col items-center gap-1 pt-[1px]">
-                      <span className="text-[12px] text-ink-3 leading-none">周</span>
-                      <div className="h-9" />
-                    </div>
-                    {/* 五天格子 */}
+                    <span className="text-[12px] text-ink-3 leading-none mt-[18px]">周</span>
                     {(["周一", "周二", "周三", "周四", "周五"] as const).map((day, i) => {
                       const status = dailyDrafts[day];
                       const label = ["一", "二", "三", "四", "五"][i];
                       return (
-                        <div key={day} className="flex flex-col items-center gap-1 flex-1">
+                        <div key={day} className="flex flex-col items-center gap-1">
                           <span className="text-[12px] text-ink-3 leading-none">{label}</span>
                           <div className={[
-                            "w-full h-9 rounded-[6px] border flex items-center justify-center text-[16px] font-semibold transition-colors",
+                            "w-12 h-7 rounded-[5px] border flex items-center justify-center text-[13px] font-semibold transition-colors",
                             status === "ready" ? "border-brand bg-brand text-white" :
                             status === "preparing" || status === "queued" ? "border-ink-3 bg-paper-sunk text-ink-3" :
                             status === "error" ? "border-red-400 bg-red-50 text-red-400" :
