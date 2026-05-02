@@ -15,6 +15,7 @@ const config: Config = {
         "ink-4":    "var(--color-ink-4)",
         rule:       "var(--color-rule)",
         "rule-soft":"var(--color-rule-soft)",
+        "rule-card":"var(--color-rule-card)",
         brand:      "var(--color-brand)",
         "brand-hover":"var(--color-brand-hover)",
         "brand-press":"var(--color-brand-press)",

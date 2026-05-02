@@ -10,10 +10,10 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variants: Record<Variant, string> = {
-  base:    "bg-paper-hi border border-rule shadow-sm",
-  flat:    "bg-paper-hi border border-rule",
-  raised:  "bg-paper-hi border border-rule shadow-md",
-  outline: "bg-transparent border border-rule",
+  base:    "bg-paper-hi border border-rule-card shadow-sm",
+  flat:    "bg-paper-hi border border-rule-card",
+  raised:  "bg-paper-hi border border-rule-card shadow-md",
+  outline: "bg-transparent border border-rule-card",
   accent:  "bg-brand-tint border border-[color-mix(in_oklch,var(--color-brand),transparent_75%)]",
   inset:   "bg-paper-sunk shadow-[inset_0_1px_2px_rgba(60,40,20,0.06)]",
 };
