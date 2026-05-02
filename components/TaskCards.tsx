@@ -88,33 +88,31 @@ export function TaskCards() {
             >
               <Tag tone={t.tone} dot>{t.tag}</Tag>
               <div className="mt-3">
-                <div className="flex items-center gap-6">
-                  <CardTitle>{t.title}</CardTitle>
-                  {t.id === "daily" && (
-                    <div className="flex items-end gap-1 shrink-0 pb-[2px]">
-                      {(["周一", "周二", "周三", "周四", "周五"] as const).map((day, i) => {
-                        const status = dailyDrafts[day];
-                        const label = i === 0 ? "周一" : ["二", "三", "四", "五"][i - 1];
-                        return (
-                          <div key={day} className="flex flex-col items-center gap-[3px]">
-                            <span className="text-[9px] text-ink-4 leading-none">{label}</span>
-                            <div className={[
-                              "w-4 h-4 rounded-[2px] border flex items-center justify-center text-[9px] transition-colors",
-                              status === "ready" ? "border-brand bg-brand/10 text-brand" :
-                              status === "preparing" || status === "queued" ? "border-ink-3 bg-paper-sunk text-ink-3" :
-                              status === "error" ? "border-red-400 bg-red-50 text-red-400" :
-                              "border-rule-soft bg-paper-sunk",
-                            ].join(" ")}>
-                              {status === "ready" ? "✓" :
-                               status === "preparing" || status === "queued" ? "…" :
-                               status === "error" ? "✕" : ""}
-                            </div>
+                <CardTitle>{t.title}</CardTitle>
+                {t.id === "daily" && (
+                  <div className="mt-3 flex items-center gap-3">
+                    {(["周一", "周二", "周三", "周四", "周五"] as const).map((day, i) => {
+                      const status = dailyDrafts[day];
+                      const label = i === 0 ? "周" : ["一", "二", "三", "四", "五"][i - 1];
+                      return (
+                        <div key={day} className="flex flex-col items-center gap-1">
+                          <span className="text-[11px] text-ink-3 leading-none">{label}</span>
+                          <div className={[
+                            "w-8 h-8 rounded-[4px] border-2 flex items-center justify-center text-[14px] font-semibold transition-colors",
+                            status === "ready" ? "border-brand bg-brand text-white" :
+                            status === "preparing" || status === "queued" ? "border-ink-3 bg-paper-sunk text-ink-3" :
+                            status === "error" ? "border-red-400 bg-red-50 text-red-400" :
+                            "border-rule bg-white",
+                          ].join(" ")}>
+                            {status === "ready" ? "✓" :
+                             status === "preparing" || status === "queued" ? "·" :
+                             status === "error" ? "✕" : ""}
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
                 <CardBody>{t.body}</CardBody>
               </div>
               <CardFooter>
