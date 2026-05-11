@@ -27,6 +27,7 @@ from docx import Document
 from fastapi import HTTPException
 from openai import OpenAI
 
+from core.settings import AI_MODEL, MOONSHOT_API_KEY, MOONSHOT_BASE_URL, OPENAI_API_KEY, OPENAI_BASE_URL, VOICE_TRANSCRIBE_MODEL
 from word_engine.field_map import PHILOSOPHY_HINTS, CLASS_LEVEL_HINTS, ACTIVITY_LABEL_MAP
 
 logger = logging.getLogger(__name__)
@@ -34,12 +35,6 @@ logger = logging.getLogger(__name__)
 # ──────────────────────────────────────────────
 # AI 客户端（模块加载时初始化）
 # ──────────────────────────────────────────────
-MOONSHOT_API_KEY = os.getenv("MOONSHOT_API_KEY", "")
-MOONSHOT_BASE_URL = os.getenv("MOONSHOT_BASE_URL", "https://api.moonshot.cn/v1")
-AI_MODEL = os.getenv("AI_MODEL", "kimi-k2-5")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-VOICE_TRANSCRIBE_MODEL = os.getenv("VOICE_TRANSCRIBE_MODEL", "whisper-1")
 ALLOW_MOCK_CONTENT = str(os.getenv("ALLOW_MOCK_CONTENT", "0")).strip().lower() in {"1", "true", "yes", "on"}
 
 client = OpenAI(api_key=MOONSHOT_API_KEY or "not-configured", base_url=MOONSHOT_BASE_URL)
