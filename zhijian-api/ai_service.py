@@ -333,7 +333,7 @@ def generate_content(
     template_outline: Optional[list[str]] = None,
     class_level: str = "",
 ) -> dict:
-    """调用阿里云百炼 Qwen-Max，返回解析后的内容字典。"""
+    """调用 Kimi / Moonshot，返回解析后的内容字典。"""
     if not MOONSHOT_API_KEY:
         logger.warning("MOONSHOT_API_KEY 缺失，回退 Mock 生成（/generate 旧接口）")
         return _normalize_content_payload(

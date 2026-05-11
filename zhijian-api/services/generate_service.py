@@ -13,7 +13,7 @@ from docx import Document
 from ai_service import _parse_json_payload, build_system_prompt
 from core.settings import AI_MODEL, APP_VERSION, MOONSHOT_API_KEY, _TEMP_EXPORT_DIR
 from core.state import FIRESTORE_ENABLED, _TEMP_EXPORTS, _fs, client
-from core.clients import _raise_if_invalid_dashscope_key
+from core.clients import _raise_if_invalid_key
 from core.utils import _utc_iso
 from prompt_engineering.prompt_config import get_prompt_template
 from services.data_store import _load_user_accounts
@@ -158,7 +158,7 @@ def generate_observation_content(
         raw = re.sub(r"\s*```$", "", raw)
         return json.loads(raw)
     except Exception as e:
-        _raise_if_invalid_dashscope_key(e)
+        _raise_if_invalid_key(e)
         return _mock_observation_content(theme, child_name, scene, note, photo_names)
 
 def _build_observation_docx_bytes(
