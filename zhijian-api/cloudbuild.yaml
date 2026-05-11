@@ -34,3 +34,4 @@ steps:
 
 options:
   machineType: 'E2_HIGHCPU_8'  # 更快的构建机器，8核比默认快约2倍
+  logging: CLOUD_LOGGING_ONLY  # 日志只写 Cloud Logging，避免 GCS bucket 权限要求
