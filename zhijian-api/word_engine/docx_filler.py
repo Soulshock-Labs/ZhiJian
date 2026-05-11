@@ -168,12 +168,13 @@ def _build_weekly_fill_data(
             else ("✅ 本周有幼儿自主发起活动" if child_initiative else "")
         ),
     }
+    # weekly_targets 也必须经过 normalize_field，避免双重编号
     if weekly_life:
-        fill_data["life"] = weekly_life
+        fill_data["life"] = normalize_field("life", weekly_life, class_level)
     if weekly_family:
-        fill_data["family"] = weekly_family
+        fill_data["family"] = normalize_field("family", weekly_family, class_level)
     if weekly_environment:
-        fill_data["environment"] = weekly_environment
+        fill_data["environment"] = normalize_field("environment", weekly_environment, class_level)
 
     weekday_domain = _build_weekday_domain_plan(theme)
     day_zh = {"mon": "周一", "tue": "周二", "wed": "周三", "thu": "周四", "fri": "周五"}
@@ -217,8 +218,16 @@ def _build_weekly_fill_data(
         ("game",    fill_data.get("area", "")),
         ("outdoor", "本周户外活动（按天气与场地安排）"),
     ):
-        # 使用已经标准化的内容，而非原始 AI 输出
-        normalized_text = fill_data.get(field_id, "").strip()
+        # study/game 不在 ACTIVITY_LABEL_MAP 中，前面循环不会处理
+        # 这里直接从 ai_acts 读取并标准化（outdoor 也兼容此路径）
+        raw_content = ai_acts.get(field_id, "").strip() if isinstance(ai_acts, dict) else ""
+        if raw_content:
+            normalized_text = normalize_field(field_id, raw_content, class_level)
+            fill_data[field_id] = normalized_text
+        else:
+            # 回退到 fill_data（如果前面循环已设置过）
+            normalized_text = fill_data.get(field_id, "").strip()
+
         if not normalized_text:
             # 未返回该字段，使用兜底值
             if not fill_data.get(field_id):

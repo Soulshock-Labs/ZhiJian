@@ -55,6 +55,31 @@ class TestSplitItems(unittest.TestCase):
         result = _split_items("1．项目1\n2．项目2")
         self.assertEqual(result, ["项目1", "项目2"])
 
+    def test_remove_parenthesis_numbering(self):
+        """移除括号编号 1) 2)"""
+        result = _split_items("1) 项目1\n2) 项目2")
+        self.assertEqual(result, ["项目1", "项目2"])
+
+    def test_remove_chinese_number_prefix(self):
+        """移除中文数字编号 一、二、"""
+        result = _split_items("一、项目1\n二、项目2")
+        self.assertEqual(result, ["项目1", "项目2"])
+
+    def test_remove_dash_numbering(self):
+        """移除数字-横线编号 1- 2-"""
+        result = _split_items("1- 项目1\n2- 项目2")
+        self.assertEqual(result, ["项目1", "项目2"])
+
+    def test_remove_stacked_numbering(self):
+        """循环移除多层叠加编号 1. 1. xxx"""
+        result = _split_items("1. 1. 项目1\n2. 2. 项目2")
+        self.assertEqual(result, ["项目1", "项目2"])
+
+    def test_remove_numbering_no_space(self):
+        """无空格编号 1.xxx"""
+        result = _split_items("1.项目1\n2.项目2")
+        self.assertEqual(result, ["项目1", "项目2"])
+
     def test_max_items_truncation(self):
         """超出 max_items 应截断"""
         result = _split_items("a,b,c,d,e", max_items=3)

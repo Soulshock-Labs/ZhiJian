@@ -34,6 +34,9 @@ def _split_items(raw: str, max_items: Optional[int] = None) -> list[str]:
         items = re.split(r'[。，、;；,]', items[0])
         items = [x.strip() for x in items if x.strip()]
 
+    # 编号前缀正则：覆盖 "1." "1．" "1、" "1)" "1）" "1-" "1：" 以及 "一、" 等中文数字
+    _numbering_re = re.compile(r'^(?:\d+|[一二三四五六七八九十])[.．、）)\-：:]\s*')
+
     # 移除开头的"周一""【健康】"等前缀
     cleaned = []
     for item in items:
@@ -41,8 +44,9 @@ def _split_items(raw: str, max_items: Optional[int] = None) -> list[str]:
         item = re.sub(r'^(?:周[一二三四五]|星期[一二三四五])\s*[·：:]*\s*', '', item)
         # 移除"【健康】"等领域前缀
         item = re.sub(r'^【[^】]+】\s*', '', item)
-        # 移除已有的编号前缀（防止双重编号）
-        item = re.sub(r'^\d+[.．、]\s*', '', item)
+        # 循环移除已有的编号前缀（防止双重/三重编号叠加）
+        while _numbering_re.match(item):
+            item = _numbering_re.sub('', item, count=1)
         # 移除《》括号内的重复标签
         item = item.strip()
         if item:
