@@ -1,5 +1,6 @@
 steps:
   - name: 'python:3.11-slim'
+    dir: 'zhijian-api'
     entrypoint: 'python'
     args: ['scripts/check_source_chars.py']
 
@@ -10,6 +11,7 @@ steps:
 
   # 构建时用 --cache-from 复用上次镜像层
   - name: 'gcr.io/cloud-builders/docker'
+    dir: 'zhijian-api'
     args:
       - build
       - --cache-from=gcr.io/$PROJECT_ID/zhijian-api:latest
