@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
   generateDaily,
-  generateWeeklyDocumentWithTemplate,
   getWeeklyGenerationJob,
+  getGenerateTemplateJob,
+  startGenerateTemplateJob,
   downloadBlob,
   startWeeklyGenerationJob,
   type WeeklyDay,
@@ -362,18 +363,41 @@ export function WeeklyPlanPanel({
       setDocumentSeconds(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
     try {
-      const blob = await generateWeeklyDocumentWithTemplate(documentFile, {
+      const { job_id } = await startGenerateTemplateJob({
+        file: documentFile,
         theme: theme.trim(),
         phil: phil.trim(),
         class_level: classLevel,
-        client: "web",
-        user_id: getStoredUserId(),
         user_token: userToken,
       });
+
+      // 轮询，最多等 3 分钟
+      const deadline = Date.now() + 180_000;
+      let jobResult: Awaited<ReturnType<typeof getGenerateTemplateJob>> | null = null;
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 3000));
+        try {
+          jobResult = await getGenerateTemplateJob(job_id, userToken);
+        } catch {
+          continue;
+        }
+        if (jobResult.status === "success" || jobResult.status === "error") break;
+      }
+
+      if (!jobResult || jobResult.status !== "success" || !jobResult.result) {
+        throw new Error(jobResult?.error || "生成超时，请重试");
+      }
+
+      const { file_base64, filename } = jobResult.result;
+      const binaryStr = atob(file_base64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+      const blob = new Blob([bytes], {
+        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      });
+
       const elapsed = Math.round((Date.now() - startTime) / 100) / 10;
       setDocumentElapsed(elapsed);
-      const safeTheme = theme.trim().replace(/[^一-龥a-zA-Z0-9]/g, "_");
-      const filename = `周计划_${safeTheme || "纸笺"}.docx`;
       await downloadBlob(blob, filename);
       addRecentHistory({
         type: "document",
