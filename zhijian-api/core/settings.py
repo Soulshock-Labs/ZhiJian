@@ -21,7 +21,7 @@ def _env_truthy(name: str, default: str = "0") -> bool:
 MOONSHOT_API_KEY = os.getenv("MOONSHOT_API_KEY", "")
 MOONSHOT_BASE_URL = os.getenv("MOONSHOT_BASE_URL", "https://api.moonshot.cn/v1")
 
-AI_MODEL = os.getenv("AI_MODEL", "kimi-k2-5")
+AI_MODEL = os.getenv("AI_MODEL", "kimi-k2.5")
 AI_MODEL_FAST = os.getenv("AI_MODEL_FAST", "moonshot-v1-8k")
 
 # ── DeepSeek ──
