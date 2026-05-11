@@ -42,11 +42,9 @@ from services.planning_service import (
 from word_engine.doc_reader import extract_doc_context, to_markdown
 from services.doc_space import get_doc_md, get_all_docs_md
 
-router = APIRouter()
+from core.job_store import _JOB_STORE, _JOB_TTL, evict_expired
 
-# ── 内存 Job Store（单实例 Cloud Run 可用） ──────────────────────────────
-_JOB_STORE: dict[str, dict] = {}
-_JOB_TTL = 600  # 10 分钟后过期
+router = APIRouter()
 
 
 
@@ -374,11 +372,7 @@ async def start_generate_weekly_job(
         "progress": 5,
     }
 
-    # 清理过期 job（顺手，不阻塞）
-    now = time.time()
-    expired = [k for k, v in _JOB_STORE.items() if now - v.get("started_at", now) > _JOB_TTL]
-    for k in expired:
-        _JOB_STORE.pop(k, None)
+    evict_expired()
 
     async def _run_job():
         t0 = time.time()

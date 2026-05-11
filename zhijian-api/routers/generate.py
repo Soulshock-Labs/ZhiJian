@@ -1,15 +1,21 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Body, File, Form, Header, HTTPException, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
-
-import asyncio, io, json, os, re
+import asyncio
+import base64
+import io
+import json
+import os
+import re
+import time
 from uuid import uuid4
 
 from docx.opc.exceptions import PackageNotFoundError
+from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 
 from ai_service import _extract_template_outline, _normalize_content_payload, generate_content
 from core.auth import require_permission
+from core.job_store import _JOB_STORE, evict_expired
 from core.settings import AI_MODEL, MAX_UPLOAD_FILE_SIZE, _WEEKLY_DRAFT_LOG_FILE
 from core.utils import _append_jsonl, _read_upload_with_limit, _utc_iso
 from services.data_store import _load_user_accounts
@@ -23,6 +29,7 @@ from word_engine.docx_filler import (
 )
 from word_engine.field_map import WEEKLY_STANDARD_MODULES
 from word_engine.template_tools import _build_standard_weekly_template_bytes
+
 router = APIRouter()
 @router.post("/generate", tags=["核心接口"])
 async def generate(
@@ -161,6 +168,110 @@ async def generate(
         media_type=media_type,
         headers=h,
     )
+@router.post("/generate-job", tags=["核心接口"])
+async def start_generate_job(
+    user_token: str = Form(..., description="登录 token"),
+    theme: str = Form(..., description="教学主题"),
+    phil: str = Form(..., description="教育理念"),
+    activities: str = Form("[]", description="活动重点列表（JSON 数组字符串）"),
+    child_initiative: bool = Form(False),
+    child_desc: str = Form(""),
+    class_level: str = Form(""),
+    export_format: str = Form("docx"),
+    template: UploadFile = File(..., description="Word 模板文件 (.docx)"),
+):
+    """
+    异步版模板填充：立即返回 job_id，前端轮询 GET /generation-jobs/{job_id}。
+    任务完成后 result.file_base64 含 base64 编码的 docx 文件。
+    """
+    require_permission(user_token, "generate")
+
+    if not (template.filename or "").lower().endswith(".docx"):
+        raise HTTPException(status_code=400, detail="仅支持 .docx 格式的 Word 文件")
+
+    try:
+        acts_list: list[str] = json.loads(activities)
+    except (json.JSONDecodeError, TypeError):
+        acts_list = []
+    if not isinstance(acts_list, list):
+        acts_list = []
+
+    template_bytes = await _read_upload_with_limit(template, MAX_UPLOAD_FILE_SIZE)
+    original_name = os.path.basename(template.filename or "template.docx")
+    original_name = re.sub(r'[\\/*?:"<>|]+', "_", original_name)
+    if original_name.lower().endswith(".docx"):
+        original_name = original_name[:-5]
+
+    _append_jsonl(_WEEKLY_DRAFT_LOG_FILE, {
+        "ts": _utc_iso(),
+        "event": "template_submit",
+        "flow": "generate_job",
+        "template_filename": original_name,
+        "theme": theme,
+        "phil": phil,
+    })
+
+    job_id = f"gj_{uuid4().hex[:12]}"
+    _JOB_STORE[job_id] = {
+        "status": "running",
+        "job_id": job_id,
+        "type": "document",
+        "started_at": time.time(),
+        "progress": 5,
+    }
+    evict_expired()
+
+    async def _run():
+        t0 = time.time()
+        try:
+            loop = asyncio.get_event_loop()
+            outline = _extract_template_outline(template_bytes)
+            ai_content = await loop.run_in_executor(
+                None,
+                lambda: generate_content(
+                    theme=theme,
+                    phil=phil,
+                    activities=acts_list,
+                    child_initiative=child_initiative,
+                    child_desc=child_desc,
+                    template_outline=outline,
+                    class_level=class_level.strip(),
+                ),
+            )
+            _JOB_STORE[job_id]["progress"] = 70
+
+            filled_bytes, export_engine = fill_word_template(
+                template_bytes=template_bytes,
+                theme=theme,
+                phil=phil,
+                ai_content=ai_content,
+                activities=acts_list,
+                child_initiative=child_initiative,
+                child_desc=child_desc,
+                class_level=class_level.strip(),
+            )
+            file_b64 = base64.b64encode(filled_bytes).decode()
+            _JOB_STORE[job_id].update({
+                "status": "success",
+                "progress": 100,
+                "elapsed_seconds": round(time.time() - t0, 1),
+                "result": {
+                    "file_base64": file_b64,
+                    "filename": f"{original_name}.docx",
+                    "export_engine": export_engine,
+                },
+            })
+        except Exception as exc:
+            _JOB_STORE[job_id].update({
+                "status": "error",
+                "error": str(exc),
+                "elapsed_seconds": round(time.time() - t0, 1),
+            })
+
+    asyncio.create_task(_run())
+    return {"status": "ok", "job_id": job_id}
+
+
 @router.post("/preview", tags=["调试"])
 async def preview(
     user_token: str = Form(...),

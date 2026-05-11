@@ -792,6 +792,54 @@ export function getWeeklyGenerationJob(
   );
 }
 
+export type GenerateTemplateJobResult = {
+  file_base64: string;
+  filename: string;
+  export_engine: string;
+};
+
+export type GenerateTemplateJobResponse = {
+  status: "running" | "success" | "error" | string;
+  job_id: string;
+  progress?: number;
+  elapsed_seconds?: number;
+  result?: GenerateTemplateJobResult;
+  error?: string;
+};
+
+export function startGenerateTemplateJob(params: {
+  file: File;
+  theme: string;
+  phil: string;
+  class_level?: string;
+  activities?: string;
+  user_token: string;
+}): Promise<{ status: string; job_id: string }> {
+  const body = new FormData();
+  body.append("template", params.file);
+  body.append("theme", params.theme);
+  body.append("phil", params.phil);
+  body.append("user_token", params.user_token);
+  body.append("class_level", params.class_level ?? "");
+  body.append("activities", params.activities ?? "[]");
+  body.append("client", "web");
+  return request<{ status: string; job_id: string }>("/generate-job", {
+    method: "POST",
+    body,
+    timeoutMs: 30_000,
+  });
+}
+
+export function getGenerateTemplateJob(
+  jobId: string,
+  userToken: string,
+): Promise<GenerateTemplateJobResponse> {
+  return request<GenerateTemplateJobResponse>(
+    `/generation-jobs/${encodeURIComponent(jobId)}?user_token=${encodeURIComponent(userToken)}`,
+    { method: "GET", timeoutMs: 30_000 },
+  );
+}
+
 // ---------- /generate-daily（返回 .docx 二进制） ----------
 
 export async function generateDaily(params: {

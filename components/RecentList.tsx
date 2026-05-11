@@ -157,10 +157,12 @@ export function RecentList() {
         return;
       }
 
-      await downloadBlob(
-        new Blob([recentItemToText(item)], { type: "text/plain;charset=utf-8" }),
-        safeFilename(item.title, ".txt"),
-      );
+      if (item.type === "weekly") {
+        handleRegenerate(item);
+        setNotice("已填入表单，点击「生成并下载」重新获取 Word");
+        return;
+      }
+      setNotice("历史记录不存储原始文档，请重新上传模板生成");
     } catch (err) {
       setNotice(err instanceof Error ? err.message : "下载失败，请重试");
     } finally {
