@@ -17,6 +17,9 @@ from typing import Optional
 # ──────────────────────────────────────────────
 CELL_KEYWORD_MAP: list[tuple[list[str], str]] = [
     (["基础信息", "基本信息"],                                     "class_info"),
+    (["日期"],                                                      "date_field"),
+    (["天气"],                                                      "weather_field"),
+    (["班级名", "班级名称", "班型", "班"],                       "class_name_field"),
     (["上周情况分析", "上周分析", "上周情况"],                      "children_baseline"),
     (["本周重点与难点", "重点与难点", "重点难点"],                  "key_difficulty"),
     (["幼儿已有经验", "已有经验", "前测"],                          "children_baseline"),

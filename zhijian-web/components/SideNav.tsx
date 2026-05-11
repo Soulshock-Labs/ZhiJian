@@ -19,11 +19,13 @@ interface Item {
 }
 
 export function SideNav() {
-  const { user } = useAuth();
-  const isPlatformAdmin = user?.role === "platform_admin";
+  const { user, mounted } = useAuth();
+  // mounted 前统一用未登录状态，避免 SSR/CSR 差异导致 hydration mismatch
+  const role = mounted ? user?.role : undefined;
+  const isPlatformAdmin = role === "platform_admin";
   const knowledgeLabel =
-    user?.role === "platform_admin" ? "纸笺知识库"
-    : user?.role === "org_admin" ? "园本知识库"
+    role === "platform_admin" ? "纸笺知识库"
+    : role === "org_admin" ? "园本知识库"
     : "我的知识库";
 
   const groups: { title: string; items: Item[] }[] = [

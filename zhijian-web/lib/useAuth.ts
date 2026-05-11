@@ -91,9 +91,11 @@ const AUTH_EVENT = "zj_auth_change";
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   // 首次挂载时从 storage 读取
   useEffect(() => {
+    setMounted(true);
     setUser(readFromStorage());
 
     function onAuthChange() {
@@ -121,5 +123,6 @@ export function useAuth() {
     isLoggedIn: Boolean(user),
     login,
     logout,
+    mounted,
   };
 }

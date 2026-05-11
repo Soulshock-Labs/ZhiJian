@@ -1,0 +1,36 @@
+steps:
+  - name: 'python:3.11-slim'
+    entrypoint: 'python'
+    args: ['scripts/check_source_chars.py']
+
+  # 拉取上一次的镜像作为缓存层（失败不影响构建）
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: ['-c', 'docker pull gcr.io/$PROJECT_ID/zhijian-api:latest || true']
+
+  # 构建时用 --cache-from 复用上次镜像层
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - --cache-from=gcr.io/$PROJECT_ID/zhijian-api:latest
+      - -t=gcr.io/$PROJECT_ID/zhijian-api:latest
+      - .
+
+  # 推送镜像
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/zhijian-api:latest']
+
+  # 部署到 Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - zhijian-api
+      - --image=gcr.io/$PROJECT_ID/zhijian-api:latest
+      - --region=asia-east1
+      - --allow-unauthenticated
+      - --memory=2Gi
+
+options:
+  machineType: 'E2_HIGHCPU_8'  # 更快的构建机器，8核比默认快约2倍

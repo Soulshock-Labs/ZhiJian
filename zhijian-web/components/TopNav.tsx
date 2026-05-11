@@ -7,7 +7,7 @@ import type { AuthResponse } from "@/lib/api";
 
 export function TopNav() {
   const links = ["工作台", "周计划", "日教案", "观察记录", "模板"];
-  const { user, isLoggedIn, login, logout } = useAuth();
+  const { user, isLoggedIn, login, logout, mounted } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [spotlightSection, setSpotlightSection] = useState<"redeem" | null>(null);
@@ -95,7 +95,7 @@ export function TopNav() {
             />
           </label>
 
-          {isLoggedIn && user ? (
+          {mounted && isLoggedIn && user ? (
             <div className="flex items-center gap-2">
               {/* Usage */}
               <button className="hidden h-[34px] min-w-[110px] flex-col items-start justify-center gap-[3px] rounded-pill border border-rule bg-paper-hi px-3.5 text-meta text-ink-2 hover:bg-paper-sunk whitespace-nowrap lg:flex">
@@ -154,7 +154,7 @@ export function TopNav() {
               className="h-8 px-4 rounded-pill text-white text-meta font-semibold whitespace-nowrap shadow-sm"
               style={{ background: "var(--color-brand)" }}
             >
-              登录 / 注册
+              {mounted ? "登录 / 注册" : "登录 / 注册"}
             </button>
           )}
         </div>

@@ -40,6 +40,9 @@ async def generate(
     child_initiative: bool = Form(False, description="是否有幼儿自主发起活动"),
     child_desc: str = Form("", description="幼儿自主活动描述"),
     class_level: str = Form("", description="班级类型：小班 / 中班 / 大班"),
+    class_name: str = Form("", description="班级名（如小A班、中二班），空则自动填充"),
+    date: str = Form("", description="日期，空则自动使用今天"),
+    weather: str = Form("", description="天气，空则自动填充☀️ 晴"),
     client: str = Form("web", description="客户端标识，mini 时返回 JSON"),
     export_format: str = Form("docx", description="导出格式：docx / pdf / png"),
     template: UploadFile = File(..., description="Word 模板文件 (.doc/.docx)"),
@@ -111,6 +114,9 @@ async def generate(
             child_initiative=child_initiative,
             child_desc=child_desc,
             class_level=class_level.strip(),
+            class_name=class_name.strip(),
+            date=date.strip(),
+            weather=weather.strip(),
         )
     except PackageNotFoundError:
         raise HTTPException(status_code=400, detail="模板解析失败，请确认上传的是有效 .docx 文件")

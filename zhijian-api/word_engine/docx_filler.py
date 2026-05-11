@@ -32,6 +32,7 @@ from .field_map import (
     _weekday_tag_from_header,
     _build_weekday_domain_plan,
 )
+from .format_converter import normalize_field
 from .template_tools import clean_template_keep_style, _is_colored_cell, _today_str
 
 logger = logging.getLogger(__name__)
@@ -126,6 +127,9 @@ def _build_weekly_fill_data(
     *,
     class_level: str = "",
     fill_unselected: bool = False,
+    class_name: str = "",
+    date: str = "",
+    weather: str = "",
 ) -> dict[str, str]:
     """周计划填充字段字典（Aspose / python-docx 共用）。"""
     today = _today_str()
@@ -153,7 +157,10 @@ def _build_weekly_fill_data(
         "safety_risk":       "重点关注户外活动与材料使用安全；提前进行规则提醒与风险巡视。",
         "next_week_plan":    "根据本周观察结果调整下周材料投放与活动难度，延续幼儿高兴趣点。",
         "nap_guidance":      ai_content.get("nap_guidance", ""),
-        "class_info":        f"________班    日期：{today}    天气：☀️ 晴",
+        "class_info":        f"{class_name or '________班'}    日期：{date or today}    天气：{weather or '☀️ 晴'}",
+        "date_field":        date or today,
+        "weather_field":     weather or "☀️ 晴",
+        "class_name_field":  class_name or "________班",
         "child_initiative": (
             f"✅ 本周有幼儿自主发起活动\n{child_desc}\n"
             f"💡 {phil}理念中，幼儿自主发起的活动是最宝贵的课程生长点，请及时记录跟进。"
@@ -176,8 +183,14 @@ def _build_weekly_fill_data(
     )
 
     ai_acts: dict = ai_content.get("activities", {})
+
+    # 需要按天分拆的字段（周一～周五各不同）
+    _DAY_ACTIVITY_FIELDS = ("study", "game", "outdoor")
+
     for act_id in ACTIVITY_LABEL_MAP:
-        content = ai_acts.get(act_id, "")
+        raw_content = ai_acts.get(act_id, "")
+        # 对所有活动字段应用格式转换
+        content = normalize_field(act_id, raw_content, class_level) if raw_content else ""
         # activities 为空 = 用户未显式选择，填入所有有内容的字段（模板上传流程）
         # activities 非空 = 标准模板流程，只填选中项
         should_fill = (not activities or act_id in activities) and bool(content)
@@ -186,7 +199,9 @@ def _build_weekly_fill_data(
         elif fill_unselected:
             fill_data[act_id] = "（本周未启用该板块，可按班级实际勾选后再生成）"
         base_for_day = fill_data.get(act_id, "") or content
-        if base_for_day:
+        # 只有非按天活动字段才走"基础内容+日期标签"兜底逻辑
+        # 按天活动字段在下面单独解析 AI 返回的按天格式
+        if base_for_day and act_id not in _DAY_ACTIVITY_FIELDS:
             for tag in ("mon", "tue", "wed", "thu", "fri"):
                 domain = weekday_domain.get(tag, "综合")
                 fill_data[f"{act_id}__{tag}"] = f"{base_for_day}\n【{day_zh[tag]}·{domain}】结合班级现状分层引导。"
@@ -195,30 +210,37 @@ def _build_weekly_fill_data(
     if guidance_items:
         fill_data["guidance"] = "\n".join(f"{i+1}. {g}" for i, g in enumerate(guidance_items))
 
-    _day_prefix_re = re.compile(r"^(?:周[一二三四五]|星期[一二三四五])[^\S\n]*[：:·\-\s]*")
     tag_order = ("mon", "tue", "wed", "thu", "fri")
     is_xiaopan = "小班" in class_level
     for field_id, field_default in (
-        ("study", "本周集中活动（按班级课程表安排）"),
-        ("game",  fill_data.get("area", "")),
+        ("study",   "本周集中活动（按班级课程表安排）"),
+        ("game",    fill_data.get("area", "")),
+        ("outdoor", "本周户外活动（按天气与场地安排）"),
     ):
-        if field_id in fill_data:
+        # 使用已经标准化的内容，而非原始 AI 输出
+        normalized_text = fill_data.get(field_id, "").strip()
+        if not normalized_text:
+            # 未返回该字段，使用兜底值
+            if not fill_data.get(field_id):
+                fill_data[field_id] = field_default
             continue
-        raw_text = ai_acts.get(field_id, "").strip()
-        if not raw_text:
-            fill_data[field_id] = field_default
-            continue
-        lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
-        per_day = [_day_prefix_re.sub("", l).strip() for l in lines]
-        if len(per_day) >= 2:
-            fill_data[field_id] = per_day[0]
+
+        # 从标准化内容中提取每天的内容
+        # 标准化格式为：周一《活动1》\n周二《活动2》\n...
+        lines = [l.strip() for l in normalized_text.splitlines() if l.strip()]
+        if len(lines) >= 2:
+            # 有多行内容（按天分配）
             for i, tag in enumerate(tag_order):
-                day_content = per_day[i] if i < len(per_day) else per_day[-1]
+                day_content = lines[i] if i < len(lines) else lines[-1]
+                # 移除日期前缀（如果有）
+                day_content = re.sub(r'^(?:周[一二三四五]|星期[一二三四五])[^\S\n]*[：:·\-\s]*', '', day_content).strip()
                 if is_xiaopan and field_id == "study" and "；" in day_content:
                     day_content = day_content.split("；")[0].strip()
                 fill_data[f"{field_id}__{tag}"] = day_content
         else:
-            fill_data[field_id] = raw_text
+            # 降级兼容：只有一行，五天都填相同内容
+            for tag in tag_order:
+                fill_data[f"{field_id}__{tag}"] = normalized_text
     return fill_data
 
 
@@ -364,6 +386,9 @@ def fill_word_template(
     *,
     class_level: str = "",
     fill_unselected: bool = False,
+    class_name: str = "",
+    date: str = "",
+    weather: str = "",
 ) -> tuple[bytes, str]:
     """
     铁律填充入口：净空模板骨架 → 写入 AI 内容。
@@ -374,6 +399,7 @@ def fill_word_template(
     fill_data = _build_weekly_fill_data(
         theme, phil, ai_content, activities, child_initiative, child_desc,
         class_level=class_level, fill_unselected=fill_unselected,
+        class_name=class_name, date=date, weather=weather,
     )
     if ENABLE_ASPOSE_WORDS:
         try:

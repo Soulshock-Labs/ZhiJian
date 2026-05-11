@@ -17,8 +17,10 @@ function useWeekProgress() {
     const elapsed = Math.min((weekDay - 1) * 24 * 3600 + secondsIntoDay, totalWeekSeconds);
     return Math.min(elapsed / totalWeekSeconds, 1);
   };
-  const [pct, setPct] = useState(calc);
+  // SSR 与 CSR 初始值必须一致，避免 hydration mismatch
+  const [pct, setPct] = useState(0);
   useEffect(() => {
+    setPct(calc());
     const id = setInterval(() => setPct(calc()), 1000);
     return () => clearInterval(id);
   }, []);
