@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{background:var(--color-paper);padding:20px 24px;font-family:var(--font-sans);}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.section-label{font-size:10px;font-family:var(--font-mono);letter-spacing:1px;text-transform:uppercase;color:var(--color-ink-4);margin-bottom:8px;}
+/* Base button */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer;font-family:var(--font-sans);font-weight:600;border-radius:var(--radius-pill);transition:all .15s;white-space:nowrap;}
+.btn-lg{height:var(--h-btn-lg);padding:0 28px;font-size:var(--fs-body);}
+.btn-md{height:var(--h-btn-md);padding:0 20px;font-size:var(--fs-body-sm);}
+.btn-sm{height:var(--h-btn-sm);padding:0 14px;font-size:var(--fs-meta);}
+/* Variants */
+.btn-primary{background:var(--color-brand);color:var(--color-brand-on);box-shadow:0 1px 3px rgba(60,40,20,.12);}
+.btn-primary:hover{filter:brightness(1.05);}
+.btn-ghost{background:transparent;color:var(--color-brand);border:1.5px solid var(--color-brand);}
+.btn-ghost:hover{background:var(--color-brand-tint);}
+.btn-paper{background:var(--color-paper-hi);color:var(--color-ink-2);border:1px solid var(--color-rule);}
+.btn-paper:hover{background:var(--color-paper-sunk);color:var(--color-ink);}
+.btn-success{background:var(--color-success-tint);color:var(--color-success-ink);border:1px solid oklch(0.56 0.08 150 / 0.3);}
+.btn-danger{background:var(--color-danger-tint);color:var(--color-danger-ink);border:1px solid oklch(0.61 0.13 38 / 0.3);}
+.btn-disabled{background:var(--color-paper-sunk);color:var(--color-ink-4);cursor:not-allowed;}
+</style></head><body>
+<div class="section-label">Primary · Ghost · Paper</div>
+<div class="row">
+  <button class="btn btn-primary btn-lg">登录 / 注册</button>
+  <button class="btn btn-primary btn-md">生成教案</button>
+  <button class="btn btn-primary btn-sm">保存</button>
+</div>
+<div class="row">
+  <button class="btn btn-ghost btn-md">了解更多</button>
+  <button class="btn btn-paper btn-md">取消</button>
+  <button class="btn btn-paper btn-sm">编辑</button>
+  <button class="btn btn-disabled btn-md" disabled>即将上线</button>
+</div>
+<div class="section-label" style="margin-top:4px">Semantic</div>
+<div class="row">
+  <button class="btn btn-success btn-md">内测兑换</button>
+  <button class="btn btn-danger btn-sm">删除记录</button>
+</div>
+</body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{background:var(--color-paper);padding:20px;font-family:var(--font-sans);}
+.row{display:flex;gap:10px;margin-bottom:10px;}
+.swatch{flex:1;border-radius:var(--radius-sm);padding:16px 12px;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;}
+.swatch label{font-size:var(--fs-meta);font-family:var(--font-mono);opacity:.75;display:block;margin-bottom:2px;}
+.swatch span{font-size:var(--fs-body-sm);font-weight:600;}
+</style></head><body>
+<div class="row">
+  <div class="swatch" style="background:var(--color-brand);color:#fff;flex:3">
+    <label>--color-brand</label><span>oklch(0.62 0.14 40) · 主品牌色</span>
+  </div>
+  <div class="swatch" style="background:var(--color-brand-hover);color:#fff;">
+    <label>hover</label><span>oklch(0.56)</span>
+  </div>
+  <div class="swatch" style="background:var(--color-brand-press);color:#fff;">
+    <label>press</label><span>oklch(0.50)</span>
+  </div>
+</div>
+<div class="row">
+  <div class="swatch" style="background:var(--color-brand-tint);color:var(--color-brand);border:1px solid var(--color-rule-soft);flex:3">
+    <label>--color-brand-tint</label><span>浅色背景 / 选中态</span>
+  </div>
+  <div class="swatch" style="background:var(--color-paper-hi);border:1px solid var(--color-rule);color:var(--color-ink-2);">
+    <label>paper-hi</label><span>#fbf7ed</span>
+  </div>
+  <div class="swatch" style="background:var(--color-paper-sunk);border:1px solid var(--color-rule);color:var(--color-ink-2);">
+    <label>paper-sunk</label><span>#efe8da</span>
+  </div>
+</div>
+</body></html>

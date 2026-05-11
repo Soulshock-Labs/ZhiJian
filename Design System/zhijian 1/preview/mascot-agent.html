@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet">
+<style>
+body {
+  background: #f0ead6;
+  padding: 32px 36px;
+  font-family: var(--font-sans);
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(232,132,90,.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(245,196,36,.06) 0%, transparent 50%);
+}
+
+.hero-card {
+  background: #fdfaf2;
+  border-radius: 24px;
+  padding: 40px 48px;
+  box-shadow: 0 2px 8px rgba(60,40,20,.06), 0 16px 56px -20px rgba(60,40,20,.18);
+  border: 1px solid rgba(200,175,120,.2);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+/* ── Chick mascot SVG container ── */
+.mascot-wrap {
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* ── Name + descriptor ── */
+.agent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.agent-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: oklch(0.62 0.14 40);
+}
+.agent-name {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 52px;
+  color: #1c1812;
+  line-height: .9;
+  letter-spacing: .04em;
+}
+.agent-name small {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 300;
+  font-size: 16px;
+  color: oklch(0.62 0.14 40);
+  display: block;
+  letter-spacing: .35em;
+  margin-bottom: 4px;
+}
+.agent-desc {
+  font-size: var(--fs-body-sm);
+  color: var(--color-ink-3);
+  line-height: 1.7;
+  max-width: 280px;
+}
+.agent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  background: oklch(0.94 0.05 55);
+  color: oklch(0.56 0.15 40);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  width: fit-content;
+  white-space: nowrap;
+  border: 1px solid oklch(0.62 0.14 40 / 0.2);
+}
+
+/* ── Variants row ── */
+.variants-card {
+  background: #fdfaf2;
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 1px 4px rgba(60,40,20,.05), 0 8px 32px -12px rgba(60,40,20,.12);
+  border: 1px solid rgba(200,175,120,.18);
+}
+.v-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #9a8a78;
+  margin-bottom: 20px;
+}
+.variants-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.variant-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.variant-name {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: #b0a090;
+  letter-spacing: .5px;
+  text-align: center;
+}
+
+/* ── Avatar chip (inline usage) ── */
+.avatar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: var(--radius-pill);
+  background: #fdfaf2;
+  border: 1px solid rgba(200,175,120,.35);
+  box-shadow: 0 1px 4px rgba(60,40,20,.06);
+}
+.avatar-chip span {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: #1c1812;
+}
+</style>
+</head>
+<body>
+
+<!-- Hero: Large mascot + name -->
+<div class="hero-card">
+
+  <!-- Full chick character SVG (240×280) -->
+  <div class="mascot-wrap">
+    <svg width="220" height="260" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Shadow under feet -->
+      <ellipse cx="110" cy="252" rx="52" ry="7" fill="rgba(60,40,20,.08)"/>
+
+      <!-- Body — main fluffy rounded body -->
+      <ellipse cx="110" cy="175" rx="72" ry="68" fill="#f5c036"/>
+      <!-- Body shading — belly lighter -->
+      <ellipse cx="110" cy="188" rx="46" ry="44" fill="#fde68a" opacity=".55"/>
+      <!-- Body shading — top darker -->
+      <ellipse cx="110" cy="148" rx="52" ry="28" fill="#e8a820" opacity=".3"/>
+
+      <!-- Left wing -->
+      <ellipse cx="48" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(-25 48 178)"/>
+      <ellipse cx="48" cy="178" rx="20" ry="12" fill="#f5c036" transform="rotate(-25 48 178)"/>
+      <!-- Wing feather lines -->
+      <path d="M32 172 Q42 168 52 172" stroke="#c8861a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".6"/>
+      <path d="M30 178 Q42 174 54 178" stroke="#c8861a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".6"/>
+      <path d="M33 184 Q43 181 52 184" stroke="#c8861a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".5"/>
+
+      <!-- Right wing — holding a tiny paper scroll -->
+      <ellipse cx="172" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(25 172 178)"/>
+      <ellipse cx="172" cy="178" rx="20" ry="12" fill="#f5c036" transform="rotate(25 172 178)"/>
+      <!-- Wing feather lines -->
+      <path d="M158 172 Q168 168 180 172" stroke="#c8861a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".6"/>
+      <path d="M156 178 Q168 174 182 178" stroke="#c8861a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".6"/>
+      <path d="M158 184 Q168 181 180 184" stroke="#c8861a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".5"/>
+
+      <!-- Paper / note held by right wing -->
+      <rect x="158" y="152" width="38" height="48" rx="4" fill="#fdfaf2" stroke="#d9d0bd" stroke-width="1.5"/>
+      <!-- Paper fold corner -->
+      <path d="M186 152 L196 162 L186 162 Z" fill="#efe8da" stroke="#d9d0bd" stroke-width="1"/>
+      <!-- Paper lines (like a note) -->
+      <line x1="163" y1="168" x2="191" y2="168" stroke="#d9d0bd" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="163" y1="175" x2="191" y2="175" stroke="#d9d0bd" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="163" y1="182" x2="182" y2="182" stroke="#d9d0bd" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- 笺 tiny on paper -->
+      <text x="169" y="163" font-family="'Ma Shan Zheng',serif" font-size="11" fill="oklch(0.62 0.14 40)" opacity=".7">笺</text>
+
+      <!-- Head -->
+      <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+      <!-- Head shading — forehead darker -->
+      <ellipse cx="110" cy="82" rx="40" ry="22" fill="#e8a820" opacity=".25"/>
+      <!-- Head belly/face lighter -->
+      <ellipse cx="110" cy="118" rx="36" ry="28" fill="#fde68a" opacity=".4"/>
+
+      <!-- Top fluff / comb -->
+      <ellipse cx="110" cy="52" rx="10" ry="16" fill="#f5c036" transform="rotate(-8 110 52)"/>
+      <ellipse cx="124" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(10 124 56)"/>
+      <ellipse cx="96" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(-10 96 56)"/>
+      <!-- Comb tip dots -->
+      <circle cx="109" cy="38" r="4" fill="#e8a820"/>
+      <circle cx="123" cy="45" r="3.5" fill="#e8a820"/>
+      <circle cx="97" cy="45" r="3.5" fill="#e8a820"/>
+
+      <!-- Left eye white -->
+      <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+      <!-- Right eye white -->
+      <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+
+      <!-- Left eye iris -->
+      <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+      <!-- Right eye iris -->
+      <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+
+      <!-- Left eye highlight (shine) -->
+      <circle cx="83" cy="101" r="5" fill="white"/>
+      <circle cx="92" cy="112" r="2.5" fill="white" opacity=".6"/>
+      <!-- Right eye highlight -->
+      <circle cx="131" cy="101" r="5" fill="white"/>
+      <circle cx="140" cy="112" r="2.5" fill="white" opacity=".6"/>
+
+      <!-- Left eye pupil -->
+      <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+      <!-- Right eye pupil -->
+      <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+
+      <!-- Cheek blush left -->
+      <ellipse cx="68" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+      <!-- Cheek blush right -->
+      <ellipse cx="152" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+
+      <!-- Beak -->
+      <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+      <!-- Beak upper -->
+      <path d="M104 121 Q110 127 116 121 Q110 116 104 121Z" fill="oklch(0.56 0.15 40)"/>
+
+      <!-- Feet -->
+      <!-- Left foot -->
+      <path d="M88 238 L82 252 M88 238 L90 252 M88 238 L96 250" stroke="oklch(0.62 0.14 40)" stroke-width="4" stroke-linecap="round"/>
+      <!-- Right foot -->
+      <path d="M132 238 L126 252 M132 238 L134 252 M132 238 L140 250" stroke="oklch(0.62 0.14 40)" stroke-width="4" stroke-linecap="round"/>
+      <!-- Leg connectors -->
+      <line x1="88" y1="238" x2="95" y2="228" stroke="oklch(0.62 0.14 40)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="132" y1="238" x2="125" y2="228" stroke="oklch(0.62 0.14 40)" stroke-width="5" stroke-linecap="round"/>
+
+      <!-- Small graduation cap / teacher hat -->
+      <rect x="85" y="54" width="50" height="8" rx="2" fill="#2a2218"/>
+      <rect x="97" y="44" width="26" height="12" rx="2" fill="#2a2218"/>
+      <!-- Cap tassel -->
+      <line x1="134" y1="58" x2="140" y2="70" stroke="#2a2218" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="140" cy="72" r="3" fill="oklch(0.62 0.14 40)"/>
+
+    </svg>
+  </div>
+
+  <!-- Agent info -->
+  <div class="agent-info">
+    <span class="agent-tag">第一代 · Gen 1 Agent</span>
+    <div class="agent-name">
+      <small>小</small>纸笺
+    </div>
+    <p class="agent-desc">
+      智能创作助手的第一代 AI 伙伴。<br>
+      帮你生成教案、整理记录、撰写家园沟通——<br>
+      像一位戴着学士帽、手持纸笺的小助手。
+    </p>
+    <span class="agent-badge">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="4" fill="oklch(0.62 0.14 40)"/>
+        <circle cx="6" cy="6" r="2" fill="white"/>
+      </svg>
+      纸笺 Agent · 小纸鸡
+    </span>
+  </div>
+</div>
+
+<!-- Variants -->
+<div class="variants-card">
+  <div class="v-label">吉祥物尺寸变体</div>
+  <div class="variants-row">
+
+    <!-- Large standalone -->
+    <div class="variant-item">
+      <svg width="100" height="118" viewBox="0 0 220 260" fill="none">
+        <ellipse cx="110" cy="252" rx="52" ry="7" fill="rgba(60,40,20,.08)"/>
+        <ellipse cx="110" cy="175" rx="72" ry="68" fill="#f5c036"/>
+        <ellipse cx="110" cy="188" rx="46" ry="44" fill="#fde68a" opacity=".55"/>
+        <ellipse cx="48" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(-25 48 178)"/>
+        <ellipse cx="172" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(25 172 178)"/>
+        <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+        <ellipse cx="110" cy="118" rx="36" ry="28" fill="#fde68a" opacity=".4"/>
+        <ellipse cx="110" cy="52" rx="10" ry="16" fill="#f5c036" transform="rotate(-8 110 52)"/>
+        <ellipse cx="124" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(10 124 56)"/>
+        <ellipse cx="96" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(-10 96 56)"/>
+        <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+        <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+        <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+        <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+        <circle cx="83" cy="101" r="5" fill="white"/>
+        <circle cx="131" cy="101" r="5" fill="white"/>
+        <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+        <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+        <ellipse cx="68" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+        <ellipse cx="152" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+        <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+        <path d="M88 238 L82 252 M88 238 L90 252 M88 238 L96 250" stroke="oklch(0.62 0.14 40)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M132 238 L126 252 M132 238 L134 252 M132 238 L140 250" stroke="oklch(0.62 0.14 40)" stroke-width="4" stroke-linecap="round"/>
+        <line x1="88" y1="238" x2="95" y2="228" stroke="oklch(0.62 0.14 40)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="132" y1="238" x2="125" y2="228" stroke="oklch(0.62 0.14 40)" stroke-width="5" stroke-linecap="round"/>
+        <rect x="85" y="54" width="50" height="8" rx="2" fill="#2a2218"/>
+        <rect x="97" y="44" width="26" height="12" rx="2" fill="#2a2218"/>
+        <line x1="134" y1="58" x2="140" y2="70" stroke="#2a2218" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="140" cy="72" r="3" fill="oklch(0.62 0.14 40)"/>
+      </svg>
+      <span class="variant-name">标准版<br>100px</span>
+    </div>
+
+    <!-- Medium avatar circle -->
+    <div class="variant-item">
+      <div style="width:72px;height:72px;border-radius:50%;background:#f5c036;overflow:hidden;border:3px solid oklch(0.62 0.14 40);box-shadow:0 4px 16px rgba(232,132,90,.25)">
+        <svg width="72" height="72" viewBox="30 60 160 160" fill="none">
+          <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+          <ellipse cx="110" cy="118" rx="36" ry="28" fill="#fde68a" opacity=".5"/>
+          <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+          <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+          <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+          <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+          <circle cx="83" cy="101" r="5" fill="white"/>
+          <circle cx="131" cy="101" r="5" fill="white"/>
+          <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+          <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+          <ellipse cx="68" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".3"/>
+          <ellipse cx="152" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".3"/>
+          <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+          <rect x="85" y="54" width="50" height="8" rx="2" fill="#2a2218"/>
+          <rect x="97" y="44" width="26" height="12" rx="2" fill="#2a2218"/>
+          <line x1="134" y1="58" x2="140" y2="70" stroke="#2a2218" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="140" cy="72" r="3" fill="oklch(0.62 0.14 40)"/>
+        </svg>
+      </div>
+      <span class="variant-name">圆形头像<br>72px</span>
+    </div>
+
+    <!-- Small icon -->
+    <div class="variant-item">
+      <div style="width:40px;height:40px;border-radius:10px;background:oklch(0.94 0.05 55);overflow:hidden;border:1.5px solid oklch(0.62 0.14 40 / 0.3)">
+        <svg width="40" height="40" viewBox="25 50 170 180" fill="none">
+          <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+          <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+          <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+          <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+          <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+          <circle cx="83" cy="101" r="5" fill="white"/>
+          <circle cx="131" cy="101" r="5" fill="white"/>
+          <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+          <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+          <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+          <rect x="85" y="54" width="50" height="8" rx="2" fill="#2a2218"/>
+          <rect x="97" y="44" width="26" height="12" rx="2" fill="#2a2218"/>
+        </svg>
+      </div>
+      <span class="variant-name">图标版<br>40px</span>
+    </div>
+
+    <!-- Avatar chip -->
+    <div class="variant-item" style="align-items:flex-start">
+      <div class="avatar-chip">
+        <div style="width:32px;height:32px;border-radius:50%;background:#f5c036;overflow:hidden;flex-shrink:0">
+          <svg width="32" height="32" viewBox="30 60 160 160" fill="none">
+            <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+            <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+            <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+            <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+            <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+            <circle cx="83" cy="101" r="5" fill="white"/>
+            <circle cx="131" cy="101" r="5" fill="white"/>
+            <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+            <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+            <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+            <rect x="85" y="54" width="50" height="8" rx="2" fill="#2a2218"/>
+          </svg>
+        </div>
+        <span>小纸鸡正在思考…</span>
+      </div>
+      <span class="variant-name" style="margin-top:4px">对话头像 chip</span>
+    </div>
+
+    <!-- Dark bg version -->
+    <div class="variant-item">
+      <div style="width:72px;height:72px;border-radius:14px;background:#1c1812;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+        <svg width="60" height="60" viewBox="30 60 160 160" fill="none">
+          <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+          <ellipse cx="110" cy="118" rx="36" ry="28" fill="#fde68a" opacity=".5"/>
+          <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+          <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+          <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+          <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+          <circle cx="83" cy="101" r="5" fill="white"/>
+          <circle cx="131" cy="101" r="5" fill="white"/>
+          <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+          <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+          <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+          <rect x="85" y="54" width="50" height="8" rx="2" fill="#fdfaf2"/>
+          <rect x="97" y="44" width="26" height="12" rx="2" fill="#fdfaf2"/>
+          <line x1="134" y1="58" x2="140" y2="70" stroke="#fdfaf2" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="140" cy="72" r="3" fill="oklch(0.62 0.14 40)"/>
+        </svg>
+      </div>
+      <span class="variant-name">深色背景<br>版本</span>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

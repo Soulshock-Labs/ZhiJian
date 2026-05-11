@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="小纸笺 · 家园共育平台 — 陪伴孩子在幼儿园的每一天" />
+  <title>小纸笺 · 家园共育</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <style>
+    :root {
+      --bg:       #fffdf9;
+      --card:     #ffffff;
+      --text:     #2c2c2e;
+      --muted:    #8a8a8e;
+      --warm:     #e8845a;
+      --warm-lt:  #fdf0ea;
+      --green:    #4caf7d;
+      --green-lt: #edf7f2;
+      --blue:     #4a90d9;
+      --blue-lt:  #edf4fc;
+      --radius:   1.25rem;
+      --shadow:   0 2px 16px rgba(0,0,0,.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(160deg, #fff8f4 0%, #fdeee6 60%, #fdf6ee 100%);
+      padding: clamp(3rem, 10vw, 5rem) clamp(1.5rem, 5vw, 2rem) clamp(2rem, 6vw, 3.5rem);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(232,132,90,.15) 0%, transparent 70%);
+      top: -100px; right: -100px;
+      pointer-events: none;
+    }
+    .logo-mark {
+      font-size: 2.8rem;
+      margin-bottom: .5rem;
+      display: block;
+    }
+    .brand {
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      font-weight: 700;
+      color: var(--warm);
+      letter-spacing: .04em;
+      margin-bottom: .4rem;
+    }
+    .brand-sub {
+      font-size: .95rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      margin-bottom: 1.8rem;
+    }
+    .hero-headline {
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1.45;
+      margin-bottom: .9rem;
+      color: var(--text);
+    }
+    .hero-headline em {
+      font-style: normal;
+      color: var(--warm);
+    }
+    .hero-desc {
+      font-size: clamp(.95rem, 2.5vw, 1.1rem);
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 28rem;
+      margin: 0 auto 2rem;
+    }
+    .cta-group {
+      display: flex;
+      gap: .75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .75rem 1.6rem;
+      border-radius: 3rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary {
+      background: var(--warm);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(232,132,90,.35);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 20px rgba(232,132,90,.45); }
+    .btn-ghost {
+      background: rgba(255,255,255,.8);
+      color: var(--warm);
+      border: 1.5px solid var(--warm);
+    }
+    .btn-ghost:hover { background: var(--warm-lt); }
+
+    /* ── Section wrapper ── */
+    .section {
+      padding: clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 5vw, 2rem);
+      max-width: 56rem;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.75rem;
+      color: var(--text);
+    }
+    .section-title span {
+      color: var(--warm);
+    }
+
+    /* ── Feature cards ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: 1.1rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.6rem 1.4rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+    .card-icon {
+      font-size: 2rem;
+      width: 3rem; height: 3rem;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: .75rem;
+      margin-bottom: .2rem;
+    }
+    .card-icon.orange { background: var(--warm-lt); }
+    .card-icon.green  { background: var(--green-lt); }
+    .card-icon.blue   { background: var(--blue-lt); }
+    .card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .card p {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── Timeline ── */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: .6rem; top: .4rem; bottom: .4rem;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--warm), var(--green));
+      border-radius: 1px;
+    }
+    .tl-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.3rem;
+      box-shadow: var(--shadow);
+    }
+    .tl-item::before {
+      content: "";
+      position: absolute;
+      left: -1.65rem; top: 1.1rem;
+      width: .75rem; height: .75rem;
+      border-radius: 50%;
+      background: var(--warm);
+      border: 2px solid var(--bg);
+    }
+    .tl-time {
+      font-size: .78rem;
+      color: var(--warm);
+      font-weight: 600;
+      margin-bottom: .3rem;
+      letter-spacing: .04em;
+    }
+    .tl-text {
+      font-size: .95rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Quote ── */
+    .quote-section {
+      background: linear-gradient(135deg, var(--warm-lt), #fff8f4);
+      border-radius: var(--radius);
+      padding: 2rem 1.75rem;
+      text-align: center;
+      margin: 0 clamp(1.25rem, 5vw, 2rem);
+      box-shadow: var(--shadow);
+    }
+    .quote-text {
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      color: var(--text);
+      line-height: 1.8;
+      font-weight: 500;
+      margin-bottom: .75rem;
+    }
+    .quote-author {
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    /* ── Coming soon chips ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      justify-content: center;
+      margin-top: 1.25rem;
+    }
+    .chip {
+      background: var(--card);
+      border: 1.5px solid #e5e5ea;
+      border-radius: 2rem;
+      padding: .4rem 1rem;
+      font-size: .85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .chip .dot {
+      width: .5rem; height: .5rem;
+      border-radius: 50%;
+      background: var(--warm);
+      opacity: .6;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 3rem;
+      color: var(--muted);
+      font-size: .85rem;
+      line-height: 2;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--warm); }
+
+    /* ── 顶部小导航 ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,253,249,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: .75rem clamp(1.25rem, 5vw, 2rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--warm);
+      text-decoration: none;
+    }
+    .nav-link {
+      font-size: .9rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: .3rem .75rem;
+      border-radius: 2rem;
+      transition: background .15s;
+    }
+    .nav-link:hover { background: var(--warm-lt); color: var(--warm); }
+  </style>
+</head>
+<body>
+
+<!-- 导航 -->
+<nav>
+  <a class="nav-brand" href="#">小纸笺 · 家园</a>
+  <a class="nav-link" href="https://admin.zhijian.me" target="_blank">教师入口 →</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <span class="logo-mark">🌱</span>
+  <div class="brand">小纸笺</div>
+  <div class="brand-sub">zhijian.homes · 家园共育平台</div>
+  <h1 class="hero-headline">
+    孩子在园的每一天<br>
+    <em>我们都和您在一起</em>
+  </h1>
+  <p class="hero-desc">
+    老师用小纸笺记录孩子的成长与活动，您随时都能看到他们的精彩瞬间。
+  </p>
+  <div class="cta-group">
+    <a class="btn btn-primary" href="#">📱 微信小程序查看</a>
+    <a class="btn btn-ghost" href="#features">了解更多</a>
+  </div>
+</section>
+
+<!-- 功能亮点 -->
+<section class="section" id="features">
+  <h2 class="section-title">家长<span>可以</span>做什么</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon orange">📋</div>
+      <h3>查看本周计划</h3>
+      <p>每周老师生成的活动计划，提前了解孩子这周要学什么、玩什么。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon green">📸</div>
+      <h3>成长观察记录</h3>
+      <p>老师的观察笔记和成长记录，真实还原孩子在园的每个精彩时刻。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">💬</div>
+      <h3>家园沟通</h3>
+      <p>与老师保持顺畅沟通，了解孩子的日常状态，共同支持孩子成长。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 一天的时光轴 -->
+<section class="section">
+  <h2 class="section-title">孩子在园的<span>一天</span></h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">🌅 08:00 — 入园</div>
+      <div class="tl-text">晨间接待，老师观察孩子的状态和情绪，记录入园情况。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">🎨 09:30 — 集体活动</div>
+      <div class="tl-text">围绕本周主题开展五大领域的学习活动，健康、语言、科学、艺术、社会均衡发展。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">🌿 10:30 — 户外时光</div>
+      <div class="tl-text">户外体能游戏与自由探索，老师拍摄记录孩子的精彩表现。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">🍱 11:30 — 午餐与午休</div>
+      <div class="tl-text">生活自理能力培养，老师记录饮食和休息情况。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">🧩 14:30 — 区域游戏</div>
+      <div class="tl-text">自主选择区域，在游戏中深化探索，老师观察并支持。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">🌙 17:00 — 离园</div>
+      <div class="tl-text">老师整理今日观察记录，通过小纸笺同步给家长。</div>
+    </div>
+  </div>
+</section>
+
+<!-- 引言 -->
+<div class="quote-section">
+  <p class="quote-text">
+    "每个孩子都是独特的存在，<br>
+    我们用文字和记录，<br>
+    让您看见他们成长的每一步。"
+  </p>
+  <p class="quote-author">— 小纸笺团队</p>
+</div>
+
+<!-- 即将上线 -->
+<section class="section">
+  <h2 class="section-title">即将<span>上线</span></h2>
+  <p style="text-align:center;color:var(--muted);font-size:.95rem;margin-bottom:.5rem;">家长端功能正在开发中，敬请期待</p>
+  <div class="chips">
+    <div class="chip"><span class="dot"></span>孩子成长档案</div>
+    <div class="chip"><span class="dot"></span>每日观察推送</div>
+    <div class="chip"><span class="dot"></span>家园留言板</div>
+    <div class="chip"><span class="dot"></span>活动相册</div>
+    <div class="chip"><span class="dot"></span>健康与饮食记录</div>
+    <div class="chip"><span class="dot"></span>家长课堂资源</div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div>🌱 小纸笺 · 家园共育平台</div>
+  <div>
+    <a href="https://www.zhijian.me">官网</a> &nbsp;·&nbsp;
+    <a href="https://admin.zhijian.me">教师入口</a> &nbsp;·&nbsp;
+    <a href="mailto:hello@zhijian.me">联系我们</a>
+  </div>
+  <div style="margin-top:.5rem;font-size:.8rem;">
+    © 2026 小纸笺 &nbsp;·&nbsp; zhijian.homes
+  </div>
+</footer>
+
+</body>
+</html>

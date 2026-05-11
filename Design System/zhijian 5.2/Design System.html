@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>zhijian · Design System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css"/>
+
+<link rel="stylesheet" href="tokens.css"/>
+<link rel="stylesheet" href="components.css"/>
+
+<style>
+  /* page-only layout, not part of the system */
+  body { padding-bottom: var(--sp-12); }
+  .doc-hero {
+    padding: var(--sp-9) var(--sp-7) var(--sp-7);
+    border-bottom: var(--border-hair);
+    background: var(--color-paper);
+  }
+  .doc-hero__eyebrow { margin-bottom: var(--sp-3); }
+  .doc-hero__title {
+    font-family: var(--font-wenkai);
+    font-size: var(--fs-display);
+    line-height: var(--lh-display);
+    color: var(--color-ink);
+    letter-spacing: 0.5px;
+  }
+  .doc-hero__sub {
+    margin-top: var(--sp-3);
+    max-width: 720px;
+    font-size: var(--fs-body);
+    color: var(--color-ink-2);
+  }
+  .doc-hero__meta {
+    margin-top: var(--sp-5);
+    display: flex; gap: var(--sp-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    color: var(--color-ink-3);
+  }
+  .doc-hero__meta span b { color: var(--color-ink); font-weight: 500; }
+
+  .doc-section {
+    padding: var(--sp-9) var(--sp-7);
+    border-bottom: var(--border-soft);
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+  .doc-section__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: var(--sp-6);
+  }
+  .doc-section__num {
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--ls-micro);
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+  .doc-section__title {
+    font-size: var(--fs-h2);
+    font-weight: var(--fw-semibold);
+    letter-spacing: -0.2px;
+  }
+  .doc-section__desc {
+    font-size: var(--fs-body-sm);
+    color: var(--color-ink-2);
+    margin-top: var(--sp-1);
+    max-width: 560px;
+  }
+
+  /* token grids */
+  .token-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-3); }
+  .token {
+    background: var(--color-paper-hi);
+    border: var(--border-hair);
+    border-radius: var(--radius-md);
+    padding: var(--sp-4);
+  }
+  .token__swatch {
+    height: 80px; border-radius: var(--radius-sm);
+    border: 1px solid rgba(0,0,0,0.04);
+    margin-bottom: var(--sp-3);
+  }
+  .token__label {
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-medium);
+    color: var(--color-ink);
+  }
+  .token__var {
+    margin-top: var(--sp-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    color: var(--color-ink-3);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .token__value {
+    margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    color: var(--color-ink-2);
+  }
+  @media (max-width: 900px) { .token-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* type spec rows */
+  .type-row {
+    display: grid; grid-template-columns: 180px 1fr 280px;
+    gap: var(--sp-6);
+    padding: var(--sp-5) 0;
+    border-top: var(--border-soft);
+    align-items: baseline;
+  }
+  .type-row:first-child { border-top: none; }
+  .type-row__meta { }
+  .type-row__meta b { font-size: var(--fs-body-sm); color: var(--color-ink); font-weight: 600; }
+  .type-row__sample { color: var(--color-ink); }
+  .type-row__spec {
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    color: var(--color-ink-3);
+    line-height: 1.8;
+  }
+  @media (max-width: 900px) {
+    .type-row { grid-template-columns: 1fr; gap: var(--sp-2); }
+  }
+
+  /* spacing bars */
+  .sp-row {
+    display: grid; grid-template-columns: 120px 1fr 140px;
+    align-items: center; gap: var(--sp-4);
+    padding: var(--sp-3) 0;
+    border-top: var(--border-soft);
+  }
+  .sp-row:first-child { border-top: none; }
+  .sp-row__bar {
+    height: 14px;
+    background: var(--color-brand);
+    opacity: 0.85;
+    border-radius: var(--radius-xs);
+  }
+  .sp-row__name {
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    color: var(--color-ink);
+  }
+  .sp-row__px {
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    color: var(--color-ink-3);
+    text-align: right;
+  }
+
+  /* radius demos */
+  .radius-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--sp-3); }
+  .radius-demo {
+    aspect-ratio: 1/1;
+    background: var(--color-paper-hi);
+    border: var(--border-hair);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding: var(--sp-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    color: var(--color-ink-3);
+    text-align: center;
+  }
+  .radius-demo b { color: var(--color-ink); font-size: var(--fs-meta); font-weight: 500; letter-spacing: 0; text-transform: none; }
+  @media (max-width: 900px) { .radius-row { grid-template-columns: repeat(3, 1fr); } }
+
+  /* shadow demos */
+  .shadow-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-5); }
+  .shadow-demo {
+    aspect-ratio: 5/3;
+    background: var(--color-paper-hi);
+    border-radius: var(--radius-md);
+    display: grid; place-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    color: var(--color-ink-2);
+  }
+  .shadow-demo span { font-weight: 500; }
+  @media (max-width: 900px) { .shadow-row { grid-template-columns: repeat(2, 1fr); } }
+
+  /* demo viewport — mobile */
+  .viewport-row { display: grid; grid-template-columns: 1fr 360px; gap: var(--sp-7); align-items: start; }
+  @media (max-width: 900px) { .viewport-row { grid-template-columns: 1fr; } }
+  .viewport-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--ls-micro);
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    margin-bottom: var(--sp-3);
+  }
+  .phone {
+    width: 360px;
+    background: var(--color-paper);
+    border: 8px solid #1a1612;
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .phone__screen { height: 640px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* example preview cells */
+  .ex {
+    background: var(--color-paper);
+    border: var(--border-hair);
+    border-radius: var(--radius-md);
+    padding: var(--sp-6);
+  }
+  .ex + .ex { margin-top: var(--sp-3); }
+  .ex__title {
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--ls-micro);
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    margin-bottom: var(--sp-4);
+  }
+  .ex__row { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; }
+
+  /* illustrate navigation with a fake inner app */
+  .appshell {
+    display: grid; grid-template-columns: var(--sidenav-w) 1fr;
+    background: var(--color-paper);
+    border: var(--border-hair);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    min-height: 480px;
+  }
+  .appshell__main { padding: var(--sp-6); }
+  .appshell__crumbs { margin-bottom: var(--sp-5); }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<header class="doc-hero">
+  <div class="doc-hero__eyebrow eyebrow">zhijian · design system · v1.0</div>
+  <div class="doc-hero__title">纸笺 · 设计系统</div>
+  <p class="doc-hero__sub">
+    冻结方向：Option 02（黑体为主 · 文楷点睛）· 朱砂主色 · 米纸墨色基底。
+    本页即规范，所有数值来自 <span class="mono">tokens.css</span>，组件来自 <span class="mono">components.css</span>，可直接接入网页 / 小程序 / Android WebView。
+  </p>
+  <div class="doc-hero__meta">
+    <span>基准单位 <b>4px</b></span>
+    <span>栅格 <b>12-col · 1280 max</b></span>
+    <span>最小命中 <b>44px (mobile)</b></span>
+    <span>字体 <b>Noto Sans SC + LXGW WenKai Screen + Inter</b></span>
+  </div>
+</header>
+
+<!-- ============================================================
+     01 · COLOR
+     ============================================================ -->
+<section class="doc-section" id="color">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">01 · Color Tokens</div>
+      <h2 class="doc-section__title">颜色</h2>
+      <p class="doc-section__desc">
+        米纸 + 暖墨的基底；朱砂作为唯一主色。所有语义色共享同一 L / C，只换 hue，确保在深浅文本上对比一致。
+      </p>
+    </div>
+  </div>
+
+  <h3 class="eyebrow" style="margin-bottom: var(--sp-3);">Paper · 背景</h3>
+  <div class="token-grid">
+    <div class="token"><div class="token__swatch" style="background:var(--color-paper)"></div>
+      <div class="token__label">Paper</div><div class="token__var">--color-paper</div><div class="token__value">#f6f1e7</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-paper-hi)"></div>
+      <div class="token__label">Paper Hi</div><div class="token__var">--color-paper-hi</div><div class="token__value">#fbf7ed</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-paper-sunk)"></div>
+      <div class="token__label">Paper Sunk</div><div class="token__var">--color-paper-sunk</div><div class="token__value">#efe8da</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-white); border-color: var(--color-rule)"></div>
+      <div class="token__label">White (inputs)</div><div class="token__var">--color-white</div><div class="token__value">#ffffff</div></div>
+  </div>
+
+  <h3 class="eyebrow" style="margin: var(--sp-7) 0 var(--sp-3);">Ink · 文本</h3>
+  <div class="token-grid">
+    <div class="token"><div class="token__swatch" style="background:var(--color-ink)"></div>
+      <div class="token__label">Ink</div><div class="token__var">--color-ink</div><div class="token__value">#2a2520 · primary</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-ink-2)"></div>
+      <div class="token__label">Ink 2</div><div class="token__var">--color-ink-2</div><div class="token__value">#5a5148 · secondary</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-ink-3)"></div>
+      <div class="token__label">Ink 3</div><div class="token__var">--color-ink-3</div><div class="token__value">#8a8178 · meta</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-ink-4)"></div>
+      <div class="token__label">Ink 4</div><div class="token__var">--color-ink-4</div><div class="token__value">#b8ad9c · disabled</div></div>
+  </div>
+
+  <h3 class="eyebrow" style="margin: var(--sp-7) 0 var(--sp-3);">Brand 朱砂 + Semantic</h3>
+  <div class="token-grid">
+    <div class="token"><div class="token__swatch" style="background:var(--color-brand)"></div>
+      <div class="token__label">Brand · 朱砂</div><div class="token__var">--color-brand</div><div class="token__value">oklch(0.62 0.14 40)</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-brand-tint)"></div>
+      <div class="token__label">Brand Tint</div><div class="token__var">--color-brand-tint</div><div class="token__value">badge bg</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-success)"></div>
+      <div class="token__label">Success 青绿</div><div class="token__var">--color-success</div><div class="token__value">oklch(0.56 0.08 150)</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-info)"></div>
+      <div class="token__label">Info 藏青</div><div class="token__var">--color-info</div><div class="token__value">oklch(0.42 0.10 255)</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-warn)"></div>
+      <div class="token__label">Warn 赭黄</div><div class="token__var">--color-warn</div><div class="token__value">oklch(0.70 0.13 75)</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-danger)"></div>
+      <div class="token__label">Danger</div><div class="token__var">--color-danger</div><div class="token__value">oklch(0.55 0.17 25)</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-rule)"></div>
+      <div class="token__label">Rule · 分隔线</div><div class="token__var">--color-rule</div><div class="token__value">#d9d0bd</div></div>
+    <div class="token"><div class="token__swatch" style="background:var(--color-rule-soft)"></div>
+      <div class="token__label">Rule Soft</div><div class="token__var">--color-rule-soft</div><div class="token__value">#ebe3d1</div></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     02 · TYPOGRAPHY
+     ============================================================ -->
+<section class="doc-section" id="type">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">02 · Typography Scale</div>
+      <h2 class="doc-section__title">字体与字号</h2>
+      <p class="doc-section__desc">
+        正文用思源黑体 / HarmonyOS Sans；品牌名与大标题用霞鹜文楷；数字用 Inter tabular-nums。移动端整体降一档但正文不缩。
+      </p>
+    </div>
+  </div>
+
+  <div class="type-row">
+    <div class="type-row__meta"><b>Display</b><br/><span class="meta">wenkai · brand only</span></div>
+    <div class="type-row__sample display">纸笺</div>
+    <div class="type-row__spec">--fs-display: 48px / 34px (m)<br/>--font-wenkai · 400<br/>letter-spacing 0.5px</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>H1</b><br/><span class="meta">page title</span></div>
+    <div class="type-row__sample"><h1>今天，从一份更轻松的周计划开始</h1></div>
+    <div class="type-row__spec">--fs-h1: 34 / 26px (m) · 600<br/>line-height 1.25 · ls -0.3</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>H2</b><br/><span class="meta">section</span></div>
+    <div class="type-row__sample"><h2>本周主题 · 春天来了</h2></div>
+    <div class="type-row__spec">--fs-h2: 26 / 20px (m) · 600</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>H3</b><br/><span class="meta">subsection</span></div>
+    <div class="type-row__sample"><h3>周三 · 自然观察活动</h3></div>
+    <div class="type-row__spec">--fs-h3: 20 / 17px (m) · 600</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>H4</b><br/><span class="meta">card title</span></div>
+    <div class="type-row__sample"><h4>日教案 · 可直接套用</h4></div>
+    <div class="type-row__spec">--fs-h4: 17 / 15px (m) · 600</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>Body</b><br/><span class="meta">paragraph</span></div>
+    <div class="type-row__sample">输入主题、选择理念、套用模板，几步完成本周周计划。不需要复杂培训，打开就能开始。</div>
+    <div class="type-row__spec">--fs-body: 15px · lh 1.7<br/>移动端不缩（保底可读）</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>Body-sm</b><br/><span class="meta">cards, form hints</span></div>
+    <div class="type-row__sample" style="font-size:13px; color:var(--color-ink-2)">
+      你上周停在「春天来了」主题的周四教案，可以继续补完。
+    </div>
+    <div class="type-row__spec">--fs-body-sm: 13px · lh 1.65</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>Meta</b><br/><span class="meta">labels</span></div>
+    <div class="type-row__sample meta">2025-04-22 · 剩余 128 次 · 16 周</div>
+    <div class="type-row__spec">--fs-meta: 12px · ink-3</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>Eyebrow</b><br/><span class="meta">mono · uppercase</span></div>
+    <div class="type-row__sample eyebrow">SECTION · 01</div>
+    <div class="type-row__spec">--fs-micro: 11px · mono<br/>letter-spacing 1.2px · uppercase</div>
+  </div>
+  <div class="type-row">
+    <div class="type-row__meta"><b>Number</b><br/><span class="meta">Inter · tabular</span></div>
+    <div class="type-row__sample num" style="font-size:40px;font-weight:600">128<span style="color:var(--color-ink-3); font-weight:400">/200</span></div>
+    <div class="type-row__spec">--font-num · tabular-nums<br/>对齐用</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     03 · RADIUS
+     ============================================================ -->
+<section class="doc-section" id="radius">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">03 · Radius</div>
+      <h2 class="doc-section__title">圆角</h2>
+      <p class="doc-section__desc">移动端 md / lg 各减 2px（tokens.css 已处理）。pill 用于按钮和 tag。</p>
+    </div>
+  </div>
+  <div class="radius-row">
+    <div class="radius-demo" style="border-radius:var(--radius-xs)"><b>xs</b>4 · chip</div>
+    <div class="radius-demo" style="border-radius:var(--radius-sm)"><b>sm</b>8 · input</div>
+    <div class="radius-demo" style="border-radius:var(--radius-md)"><b>md</b>12 / 10 · card</div>
+    <div class="radius-demo" style="border-radius:var(--radius-lg)"><b>lg</b>16 / 14 · feature</div>
+    <div class="radius-demo" style="border-radius:var(--radius-xl)"><b>xl</b>24 · hero</div>
+    <div class="radius-demo" style="border-radius:var(--radius-pill)"><b>pill</b>999 · button / tag</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     04 · SHADOW
+     ============================================================ -->
+<section class="doc-section" id="shadow">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">04 · Shadow</div>
+      <h2 class="doc-section__title">阴影</h2>
+      <p class="doc-section__desc">暖色阴影（rgba(60,40,20,·)），不用纯黑。仅 4 档 + 聚焦 + 内阴影。</p>
+    </div>
+  </div>
+  <div class="shadow-row">
+    <div class="shadow-demo" style="box-shadow: var(--shadow-xs)"><span>xs</span></div>
+    <div class="shadow-demo" style="box-shadow: var(--shadow-sm)"><span>sm</span></div>
+    <div class="shadow-demo" style="box-shadow: var(--shadow-md)"><span>md · card</span></div>
+    <div class="shadow-demo" style="box-shadow: var(--shadow-lg)"><span>lg · modal</span></div>
+    <div class="shadow-demo" style="box-shadow: var(--shadow-xl)"><span>xl · overlay</span></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     05 · SPACING
+     ============================================================ -->
+<section class="doc-section" id="spacing">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">05 · Spacing Scale</div>
+      <h2 class="doc-section__title">间距</h2>
+      <p class="doc-section__desc">基于 4px 的 12 档阶梯。规则：组件内距最多用到 sp-5，卡片间距 sp-4 / sp-6，分区间距 sp-9。</p>
+    </div>
+  </div>
+
+  <div id="sp-list"></div>
+  <script>
+    (function(){
+      const list = document.getElementById('sp-list');
+      [
+        ['sp-1',4],['sp-2',8],['sp-3',12],['sp-4',16],['sp-5',20],
+        ['sp-6',24],['sp-7',32],['sp-8',40],['sp-9',48],['sp-10',64],
+        ['sp-11',80],['sp-12',120]
+      ].forEach(([n,px])=>{
+        const r = document.createElement('div');
+        r.className = 'sp-row';
+        r.innerHTML = `
+          <div class="sp-row__name">--${n}</div>
+          <div class="sp-row__bar" style="width:${px}px"></div>
+          <div class="sp-row__px">${px}px</div>`;
+        list.appendChild(r);
+      });
+    })();
+  </script>
+</section>
+
+<!-- ============================================================
+     06 · BUTTONS
+     ============================================================ -->
+<section class="doc-section" id="buttons">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">06 · Button Variants</div>
+      <h2 class="doc-section__title">按钮</h2>
+      <p class="doc-section__desc">
+        primary / secondary / ghost / danger / link × sm / md / lg。
+        桌面端默认 40px，移动端默认 44px（tokens 自动替换）。
+      </p>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex__title">Variants</div>
+    <div class="ex__row">
+      <button class="btn btn--primary">开始本周周计划</button>
+      <button class="btn btn--secondary">继续上次任务</button>
+      <button class="btn btn--ghost">暂不开始</button>
+      <button class="btn btn--danger">删除教案</button>
+      <button class="btn btn--link">查看全部模板</button>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex__title">Sizes</div>
+    <div class="ex__row">
+      <button class="btn btn--primary btn--sm">Small · 32/36</button>
+      <button class="btn btn--primary">Medium · 40/44</button>
+      <button class="btn btn--primary btn--lg">Large · 48/52</button>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex__title">States</div>
+    <div class="ex__row">
+      <button class="btn btn--primary">Default</button>
+      <button class="btn btn--primary" style="background:var(--color-brand-hover)">Hover</button>
+      <button class="btn btn--primary" style="background:var(--color-brand-press); transform:translateY(1px)">Pressed</button>
+      <button class="btn btn--primary" disabled>Disabled</button>
+      <button class="btn btn--primary" style="box-shadow:var(--shadow-focus)">Focus</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     07 · CARDS
+     ============================================================ -->
+<section class="doc-section" id="cards">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">07 · Card Variants</div>
+      <h2 class="doc-section__title">卡片</h2>
+      <p class="doc-section__desc">base · flat · raised · outline · accent · inset。默认 padding sp-5 / radius md。</p>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card card--hover">
+      <div class="eyebrow">默认 · base</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">本周周计划</h4>
+      <p class="card__body">春天来了 · 中班 · 第 16 周</p>
+      <div class="card__footer"><span>周二已补完</span><span class="tag tag--brand"><span class="tag__dot"></span>进行中</span></div>
+    </div>
+
+    <div class="card card--raised">
+      <div class="eyebrow">raised · 强调</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">日教案 · 周三</h4>
+      <p class="card__body">从周计划延续生成</p>
+      <div class="card__footer"><span>约 2 分钟</span><span class="tag tag--info"><span class="tag__dot"></span>推荐</span></div>
+    </div>
+
+    <div class="card card--accent">
+      <div class="eyebrow" style="color:var(--color-brand)">accent · 品牌</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">升级会员</h4>
+      <p class="card__body">本月剩余 12 次生成</p>
+      <div class="card__footer" style="border-top-color:color-mix(in oklch, var(--color-brand), transparent 75%)"><span>年付低至 ¥198</span><button class="btn btn--primary btn--sm">升级</button></div>
+    </div>
+
+    <div class="card card--outline">
+      <div class="eyebrow">outline</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">今日观察</h4>
+      <p class="card__body">拍一张或说一句都行</p>
+    </div>
+
+    <div class="card card--flat">
+      <div class="eyebrow">flat · 无阴影</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">模板中心</h4>
+      <p class="card__body">114 份可用模板</p>
+    </div>
+
+    <div class="card card--inset">
+      <div class="eyebrow">inset · 内凹</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">知识库</h4>
+      <p class="card__body">已同步 114 份文件</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     08 · INPUTS
+     ============================================================ -->
+<section class="doc-section" id="inputs">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">08 · Input Styles</div>
+      <h2 class="doc-section__title">输入</h2>
+      <p class="doc-section__desc">input / textarea / select 共用一套 frame。sm 32 / md 40 / lg 48（移动端自动提到 40 / 48 / 52）。</p>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="ex" style="background:var(--color-paper-hi)">
+      <div class="ex__title">Default</div>
+      <div class="field">
+        <label class="field__label">本周主题</label>
+        <input class="input" placeholder="输入或选择主题" />
+        <span class="field__hint">将作为周计划标题显示</span>
+      </div>
+    </div>
+    <div class="ex" style="background:var(--color-paper-hi)">
+      <div class="ex__title">Focused</div>
+      <div class="field">
+        <label class="field__label">教学目标</label>
+        <input class="input" style="border-color:var(--color-brand); box-shadow:var(--shadow-focus)" value="帮助幼儿感受春天的自然变化" />
+        <span class="field__hint">支持 ≤ 60 字</span>
+      </div>
+    </div>
+    <div class="ex" style="background:var(--color-paper-hi)">
+      <div class="ex__title">Invalid</div>
+      <div class="field">
+        <label class="field__label">手机号</label>
+        <input class="input input--invalid" value="186" />
+        <span class="field__error">请输入 11 位手机号</span>
+      </div>
+    </div>
+    <div class="ex" style="background:var(--color-paper-hi)">
+      <div class="ex__title">Sizes</div>
+      <div class="field"><input class="input input--sm" placeholder="small · 32"/></div>
+      <div class="field" style="margin-top:var(--sp-3)"><input class="input" placeholder="medium · 40"/></div>
+      <div class="field" style="margin-top:var(--sp-3)"><input class="input input--lg" placeholder="large · 48"/></div>
+    </div>
+    <div class="ex" style="background:var(--color-paper-hi)">
+      <div class="ex__title">Textarea</div>
+      <div class="field">
+        <label class="field__label">今日观察记录</label>
+        <textarea class="textarea" placeholder="拍一张或说一句都行"></textarea>
+      </div>
+    </div>
+    <div class="ex" style="background:var(--color-paper-hi)">
+      <div class="ex__title">Disabled</div>
+      <div class="field">
+        <label class="field__label">班级</label>
+        <input class="input" value="中一班" disabled />
+        <span class="field__hint">由园所管理员设置</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     09 · NAVIGATION
+     ============================================================ -->
+<section class="doc-section" id="nav">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">09 · Navigation</div>
+      <h2 class="doc-section__title">导航</h2>
+      <p class="doc-section__desc">桌面：顶部 topbar + 左侧 sidenav。移动：顶部 topbar-m + 底部 tabbar（5 项上限）。</p>
+    </div>
+  </div>
+
+  <div class="viewport-row">
+    <!-- desktop app shell -->
+    <div>
+      <div class="viewport-label">Desktop · 1280 width</div>
+      <div style="border-radius:var(--radius-md); overflow:hidden; border:var(--border-hair)">
+        <!-- topbar -->
+        <div class="topbar" style="position:relative">
+          <div class="topbar__brand">
+            <span class="topbar__brand-mark">笺</span>
+            <span>纸笺</span>
+          </div>
+          <nav class="topbar__nav">
+            <a class="topbar__link is-active">工作台</a>
+            <a class="topbar__link">周计划</a>
+            <a class="topbar__link">日教案</a>
+            <a class="topbar__link">观察记录</a>
+            <a class="topbar__link">模板</a>
+          </nav>
+          <div class="topbar__spacer"></div>
+          <div class="topbar__actions">
+            <input class="input input--sm" placeholder="搜索教案、模板、孩子" style="width:220px"/>
+            <button class="btn btn--secondary btn--sm">128 次</button>
+            <div style="width:32px;height:32px;border-radius:50%;background:#e5dcc8;display:grid;place-items:center;font-size:13px;color:var(--color-ink-2);font-weight:500">L</div>
+          </div>
+        </div>
+        <!-- shell -->
+        <div class="appshell" style="border:none; border-radius:0">
+          <aside class="sidenav">
+            <div class="sidenav__group-title">今天</div>
+            <a class="sidenav__item is-active">工作台<span class="sidenav__item-badge">3</span></a>
+            <a class="sidenav__item">日教案</a>
+            <a class="sidenav__item">观察记录</a>
+            <div class="sidenav__group-title">本周</div>
+            <a class="sidenav__item">周计划</a>
+            <a class="sidenav__item">主题库</a>
+            <div class="sidenav__group-title">资源</div>
+            <a class="sidenav__item">模板中心<span class="sidenav__item-badge">114</span></a>
+            <a class="sidenav__item">知识库</a>
+            <a class="sidenav__item">我的班级</a>
+          </aside>
+          <main class="appshell__main">
+            <div class="crumbs appshell__crumbs">
+              <a>工作台</a><span class="crumbs__sep">/</span>
+              <a>本周周计划</a><span class="crumbs__sep">/</span>
+              <span>周三</span>
+            </div>
+
+            <div class="tabs" style="margin-bottom:var(--sp-5)">
+              <div class="tabs__item is-active">活动设计</div>
+              <div class="tabs__item">材料清单</div>
+              <div class="tabs__item">家园共育</div>
+              <div class="tabs__item">观察要点</div>
+            </div>
+
+            <h2 style="margin-bottom:var(--sp-2)">周三 · 自然观察活动</h2>
+            <p class="meta">中班 · 春天来了 · 约 35 分钟</p>
+
+            <div class="grid-3" style="margin-top:var(--sp-6)">
+              <div class="card"><div class="eyebrow">目标</div>
+                <p class="card__body" style="margin-top:var(--sp-2)">观察春天常见植物的变化，用简单语言描述。</p></div>
+              <div class="card"><div class="eyebrow">准备</div>
+                <p class="card__body" style="margin-top:var(--sp-2)">放大镜 · 记录本 · 彩色笔 · 小篮子。</p></div>
+              <div class="card"><div class="eyebrow">流程</div>
+                <p class="card__body" style="margin-top:var(--sp-2)">导入 → 外出观察 → 分享 → 创作。</p></div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- mobile -->
+    <div>
+      <div class="viewport-label">Mobile · 360×640</div>
+      <div class="phone">
+        <div class="phone__screen">
+          <div class="topbar-m">
+            <button class="btn btn--icon btn--ghost btn--sm">☰</button>
+            <div class="topbar-m__title">工作台</div>
+            <button class="btn btn--icon btn--ghost btn--sm">🔔</button>
+          </div>
+          <div style="padding: var(--sp-4); flex:1; overflow:auto">
+            <div class="eyebrow">星期三 · 第 16 周</div>
+            <h1 style="margin-top:var(--sp-2); font-family:var(--font-wenkai); font-weight:400">
+              从一份更轻松的周计划开始
+            </h1>
+            <p class="card__body" style="margin-top:var(--sp-3)">
+              你上周停在「春天来了」主题的周四教案。
+            </p>
+            <div class="row" style="margin-top: var(--sp-4); gap:var(--sp-2)">
+              <button class="btn btn--primary" style="flex:1">继续</button>
+              <button class="btn btn--secondary" style="flex:1">新开始</button>
+            </div>
+            <div class="card card--hover" style="margin-top:var(--sp-5)">
+              <span class="tag tag--brand"><span class="tag__dot"></span>进行中</span>
+              <h4 class="card__title" style="margin-top:var(--sp-3)">本周周计划</h4>
+              <p class="card__body">春天来了 · 中班</p>
+            </div>
+            <div class="card" style="margin-top:var(--sp-3)">
+              <span class="tag tag--info"><span class="tag__dot"></span>推荐</span>
+              <h4 class="card__title" style="margin-top:var(--sp-3)">日教案 · 周三</h4>
+              <p class="card__body">从周计划延续生成</p>
+            </div>
+          </div>
+          <nav class="tabbar" style="position:relative">
+            <a class="tabbar__item is-active"><span class="tabbar__item-icon">●</span>工作台</a>
+            <a class="tabbar__item"><span class="tabbar__item-icon">○</span>周计划</a>
+            <a class="tabbar__item"><span class="tabbar__item-icon">○</span>记录</a>
+            <a class="tabbar__item"><span class="tabbar__item-icon">○</span>模板</a>
+            <a class="tabbar__item"><span class="tabbar__item-icon">○</span>我的</a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     10 · STATUS TAGS
+     ============================================================ -->
+<section class="doc-section" id="tags">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">10 · Status Tags</div>
+      <h2 class="doc-section__title">状态标签</h2>
+      <p class="doc-section__desc">neutral · brand · success · info · warn · danger × soft（默认）· solid · outline。</p>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex__title">Soft (default)</div>
+    <div class="ex__row">
+      <span class="tag tag--neutral"><span class="tag__dot"></span>草稿</span>
+      <span class="tag tag--brand"><span class="tag__dot"></span>进行中</span>
+      <span class="tag tag--success"><span class="tag__dot"></span>已完成</span>
+      <span class="tag tag--info"><span class="tag__dot"></span>推荐</span>
+      <span class="tag tag--warn"><span class="tag__dot"></span>待提交</span>
+      <span class="tag tag--danger"><span class="tag__dot"></span>逾期</span>
+    </div>
+  </div>
+  <div class="ex">
+    <div class="ex__title">Solid</div>
+    <div class="ex__row">
+      <span class="tag tag--solid tag--brand">VIP</span>
+      <span class="tag tag--solid tag--success">已审核</span>
+      <span class="tag tag--solid tag--info">NEW</span>
+      <span class="tag tag--solid tag--warn">限时</span>
+      <span class="tag tag--solid tag--danger">删除</span>
+    </div>
+  </div>
+  <div class="ex">
+    <div class="ex__title">Outline</div>
+    <div class="ex__row">
+      <span class="tag tag--outline tag--brand">中班</span>
+      <span class="tag tag--outline tag--info">小班</span>
+      <span class="tag tag--outline tag--success">大班</span>
+      <span class="tag tag--outline tag--neutral" style="color:var(--color-ink-3)">未分配</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE LAYOUT PRINCIPLES
+     ============================================================ -->
+<section class="doc-section" id="layout">
+  <div class="doc-section__head">
+    <div>
+      <div class="doc-section__num">11 · Layout Principles</div>
+      <h2 class="doc-section__title">布局原则</h2>
+      <p class="doc-section__desc">每个页面都落在这几条规则里。</p>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="eyebrow">01 · 栅格</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">1280 / 12 列</h4>
+      <p class="card__body">
+        --container-max 1280 · gutter 24 (sp-6) · 内边距 sp-7。
+        长文单栏 --content-max 880。
+      </p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">02 · 间距节奏</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">4 · 8 · 16 · 24 · 48</h4>
+      <p class="card__body">
+        组件内 sp-3/4；卡片内 sp-5；卡片之间 sp-4；分区 sp-9；页头页尾 sp-10。
+      </p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">03 · 文字层级</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">三段式</h4>
+      <p class="card__body">eyebrow（mono）→ 标题（wenkai or sans 600）→ 正文（sans 15）。不要出现 4 级标题同屏。</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">04 · 色彩克制</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">一页 ≤ 1 个朱砂</h4>
+      <p class="card__body">主色仅用于首要 CTA + 当前激活态；其余用米纸和墨色变化表达层级。</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">05 · 移动优先 tap</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">44px 最小命中</h4>
+      <p class="card__body">移动端按钮 / 列表行 / 输入框均 ≥ 44px；底部 tabbar 兼容 safe-area。</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">06 · 响应断点</div>
+      <h4 class="card__title" style="margin-top:var(--sp-2)">640 / 960 / 1280</h4>
+      <p class="card__body">sm ≤640（手机 & 小程序）· md 641–960（平板）· lg ≥961（桌面）。网格在 sm 都降为单列。</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

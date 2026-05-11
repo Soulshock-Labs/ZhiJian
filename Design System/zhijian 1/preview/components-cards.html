@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{background:var(--color-paper-sunk);padding:20px;font-family:var(--font-sans);}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.card{background:var(--color-paper-hi);border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-md);}
+.card-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;}
+.card h4{font-size:var(--fs-h4);font-weight:600;color:var(--color-ink);margin:0 0 4px;}
+.card p{font-size:var(--fs-body-sm);color:var(--color-ink-3);margin:0;line-height:1.55;}
+.task-card{background:var(--color-paper-hi);border-radius:var(--radius-md);padding:14px 16px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:12px;}
+.task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.task-title{font-size:var(--fs-body-sm);font-weight:500;color:var(--color-ink);margin-bottom:2px;}
+.task-sub{font-size:var(--fs-meta);color:var(--color-ink-3);}
+</style></head><body>
+<div class="grid">
+  <div class="card">
+    <div class="card-icon" style="background:var(--color-brand-tint)">📋</div>
+    <h4>查看本周计划</h4>
+    <p>提前了解孩子这周要学什么、玩什么。</p>
+  </div>
+  <div class="card">
+    <div class="card-icon" style="background:var(--color-success-tint)">📸</div>
+    <h4>成长观察记录</h4>
+    <p>老师的观察笔记和成长记录，真实还原。</p>
+  </div>
+  <div class="card">
+    <div class="card-icon" style="background:var(--color-info-tint)">💬</div>
+    <h4>家园沟通</h4>
+    <p>与老师保持顺畅沟通，了解孩子状态。</p>
+  </div>
+</div>
+<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+  <div class="task-card">
+    <div class="task-dot" style="background:var(--color-brand)"></div>
+    <div><div class="task-title">生成本周教案</div><div class="task-sub">语言领域 · 中班 · 待完成</div></div>
+    <div style="margin-left:auto;font-size:var(--fs-meta);color:var(--color-brand);font-weight:500">进行中</div>
+  </div>
+  <div class="task-card">
+    <div class="task-dot" style="background:var(--color-success)"></div>
+    <div><div class="task-title">上传观察记录</div><div class="task-sub">艺术领域 · 大班 · 已完成</div></div>
+    <div style="margin-left:auto;font-size:var(--fs-meta);color:var(--color-success-ink);font-weight:500">完成</div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小纸笺 · 工作台 v2</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); min-height: 100vh; }
+
+/* ── TopNav ── */
+.topnav {
+  position: sticky; top: 0; z-index: 200;
+  height: 56px; display: flex; align-items: center; gap: 0;
+  padding: 0 24px;
+  background: rgba(246,241,231,.95);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid var(--color-rule-soft);
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: 32px; }
+.brand-sq {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: var(--color-brand); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Ma Shan Zheng', serif; font-size: 17px;
+}
+.brand-txt { font-family: 'Ma Shan Zheng', serif; font-size: 20px; color: var(--color-ink); letter-spacing: .04em; }
+.brand-txt small { font-family: 'Noto Serif SC', serif; font-weight: 300; font-size: 11px; color: var(--color-brand); letter-spacing: .3em; margin-right: 2px; }
+.topnav-links { display: flex; gap: 2px; }
+.nav-link {
+  height: 34px; padding: 0 14px; display: inline-flex; align-items: center;
+  border-radius: var(--radius-pill); font-size: var(--fs-body-sm);
+  color: var(--color-ink-3); cursor: pointer; transition: all .15s;
+  border: none; background: none; font-family: var(--font-sans);
+}
+.nav-link.active { background: var(--color-paper-hi); color: var(--color-ink); box-shadow: var(--shadow-xs); border: 1px solid var(--color-rule-soft); }
+.nav-link:hover:not(.active) { background: var(--color-paper-sunk); color: var(--color-ink-2); }
+.topnav-space { flex: 1; }
+.topnav-right { display: flex; align-items: center; gap: 8px; }
+.search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  height: 34px; width: 180px; padding: 0 14px;
+  border-radius: var(--radius-pill); border: 1px solid var(--color-rule);
+  background: var(--color-paper-hi); color: var(--color-ink-3);
+  font-size: var(--fs-meta); cursor: text;
+}
+.avatar-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--color-brand); color: #fff; border: none; cursor: pointer;
+  font-size: var(--fs-meta); font-weight: 600; font-family: var(--font-sans);
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 3px var(--color-brand-tint); }
+.redeem-pill {
+  height: 32px; padding: 0 14px; border-radius: var(--radius-pill);
+  background: var(--color-success-tint); color: var(--color-success-ink);
+  border: 1px solid oklch(0.56 0.08 150 / 0.3);
+  font-size: var(--fs-meta); font-weight: 600; cursor: pointer;
+  font-family: var(--font-sans); white-space: nowrap;
+}
+
+/* ── Layout ── */
+.layout { display: flex; height: calc(100vh - 56px); }
+
+/* ── SideNav ── */
+.sidenav {
+  width: 220px; flex-shrink: 0;
+  background: var(--color-paper-hi);
+  border-right: 1px solid var(--color-rule-soft);
+  padding: 16px 10px;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.side-section-label {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--color-ink-4);
+  padding: 12px 12px 5px;
+}
+.side-item {
+  display: flex; align-items: center; gap: 9px;
+  height: 36px; padding: 0 12px; border-radius: var(--radius-sm);
+  font-size: var(--fs-body-sm); cursor: pointer; transition: all .12s;
+  color: var(--color-ink-3); border: none; background: none;
+  font-family: var(--font-sans); width: 100%; text-align: left;
+}
+.side-item.active {
+  background: oklch(0.94 0.05 55 / 0.8);
+  color: var(--color-brand); font-weight: 500;
+  border: 1px solid oklch(0.62 0.14 40 / 0.15);
+}
+.side-item:hover:not(.active):not([disabled]) { background: var(--color-paper-sunk); color: var(--color-ink-2); }
+.side-item[disabled] { color: var(--color-ink-4); cursor: not-allowed; opacity: .6; }
+.side-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .5; flex-shrink: 0; }
+.side-count { margin-left: auto; font-size: 11px; font-family: var(--font-mono); color: var(--color-ink-4); }
+.side-pill { margin-left: auto; font-size: 9px; background: var(--color-paper-sunk); color: var(--color-ink-4); padding: 1px 6px; border-radius: 10px; }
+
+/* ── Main ── */
+.main { flex: 1; overflow-y: auto; padding: 36px 48px 80px; }
+
+/* ── Hero ── */
+.hero { display: flex; align-items: flex-start; gap: 32px; margin-bottom: 40px; padding-bottom: 36px; border-bottom: 1px solid var(--color-rule-soft); }
+.hero-text { flex: 1; }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--color-ink-4); margin-bottom: 10px; }
+.hero-h1 { font-family: 'Ma Shan Zheng', serif; font-size: 36px; color: var(--color-ink); line-height: 1.2; margin-bottom: 10px; }
+.hero-sub { font-size: var(--fs-body-sm); color: var(--color-ink-3); line-height: 1.7; margin-bottom: 20px; max-width: 500px; }
+.hero-actions { display: flex; gap: 10px; align-items: center; }
+.btn-primary {
+  height: 40px; padding: 0 22px; border-radius: var(--radius-pill);
+  background: var(--color-brand); color: #fff; border: none;
+  font-size: var(--fs-body-sm); font-weight: 600; cursor: pointer;
+  font-family: var(--font-sans); transition: all .15s;
+  box-shadow: 0 2px 12px oklch(0.62 0.14 40 / 0.28);
+}
+.btn-primary:hover { filter: brightness(1.06); box-shadow: 0 4px 18px oklch(0.62 0.14 40 / 0.35); }
+.btn-ghost {
+  height: 40px; padding: 0 18px; border-radius: var(--radius-pill);
+  background: none; color: var(--color-ink-2); border: 1px solid var(--color-rule);
+  font-size: var(--fs-body-sm); cursor: pointer; font-family: var(--font-sans); transition: all .15s;
+}
+.btn-ghost:hover { background: var(--color-paper-sunk); border-color: var(--color-rule); }
+
+/* Progress bar pill */
+.progress-bar {
+  flex: 1; max-width: 260px; height: 36px; border-radius: var(--radius-pill);
+  background: var(--color-paper-sunk); border: 1px solid var(--color-rule-soft);
+  overflow: hidden; position: relative;
+}
+.progress-fill { position: absolute; inset: 0; right: auto; width: 18%; background: linear-gradient(90deg, var(--color-brand), oklch(0.70 0.13 50)); }
+.progress-labels {
+  position: relative; z-index: 1; height: 100%;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 14px;
+}
+.progress-labels span { font-size: var(--fs-meta); font-weight: 600; mix-blend-mode: difference; color: white; }
+
+/* Mascot in hero */
+.hero-mascot { flex-shrink: 0; opacity: .92; }
+
+/* ── Section heading ── */
+.sec-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+.sec-title { font-size: var(--fs-h4); font-weight: 600; color: var(--color-ink); }
+.sec-count { font-size: var(--fs-meta); color: var(--color-ink-4); font-family: var(--font-mono); }
+.sec-link { margin-left: auto; font-size: var(--fs-meta); color: var(--color-brand); cursor: pointer; }
+
+/* ── Quick action cards ── */
+.quick-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 40px; }
+.q-card {
+  background: var(--color-paper-hi);
+  border: 1px solid var(--color-rule-soft);
+  border-radius: var(--radius-lg); padding: 20px 18px 16px;
+  cursor: pointer; transition: all .15s;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.q-card:hover { border-color: var(--color-rule); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.q-card:active { transform: translateY(0); }
+.q-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 600; width: fit-content;
+}
+.q-tag.brand { background: var(--color-brand-tint); color: var(--color-brand); }
+.q-tag.success { background: var(--color-success-tint); color: var(--color-success-ink); }
+.q-tag.info { background: var(--color-info-tint); color: var(--color-info-ink); }
+.q-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.q-title { font-size: var(--fs-h4); font-weight: 600; color: var(--color-ink); }
+.q-body { font-size: var(--fs-body-sm); color: var(--color-ink-3); line-height: 1.6; }
+.q-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--color-rule-soft); margin-top: auto; }
+.q-meta { font-size: var(--fs-meta); color: var(--color-ink-4); }
+.q-arrow { font-size: var(--fs-body-sm); color: var(--color-brand); font-weight: 600; }
+
+/* ── Recent ── */
+.recent-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 40px; }
+.recent-item {
+  display: flex; align-items: center; gap: 12px;
+  height: 48px; padding: 0 14px;
+  border-radius: var(--radius-sm); transition: background .12s; cursor: pointer;
+}
+.recent-item:hover { background: var(--color-paper-hi); }
+.r-icon { width: 30px; height: 30px; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.r-name { font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink-2); flex: 1; }
+.r-tag { font-size: var(--fs-meta); padding: 2px 8px; border-radius: var(--radius-pill); font-weight: 500; }
+.r-meta { font-size: var(--fs-meta); color: var(--color-ink-4); white-space: nowrap; margin-left: 8px; }
+
+/* ── Knowledge vault ── */
+.kvault {
+  border: 1px solid var(--color-rule-soft); border-radius: var(--radius-lg);
+  background: var(--color-paper-hi); padding: 18px 20px; margin-bottom: 40px;
+}
+.kvault-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.kv-file { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: background .12s; }
+.kv-file:hover { background: var(--color-paper-sunk); }
+.kv-icon { width: 28px; height: 28px; border-radius: var(--radius-xs); background: var(--color-brand-tint); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.kv-name { font-size: var(--fs-body-sm); color: var(--color-ink-2); flex: 1; }
+.kv-meta { font-size: var(--fs-meta); color: var(--color-ink-4); }
+
+/* ── Modal overlay ── */
+.overlay { position: fixed; inset: 0; z-index: 500; background: rgba(30,24,18,.5); display: flex; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(4px); }
+.overlay.hidden { display: none; }
+.modal { width: 100%; max-width: 600px; max-height: 88vh; overflow-y: auto; background: #fdfaf2; border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); }
+.modal-hdr { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--color-rule-soft); position: sticky; top: 0; background: #fdfaf2; z-index: 10; }
+.modal-hdr h2 { font-size: var(--fs-h3); font-weight: 600; color: var(--color-ink); }
+.modal-close { width: 30px; height: 30px; border-radius: 50%; background: none; border: none; color: var(--color-ink-3); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .12s; }
+.modal-close:hover { background: var(--color-paper-sunk); }
+.modal-body { padding: 20px 24px; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink); margin-bottom: 6px; }
+.form-input, .form-select {
+  width: 100%; height: 40px; padding: 0 12px;
+  border-radius: var(--radius-md); border: 1px solid var(--color-rule);
+  background: var(--color-paper); color: var(--color-ink);
+  font-size: var(--fs-body-sm); font-family: var(--font-sans); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--color-brand); box-shadow: var(--shadow-focus); }
+.form-input::placeholder { color: var(--color-ink-4); }
+.form-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid var(--color-rule-soft); margin-top: 8px; }
+.btn-sm-ghost { height: 36px; padding: 0 16px; border-radius: var(--radius-pill); background: none; color: var(--color-ink-2); border: 1px solid var(--color-rule); font-size: var(--fs-body-sm); cursor: pointer; font-family: var(--font-sans); }
+
+/* Plan result */
+.plan-day { display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px; border-radius: var(--radius-sm); border: 1px solid var(--color-rule-soft); background: var(--color-paper); margin-bottom: 5px; cursor: pointer; transition: background .12s; }
+.plan-day:hover { background: var(--color-paper-sunk); }
+.plan-day-lbl { font-family: var(--font-mono); color: var(--color-brand); font-weight: 600; width: 28px; flex-shrink: 0; padding-top: 1px; font-size: var(--fs-body-sm); }
+.plan-day-title { font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink); }
+.plan-day-sub { font-size: var(--fs-meta); color: var(--color-ink-3); margin-top: 2px; }
+</style>
+</head>
+<body>
+<div>
+  <!-- TopNav -->
+  <header class="topnav">
+    <a class="nav-brand" href="#">
+      <div class="brand-sq">笺</div>
+      <span class="brand-txt"><small>小</small>纸笺</span>
+    </a>
+    <nav class="topnav-links">
+      <button class="nav-link active">工作台</button>
+      <button class="nav-link">周计划</button>
+      <button class="nav-link">日教案</button>
+      <button class="nav-link">观察记录</button>
+      <button class="nav-link">模板</button>
+    </nav>
+    <div class="topnav-space"></div>
+    <div class="topnav-right">
+      <button class="redeem-pill">内测兑换</button>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/><line x1="9.5" y1="9.5" x2="12.5" y2="12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span style="font-size:var(--fs-meta)">搜索教案 / 模板</span>
+      </div>
+      <button class="avatar-btn">师</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- SideNav -->
+    <aside class="sidenav">
+      <div class="side-section-label">今天</div>
+      <button class="side-item active" onclick="openModal('weekly')">
+        <span class="side-dot"></span>工作台<span class="side-count">3</span>
+      </button>
+      <button class="side-item" disabled>
+        <span class="side-dot"></span>日教案<span class="side-pill">即将上线</span>
+      </button>
+      <button class="side-item" disabled>
+        <span class="side-dot"></span>观察记录<span class="side-pill">即将上线</span>
+      </button>
+      <div class="side-section-label">本周</div>
+      <button class="side-item" onclick="openModal('weekly')">
+        <span class="side-dot"></span>周计划
+      </button>
+      <button class="side-item" disabled>
+        <span class="side-dot"></span>主题库<span class="side-pill">即将上线</span>
+      </button>
+      <div class="side-section-label">资源</div>
+      <button class="side-item" disabled>
+        <span class="side-dot"></span>模板中心<span class="side-count">114</span>
+      </button>
+      <button class="side-item">
+        <span class="side-dot"></span>我的知识库
+      </button>
+      <div class="side-section-label">纸笺集</div>
+      <button class="side-item" disabled>
+        <span class="side-dot"></span>我的 Agent<span class="side-pill">即将上线</span>
+      </button>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Hero with mascot -->
+      <section class="hero">
+        <div class="hero-text">
+          <div class="hero-eyebrow">周一 · 上午 · 第十七周</div>
+          <h1 class="hero-h1">你好，老师！<br>今天想从哪里开始？</h1>
+          <p class="hero-sub">用小纸笺整理你的教学思路，AI 帮你生成教案、记录成长、沟通家长。</p>
+          <div class="hero-actions">
+            <button class="btn-primary" onclick="openModal('weekly')">＋ 生成周计划</button>
+            <button class="btn-ghost">查看模板</button>
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+              <div class="progress-labels"><span>本周进度</span><span>18%</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Inline mascot SVG -->
+        <div class="hero-mascot">
+          <svg width="108" height="128" viewBox="0 0 220 250" fill="none">
+            <ellipse cx="110" cy="244" rx="45" ry="6" fill="rgba(60,40,20,.08)"/>
+            <ellipse cx="110" cy="178" rx="65" ry="60" fill="#f5c036"/>
+            <ellipse cx="110" cy="190" rx="42" ry="38" fill="#fde68a" opacity=".55"/>
+            <ellipse cx="48" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(-25 48 178)"/>
+            <ellipse cx="172" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(25 172 178)"/>
+            <rect x="158" y="152" width="38" height="48" rx="4" fill="#fdfaf2" stroke="#d9d0bd" stroke-width="1.5"/>
+            <path d="M186 152 L196 162 L186 162 Z" fill="#efe8da" stroke="#d9d0bd" stroke-width="1"/>
+            <line x1="163" y1="168" x2="191" y2="168" stroke="#d9d0bd" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="163" y1="175" x2="191" y2="175" stroke="#d9d0bd" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="163" y1="182" x2="182" y2="182" stroke="#d9d0bd" stroke-width="1.2" stroke-linecap="round"/>
+            <text x="169" y="163" font-family="'Ma Shan Zheng',serif" font-size="11" fill="oklch(0.62 0.14 40)" opacity=".8">笺</text>
+            <line x1="88" y1="238" x2="95" y2="228" stroke="oklch(0.62 0.14 40)" stroke-width="5" stroke-linecap="round"/>
+            <line x1="132" y1="238" x2="125" y2="228" stroke="oklch(0.62 0.14 40)" stroke-width="5" stroke-linecap="round"/>
+            <path d="M88 238 L82 252 M88 238 L90 252 M88 238 L96 250" stroke="oklch(0.62 0.14 40)" stroke-width="4" stroke-linecap="round"/>
+            <path d="M132 238 L126 252 M132 238 L134 252 M132 238 L140 250" stroke="oklch(0.62 0.14 40)" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+            <ellipse cx="110" cy="118" rx="36" ry="28" fill="#fde68a" opacity=".4"/>
+            <ellipse cx="110" cy="52" rx="10" ry="16" fill="#f5c036" transform="rotate(-8 110 52)"/>
+            <ellipse cx="124" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(10 124 56)"/>
+            <ellipse cx="96" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(-10 96 56)"/>
+            <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+            <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+            <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+            <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+            <circle cx="83" cy="101" r="5" fill="white"/>
+            <circle cx="131" cy="101" r="5" fill="white"/>
+            <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+            <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+            <ellipse cx="68" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+            <ellipse cx="152" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+            <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+            <rect x="85" y="54" width="50" height="8" rx="2" fill="#2a2218"/>
+            <rect x="97" y="44" width="26" height="12" rx="2" fill="#2a2218"/>
+            <line x1="134" y1="58" x2="140" y2="70" stroke="#2a2218" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="140" cy="72" r="3" fill="oklch(0.62 0.14 40)"/>
+          </svg>
+        </div>
+      </section>
+
+      <!-- Quick actions -->
+      <div class="sec-head">
+        <span class="sec-title">快速开始</span>
+        <span class="sec-count">3</span>
+        <span class="sec-link">查看全部 →</span>
+      </div>
+      <div class="quick-grid">
+        <div class="q-card" onclick="openModal('weekly')">
+          <span class="q-tag brand"><span class="q-tag-dot"></span>本周任务</span>
+          <div class="q-title">生成本周周计划</div>
+          <div class="q-body">填写主题，AI 为你生成五天完整活动方案。</div>
+          <div class="q-footer"><span class="q-meta">周计划 · AI生成</span><span class="q-arrow">→</span></div>
+        </div>
+        <div class="q-card">
+          <span class="q-tag success"><span class="q-tag-dot"></span>日常记录</span>
+          <div class="q-title">写今日观察记录</div>
+          <div class="q-body">记录孩子精彩表现，AI 帮你润色并发送家长。</div>
+          <div class="q-footer"><span class="q-meta">观察记录 · 即将上线</span><span class="q-arrow">→</span></div>
+        </div>
+        <div class="q-card">
+          <span class="q-tag info"><span class="q-tag-dot"></span>家园沟通</span>
+          <div class="q-title">给家长发条消息</div>
+          <div class="q-body">AI 辅助撰写高质量家长沟通文案，温暖专业。</div>
+          <div class="q-footer"><span class="q-meta">家园共育 · 即将上线</span><span class="q-arrow">→</span></div>
+        </div>
+      </div>
+
+      <!-- Knowledge vault -->
+      <div class="kvault">
+        <div class="kvault-head">
+          <span class="sec-title">我的知识库</span>
+          <button class="btn-sm-ghost">+ 上传文档</button>
+        </div>
+        <div class="kv-file"><div class="kv-icon">📄</div><span class="kv-name">春天主题周计划模板.docx</span><span class="kv-meta">3天前</span></div>
+        <div class="kv-file"><div class="kv-icon">📷</div><span class="kv-name">户外活动观察照片_0425.jpg</span><span class="kv-meta">昨天</span></div>
+        <div class="kv-file"><div class="kv-icon">📋</div><span class="kv-name">幼儿园教育法规摘要.pdf</span><span class="kv-meta">1周前</span></div>
+      </div>
+
+      <!-- Recent -->
+      <div class="sec-head">
+        <span class="sec-title">最近生成</span>
+        <span class="sec-link">查看全部 →</span>
+      </div>
+      <div class="recent-list">
+        <div class="recent-item">
+          <div class="r-icon" style="background:var(--color-brand-tint)">📋</div>
+          <span class="r-name">春天来了 · 周计划</span>
+          <span class="r-tag" style="background:var(--color-brand-tint);color:var(--color-brand)">周计划</span>
+          <span class="r-meta">中班 · 今天 10:23</span>
+        </div>
+        <div class="recent-item">
+          <div class="r-icon" style="background:var(--color-success-tint)">📝</div>
+          <span class="r-name">小小科学家 · 日教案</span>
+          <span class="r-tag" style="background:var(--color-success-tint);color:var(--color-success-ink)">日教案</span>
+          <span class="r-meta">大班 · 昨天 14:07</span>
+        </div>
+        <div class="recent-item">
+          <div class="r-icon" style="background:var(--color-info-tint)">💬</div>
+          <span class="r-name">家长沟通 · 月末总结</span>
+          <span class="r-tag" style="background:var(--color-info-tint);color:var(--color-info-ink)">沟通文案</span>
+          <span class="r-meta">中班 · 3天前</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Weekly Modal -->
+<div class="overlay hidden" id="weeklyModal" onclick="if(event.target===this)closeModal('weeklyModal')">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2>生成本周周计划</h2>
+      <button class="modal-close" onclick="closeModal('weeklyModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="wForm">
+        <div class="form-group">
+          <label class="form-label">周主题 <span style="color:var(--color-danger)">*</span></label>
+          <input class="form-input" placeholder="例：春天来了 / 我爱我家 / 小小科学家">
+        </div>
+        <div class="form-row form-group">
+          <div><label class="form-label">教育理念</label>
+            <select class="form-select"><option>游戏化学习</option><option>探究式学习</option><option>蒙台梭利</option></select></div>
+          <div><label class="form-label">班级</label>
+            <select class="form-select"><option>小班</option><option selected>中班</option><option>大班</option></select></div>
+          <div><label class="form-label">模型</label>
+            <select class="form-select"><option>🚀 DeepSeek</option><option>⚡ Kimi</option></select></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-sm-ghost" onclick="closeModal('weeklyModal')">取消</button>
+          <button class="btn-primary" onclick="showResult()">生成周计划</button>
+        </div>
+      </div>
+      <div id="wResult" style="display:none">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px">
+          <div><p style="font-size:var(--fs-h3);font-weight:600;color:var(--color-ink)">春天来了</p>
+            <p style="font-size:var(--fs-meta);color:var(--color-ink-3);margin-top:3px">中班 · 游戏化学习</p></div>
+          <button class="btn-sm-ghost" onclick="resetPlan()">重新生成</button>
+        </div>
+        <div class="plan-day"><span class="plan-day-lbl">周一</span><div><div class="plan-day-title">语言：《春天的故事》绘本阅读</div><div class="plan-day-sub">聚焦语言表达，情境导入，鼓励幼儿创编</div></div></div>
+        <div class="plan-day"><span class="plan-day-lbl">周二</span><div><div class="plan-day-title">科学：春天的植物与种子探索</div><div class="plan-day-sub">户外种植体验，引导感官观察与记录</div></div></div>
+        <div class="plan-day"><span class="plan-day-lbl">周三</span><div><div class="plan-day-title">艺术：用棉签画樱花</div><div class="plan-day-sub">自由创作，欣赏彼此作品，感受美</div></div></div>
+        <div class="plan-day"><span class="plan-day-lbl">周四</span><div><div class="plan-day-title">健康：春日户外体能游戏</div><div class="plan-day-sub">身体协调训练，追逐游戏与合作跑</div></div></div>
+        <div class="plan-day"><span class="plan-day-lbl">周五</span><div><div class="plan-day-title">社会：我们的班级春游计划</div><div class="plan-day-sub">幼儿参与设计，培养合作与沟通能力</div></div></div>
+        <div class="modal-footer">
+          <button class="btn-sm-ghost" onclick="closeModal('weeklyModal')">关闭</button>
+          <button class="btn-primary">下载 Word ↓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(id){ document.getElementById(id+'Modal').classList.remove('hidden'); }
+function closeModal(id){ document.getElementById(id+'Modal').classList.add('hidden'); resetPlan(); }
+function showResult(){ document.getElementById('wForm').style.display='none'; document.getElementById('wResult').style.display=''; }
+function resetPlan(){ document.getElementById('wForm').style.display=''; document.getElementById('wResult').style.display='none'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!-- pages/generate/generate.wxml -->
+<view class="page">
+
+  <!-- ── Form step ── -->
+  <view wx:if="{{step === 'form'}}" class="step-form">
+
+    <!-- Mascot greeting bubble -->
+    <view class="bubble-row">
+      <image class="bubble-chick" src="../../assets/chick-default.svg" mode="aspectFit"/>
+      <view class="bubble-box">
+        <text class="bubble-text">你好！告诉我这周的主题，我来帮你生成五天的活动计划 ✨</text>
+      </view>
+    </view>
+
+    <!-- Theme input -->
+    <view class="form-card">
+      <text class="form-label">周主题 <text class="required">*</text></text>
+      <input
+        class="form-input"
+        placeholder="例：春天来了 / 我爱我家 / 小小科学家"
+        placeholder-style="color:#b8ad9c"
+        value="{{theme}}"
+        bindinput="onThemeInput"
+        maxlength="30"
+      />
+    </view>
+
+    <!-- Options grid -->
+    <view class="options-grid">
+      <view class="option-card">
+        <text class="option-label">班级</text>
+        <picker mode="selector" range="{{classOptions}}" value="{{classIndex}}" bindchange="onClassChange">
+          <view class="option-picker">
+            <text class="option-value">{{classOptions[classIndex]}}</text>
+            <text class="option-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="option-card">
+        <text class="option-label">教育理念</text>
+        <picker mode="selector" range="{{philOptions}}" value="{{philIndex}}" bindchange="onPhilChange">
+          <view class="option-picker">
+            <text class="option-value">{{philOptions[philIndex]}}</text>
+            <text class="option-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- Upload reference -->
+    <view class="upload-card" bindtap="chooseFile">
+      <text class="upload-icon">📎</text>
+      <view class="upload-text">
+        <text class="upload-title">上传参考文档（可选）</text>
+        <text class="upload-sub">{{refFileName || '旧计划 / 模板 / 拍照上传'}}</text>
+      </view>
+      <text wx:if="{{refFileName}}" class="upload-clear" catchtap="clearFile">✕</text>
+    </view>
+
+    <!-- Submit -->
+    <view class="submit-wrap">
+      <button
+        class="btn btn-primary btn-lg w-full"
+        bindtap="submit"
+        disabled="{{!theme}}"
+        style="opacity:{{theme ? 1 : 0.45}}"
+      >生成周计划</button>
+    </view>
+
+  </view>
+
+  <!-- ── Thinking step ── -->
+  <view wx:if="{{step === 'thinking'}}" class="step-thinking">
+    <image class="thinking-chick" src="../../assets/chick-thinking.svg" mode="aspectFit"/>
+    <text class="thinking-title">小纸鸡正在思考…</text>
+    <text class="thinking-sub">正在为你生成「{{theme}}」\n五天活动计划，请稍候</text>
+    <view class="thinking-dots">
+      <view class="dot dot-1"></view>
+      <view class="dot dot-2"></view>
+      <view class="dot dot-3"></view>
+    </view>
+  </view>
+
+  <!-- ── Result step ── -->
+  <view wx:if="{{step === 'result'}}" class="step-result">
+
+    <!-- Success bubble -->
+    <view class="bubble-row">
+      <image class="bubble-chick" src="../../assets/chick-happy.svg" mode="aspectFit"/>
+      <view class="bubble-box bubble-success">
+        <text class="bubble-text" style="color:#2e6645">✓ 生成完成！点击任意一天可下载日教案。</text>
+      </view>
+    </view>
+
+    <!-- Plan header -->
+    <view class="plan-header">
+      <view>
+        <text class="plan-title">{{theme}}</text>
+        <text class="plan-meta">{{classOptions[classIndex]}} · {{philOptions[philIndex]}}</text>
+      </view>
+      <view class="tag tag-success"><text>已完成</text></view>
+    </view>
+
+    <!-- Plan days -->
+    <view class="plan-list">
+      <view
+        wx:for="{{planDays}}"
+        wx:key="day"
+        class="plan-day"
+        bindtap="downloadDaily"
+        data-day="{{item.day}}"
+      >
+        <text class="plan-day-label">{{item.day}}</text>
+        <view class="plan-day-content">
+          <text class="plan-day-title">{{item.title}}</text>
+          <text class="plan-day-sub">{{item.focus}}</text>
+        </view>
+        <text class="plan-day-arrow">↓</text>
+      </view>
+    </view>
+
+    <!-- Actions -->
+    <view class="result-actions">
+      <button class="btn btn-primary btn-md w-full" bindtap="downloadWord">下载 Word 文档 ↓</button>
+      <button class="btn btn-paper btn-sm w-full" style="margin-top:16rpx" bindtap="reset">重新生成</button>
+    </view>
+
+  </view>
+
+</view>

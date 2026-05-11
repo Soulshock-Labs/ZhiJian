@@ -1,0 +1,37 @@
+{
+  "pages": [
+    "pages/workbench/workbench",
+    "pages/generate/generate",
+    "pages/profile/profile"
+  ],
+  "tabBar": {
+    "color": "#b8ad9c",
+    "selectedColor": "#e07040",
+    "backgroundColor": "#fbf7ed",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/workbench/workbench",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/generate/generate",
+        "text": "生成"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fbf7ed",
+    "navigationBarTitleText": "小纸笺",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f1e7"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

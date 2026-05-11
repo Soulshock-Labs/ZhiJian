@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>纸笺 · 幼师工作台</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text: #18322a;
+      --brand: #2f855a;
+      --muted: #5c6e66;
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 50px rgba(48, 88, 69, 0.08);
+      --accent-green: #7dd3a8;
+      --accent-peach: #f5c89c;
+      --accent-blue: #9ec5f2;
+      --green-btn-a: #57c96d;
+      --green-btn-b: #2da74e;
+      --gold-a: #ffe66b;
+      --gold-b: #f5c518;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 90%, rgba(255, 220, 180, 0.35), transparent 50%),
+        radial-gradient(circle at 88% 8%, rgba(160, 220, 200, 0.25), transparent 22%),
+        linear-gradient(180deg, #f5f9f6 0%, #f8f3e8 40%, #f4f8f5 100%);
+    }
+
+    /* 顶部：时钟（参考 Google 给的玻璃导航，但配色跟纸笺） */
+    .top-bar {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      position: relative;
+      z-index: 5;
+      /* 避免窄屏下误触穿透到下方 hero 模块（会触发 scrollIntoView 滚到页面中部/底部） */
+      background: linear-gradient(180deg, rgba(245, 249, 246, 0.97) 0%, rgba(245, 249, 246, 0.92) 70%, transparent 100%);
+    }
+    #clock {
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: var(--brand);
+      letter-spacing: 0.06em;
+      text-shadow: 0 2px 12px rgba(47, 133, 90, 0.12);
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .logo-circle {
+      width: 2.5rem; height: 2.5rem;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+      border: 1px solid rgba(47, 133, 90, 0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      color: var(--brand);
+      font-size: 1rem;
+    }
+    .brand-title { font-weight: 700; font-size: 1.35rem; color: var(--brand); }
+    .brand-sub { font-size: 0.8rem; color: var(--muted); }
+    .pill {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem 0.15rem 0.35rem;
+      border-radius: 999px;
+      background: rgba(47, 133, 90, 0.08);
+      color: var(--brand);
+      border: 1px solid rgba(47, 133, 90, 0.18);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+      flex-wrap: wrap;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    /* 与「立即兑换」.btn-gold 同一套金色，仅突出「内测版」三字 */
+    .pill-beta {
+      display: inline-block;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--gold-a), var(--gold-b));
+      color: #1d4c2f;
+      font-weight: 700;
+      border: 1px solid rgba(200, 160, 40, 0.45);
+      box-shadow: 0 2px 8px rgba(245, 197, 24, 0.25);
+    }
+    .pill-suffix {
+      font-weight: 600;
+      color: var(--brand);
+      padding-right: 0.1rem;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 1rem 1rem 3rem;
+    }
+
+    .hero-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(218, 231, 223, 0.85);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 2rem 1.5rem 1.75rem;
+    }
+
+    .hero-title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--brand);
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .hero-sub {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-wrap {
+      margin-bottom: 1rem;
+    }
+    .search-box {
+      width: 100%;
+      padding: 0.95rem 1.25rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.85);
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      box-shadow: 0 8px 28px rgba(48, 88, 69, 0.06);
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .search-box:focus {
+      box-shadow: 0 8px 32px rgba(47, 133, 90, 0.12);
+      transform: scale(1.01);
+    }
+    .search-box::placeholder { color: #9aa8a0; }
+
+    .tip-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      border-radius: 16px;
+      background: linear-gradient(90deg, rgba(200, 230, 210, 0.45), rgba(255, 255, 255, 0.6));
+      border: 1px solid rgba(180, 220, 195, 0.5);
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 1.25rem;
+    }
+
+    .sub-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .sub-card {
+      padding: 0.85rem 1rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(218, 231, 223, 0.85);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .sub-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(48, 88, 69, 0.08);
+    }
+    .sub-card .tag { font-size: 0.65rem; color: #7a8b82; margin-bottom: 0.25rem; }
+    .sub-card .name { font-weight: 700; color: var(--brand); font-size: 0.95rem; }
+    .sub-card .desc { font-size: 0.75rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.4; }
+
+    .modules-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 640px) {
+      .modules-row { grid-template-columns: 1fr; }
+      .sub-cards { grid-template-columns: 1fr; }
+      #clock { font-size: 1.35rem; width: 100%; text-align: center; }
+      .top-bar { justify-content: center; }
+      .brand-row { width: 100%; justify-content: center; }
+    }
+
+    .mod {
+      border-radius: 20px;
+      padding: 1.1rem 0.9rem;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, box-shadow 0.2s;
+      background: rgba(255, 255, 255, 0.75);
+    }
+    .mod:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    }
+    .mod.m-green { border-color: rgba(125, 211, 168, 0.8); }
+    .mod.m-peach { border-color: rgba(245, 200, 156, 0.95); }
+    .mod.m-blue { border-color: rgba(158, 197, 242, 0.95); }
+    .mod .icon { font-size: 1.75rem; margin-bottom: 0.35rem; }
+    .mod .t { font-weight: 700; color: var(--brand); font-size: 1rem; }
+    .mod .d { font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.45; }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+    .stats-row strong { color: var(--brand); font-weight: 700; }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    .btn {
+      padding: 0.65rem 1.4rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: filter 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+
+    /* ── ✳ crafting 风格 loading ── */
+    @keyframes _star-spin {
+      0%   { transform: rotate(0deg)   scale(1);    opacity: 0.7; }
+      25%  { transform: rotate(90deg)  scale(1.18); opacity: 1;   }
+      50%  { transform: rotate(180deg) scale(1);    opacity: 0.6; }
+      75%  { transform: rotate(270deg) scale(1.18); opacity: 1;   }
+      100% { transform: rotate(360deg) scale(1);    opacity: 0.7; }
+    }
+    @keyframes _label-breathe {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.45; }
+    }
+    @keyframes _label-breathe-g {
+      0%, 100% { color: var(--brand); }
+      50%       { color: rgba(47,133,90,0.3); }
+    }
+
+    /* disabled 基础：只收缩点透明度，不做任何外部变化 */
+    .btn:disabled {
+      cursor: not-allowed;
+      transform: none;
+      overflow: hidden;      /* 严格裁剪，绝不溢出 */
+      position: relative;
+      padding-left: 2.2rem; /* 给星号留位 */
+    }
+    .btn-primary:disabled,
+    .btn-gold:disabled  { animation: _label-breathe   1.8s ease-in-out infinite; }
+    .btn-white:disabled { animation: _label-breathe-g 1.8s ease-in-out infinite; }
+
+    /* ✳ 小星号，固定在按钮左侧内部 */
+    .btn:disabled::before {
+      content: '✳';
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform-origin: center center;
+      margin-top: -0.55em;
+      font-size: 0.9em;
+      line-height: 1;
+      animation: _star-spin 2.4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .btn-primary:disabled::before,
+    .btn-gold:disabled::before  { color: rgba(255,255,255,0.9); }
+    .btn-white:disabled::before { color: var(--brand); }
+    /* 清空 ::after，不做任何旋转边框 */
+    .btn:disabled::after { display: none; }
+    .btn-white {
+      background: #fff;
+      color: var(--brand);
+      border: 1px solid rgba(47, 133, 90, 0.25);
+      box-shadow: 0 4px 16px rgba(48, 88, 69, 0.06);
+    }
+    .btn-white:hover { filter: brightness(1.03); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* 下方工作台 */
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--brand);
+      margin: 2rem 0 0.75rem;
+      padding: 0 0.25rem;
+    }
+    .panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(218, 231, 223, 0.9);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 30px rgba(48, 88, 69, 0.05);
+    }
+    label.lbl { display: block; font-size: 0.7rem; font-weight: 600; color: var(--brand); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    input.inp, textarea.inp, select.inp {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border-radius: 14px;
+      border: 1px solid #dae7df;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    @media (max-width: 640px) { .row-2 { grid-template-columns: 1fr; } }
+
+    .btn-primary {
+      background: linear-gradient(180deg, var(--green-btn-a), var(--green-btn-b));
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(31, 157, 66, 0.2);
+    }
+    .btn-gold {
+      background: linear-gradient(180deg, var(--gold-a), var(--gold-b));
+      color: #1d4c2f;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip label { cursor: pointer; }
+    .chip input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+    .chip span {
+      display: inline-block;
+      padding: 0.35rem 0.65rem;
+      border-radius: 12px;
+      border: 1px solid #dae7df;
+      font-size: 0.8rem;
+      background: #fff;
+    }
+    .chip input:checked + span {
+      border-color: #57c96d;
+      background: #eef8f0;
+      color: #1d4c2f;
+    }
+
+    .hidden { display: none !important; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); border: 0;
+    }
+
+    /* 底栏与悬浮留言 */
+    .footer-bar {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      z-index: 30;
+      font-size: 0.7rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(24, 50, 42, 0.88);
+      color: #e8f5e9;
+      max-width: 90vw;
+    }
+    .fab-fb {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 30;
+      padding: 0.65rem 1rem;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #dae7df;
+      box-shadow: 0 8px 28px rgba(48, 88, 69, 0.15);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--brand);
+      cursor: pointer;
+    }
+
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-bg.open { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 1.25rem;
+      max-width: 400px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div id="clock">00:00:00</div>
+    <div class="brand-row">
+      <!-- ✳ 常驻演示 badge -->
+      <span style="
+        display:inline-flex;align-items:center;gap:0.3rem;
+        font-size:0.72rem;color:var(--brand);
+        background:rgba(47,133,90,0.07);
+        border:1px solid rgba(47,133,90,0.15);
+        border-radius:999px;padding:0.18rem 0.6rem 0.18rem 0.45rem;
+        letter-spacing:0.02em;user-select:none;
+      ">
+        <span style="animation:_star-spin 2.4s ease-in-out infinite;display:inline-block;font-size:0.85em;transform-origin:center;">✳</span>
+        AI 就绪
+      </span>
+      <div class="logo-circle">笺</div>
+      <div>
+        <div class="brand-title">纸笺</div>
+        <div class="brand-sub">幼师工作台 · <span id="appVer">…</span></div>
+      </div>
+      <span class="pill" aria-label="内测版 · 轻量高效">
+        <span class="pill-beta">内测版</span><span class="pill-suffix"> · 轻量高效</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="hero-card" aria-label="纸笺首页">
+      <div class="hero-title">纸笺</div>
+      <p class="hero-sub">像 ClassDojo 一样清晰，但专为中国幼师工作流设计。</p>
+
+      <div class="search-wrap">
+        <input type="text" id="heroTheme" class="search-box" placeholder="输入今天的主题或灵感…" autocomplete="off">
+      </div>
+
+      <div class="tip-banner">
+        <span aria-hidden="true">🌻</span>
+        <span>先写一句主题，系统会自动带出周计划、日计划和观察记录入口。下方可继续填写模板并生成 Word。</span>
+      </div>
+
+      <div class="sub-cards">
+        <div class="sub-card" data-sc="weekly" role="button" tabindex="0">
+          <div class="tag">最常用</div>
+          <div class="name">周计划</div>
+          <div class="desc">一键生成，适合教研与班级周安排。</div>
+        </div>
+        <div class="sub-card" data-sc="observation" role="button" tabindex="0">
+          <div class="tag">高频补充</div>
+          <div class="name">观察记录</div>
+          <div class="desc">观察要点整理成文（生成页可继续扩展）。</div>
+        </div>
+      </div>
+
+      <div class="modules-row">
+        <div class="mod m-green" data-module="weekly" role="button" tabindex="0">
+          <div class="icon">📝</div>
+          <div class="t">周计划</div>
+          <div class="d">一键生成，适合教研</div>
+        </div>
+        <div class="mod m-peach" data-module="daily" role="button" tabindex="0">
+          <div class="icon">📅</div>
+          <div class="t">日计划</div>
+          <div class="d">从周计划思路拆解到当日</div>
+        </div>
+        <div class="mod m-blue" data-module="observation" role="button" tabindex="0">
+          <div class="icon">🔍</div>
+          <div class="t">观察记录</div>
+          <div class="d">拍照观察要点整理成文</div>
+        </div>
+      </div>
+
+      <div class="stats-row" id="statsRow">
+        <span><strong id="stHome">0</strong> 内测体验</span>
+        <span><strong id="stMod">0</strong> 模块点击</span>
+        <span><strong id="stReg">0</strong> 注册人数</span>
+        <span><strong id="stFb">0</strong> 留言箱</span>
+      </div>
+
+      <div class="cta-row">
+        <button type="button" class="btn btn-white" id="btnBeta">✨ 申请内测</button>
+        <button type="button" class="btn btn-ghost" id="btnContinue">继续浏览</button>
+      </div>
+    </section>
+
+    <!-- 申请内测（简表） -->
+    <h2 class="section-title" id="beta">申请内测</h2>
+    <div class="panel">
+      <div class="row-2">
+        <div>
+          <label class="lbl">联系方式</label>
+          <input class="inp" id="regPhone" placeholder="手机或邮箱" autocomplete="email">
+        </div>
+        <div>
+          <label class="lbl">身份</label>
+          <select class="inp" id="regRole">
+            <option value="teacher">老师</option>
+            <option value="manager">管理者</option>
+          </select>
+        </div>
+      </div>
+      <label class="lbl">园所（可选）</label>
+      <input class="inp" id="regKg" placeholder="园所名称">
+      <button type="button" class="btn btn-primary" id="regSubmit" style="margin-top:0.5rem;">提交申请</button>
+      <p id="regMsg" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem;"></p>
+    </div>
+
+    <!-- 教案生成（工作区） -->
+    <h2 class="section-title" id="workspace">教案生成</h2>
+    <div class="panel" id="generate">
+      <label class="lbl">教学主题</label>
+      <textarea class="inp" id="themeInput" rows="3" placeholder="与上方主题一致即可，也可在此修改"></textarea>
+
+      <label class="lbl">教育理念</label>
+      <select class="inp" id="philInput">
+        <option value="五大领域">五大领域</option>
+        <option value="蒙氏教育（AMI/AMS）">蒙氏教育（AMI/AMS）</option>
+        <option value="瑞吉欧教育">瑞吉欧教育</option>
+        <option value="DAP 发展适宜性实践">DAP 发展适宜性实践</option>
+        <option value="华德福教育">华德福教育</option>
+        <option value="项目化学习（PBL）">项目化学习（PBL）</option>
+        <option value="自主游戏 / 游戏化课程">自主游戏 / 游戏化课程</option>
+        <option value="传统文化 / 国学教育">传统文化 / 国学教育</option>
+      </select>
+
+      <label class="lbl">班级（可选）</label>
+      <select class="inp" id="classLevelInput">
+        <option value="">不指定</option>
+        <option value="小班">小班</option>
+        <option value="中班">中班</option>
+        <option value="大班">大班</option>
+      </select>
+
+      <span class="lbl" style="margin-top:0.5rem;">活动重点（多选）</span>
+      <div class="chips" id="activityChips"></div>
+
+      <div style="margin-top:0.75rem;padding:0.75rem;border-radius:14px;border:1px solid #e8dcc4;background:#fffbf5;">
+        <label style="display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;font-size:0.9rem;">
+          <input type="checkbox" id="childInitiative" style="margin-top:0.2rem;">
+          <span>包含幼儿自主发起的活动</span>
+        </label>
+        <textarea class="inp hidden" id="childDescInput" rows="2" placeholder="描述自主活动…" style="margin-top:0.5rem;"></textarea>
+      </div>
+
+      <label class="lbl" style="margin-top:0.75rem;">Word 模板（.docx）</label>
+      <input type="file" id="fileInput" class="inp" accept=".docx" style="padding:0.5rem;">
+      <p id="fileName" style="font-size:0.8rem;color:var(--muted);">未选择文件</p>
+
+      <label class="lbl" style="margin-top:0.75rem;">导出格式</label>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">
+        <label style="display:flex;align-items:center;gap:0.35rem;cursor:pointer;padding:0.45rem 0.85rem;border-radius:999px;border:1.5px solid rgba(47,133,90,0.25);background:rgba(255,255,255,0.7);font-size:0.88rem;transition:all 0.18s;">
+          <input type="radio" name="exportFormat" value="docx" checked style="accent-color:var(--brand);"> 📄 Word
+        </label>
+        <label style="display:flex;align-items:center;gap:0.35rem;cursor:pointer;padding:0.45rem 0.85rem;border-radius:999px;border:1.5px solid rgba(47,133,90,0.25);background:rgba(255,255,255,0.7);font-size:0.88rem;transition:all 0.18s;">
+          <input type="radio" name="exportFormat" value="pdf" style="accent-color:var(--brand);"> 📑 PDF
+        </label>
+        <label style="display:flex;align-items:center;gap:0.35rem;cursor:pointer;padding:0.45rem 0.85rem;border-radius:999px;border:1.5px solid rgba(47,133,90,0.25);background:rgba(255,255,255,0.7);font-size:0.88rem;transition:all 0.18s;">
+          <input type="radio" name="exportFormat" value="png" style="accent-color:var(--brand);"> 🖼️ 图片
+        </label>
+      </div>
+
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.75rem;">
+        <button type="button" class="btn btn-white" id="previewBtn">预览 AI 文案</button>
+        <button type="button" class="btn btn-primary" id="generateBtn">生成并下载</button>
+      </div>
+      <p id="loginHint" style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem;"></p>
+
+      <!-- 结果区：紧贴按钮，向下自然展开 -->
+      <div id="resultArea" style="display:none;margin-top:1rem;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s ease;max-height:0;opacity:0;">
+        <div style="border-top:1px solid #dae7df;padding-top:1rem;">
+          <p id="resultHint" style="font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;"></p>
+          <pre id="aiContent" style="font-size:0.82rem;white-space:pre-wrap;word-break:break-word;background:#f5fbf7;padding:1rem;border-radius:12px;border:1px solid #dae7df;max-height:24rem;overflow:auto;line-height:1.8;font-family:inherit;"></pre>
+          <a id="downloadBtn" href="#" class="btn btn-primary" style="display:none;text-decoration:none;margin-top:0.75rem;text-align:center;">下载教案</a>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title" id="redeem">兑换中心</h2>
+    <div class="panel">
+      <input class="inp" id="redeemUserId" placeholder="手机号 / 邮箱" autocomplete="username">
+      <input class="inp" id="redeemCode" placeholder="卡密" autocomplete="off">
+      <button type="button" class="btn btn-gold" id="redeemBtn">立即兑换</button>
+      <p id="redeemMsg" style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem;"></p>
+    </div>
+
+  </div>
+
+  <div class="footer-bar" id="statusPill">阿里云百炼 · 链路检测中…</div>
+  <button type="button" class="fab-fb" id="fabFeedback">留言箱</button>
+
+  <div class="modal-bg" id="fbModal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3 style="margin-bottom:0.75rem;color:var(--brand);">留言箱</h3>
+      <label class="lbl">称呼</label>
+      <input class="inp" id="fbNick" placeholder="可选">
+      <label class="lbl">联系方式</label>
+      <input class="inp" id="fbContact" placeholder="手机或邮箱">
+      <label class="lbl">身份</label>
+      <select class="inp" id="fbRole">
+        <option value="teacher">老师</option>
+        <option value="manager">管理者</option>
+      </select>
+      <label class="lbl">建议</label>
+      <textarea class="inp" id="fbMsg" rows="4" placeholder="至少两个字"></textarea>
+      <button type="button" class="btn btn-primary" id="fbSend" style="width:100%;margin-top:0.5rem;">发送</button>
+      <button type="button" class="btn btn-ghost" id="fbClose" style="width:100%;margin-top:0.35rem;">关闭</button>
+    </div>
+  </div>
+
+  <script>
+    const ACTIVITIES = [
+      { id: 'morning', label: '晨间活动' },
+      { id: 'outdoor', label: '户外活动' },
+      { id: 'environment', label: '环境创设' },
+      { id: 'life', label: '生活活动' },
+      { id: 'area', label: '区域活动' },
+      { id: 'family', label: '家园联动' },
+    ];
+
+    function selectedActivityIds() {
+      const ids = [];
+      ACTIVITIES.forEach(({ id }) => {
+        const el = document.getElementById('act-' + id);
+        if (el && el.checked) ids.push(id);
+      });
+      return ids;
+    }
+
+    function buildActivityChips() {
+      document.getElementById('activityChips').innerHTML = ACTIVITIES.map(({ id, label }) => `
+        <span class="chip">
+          <label>
+            <input type="checkbox" id="act-${id}" value="${id}">
+            <span>${label}</span>
+          </label>
+        </span>
+      `).join('');
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    (function () {
+      const pill = document.querySelector('.pill');
+      if (!pill) return;
+      pill.style.cursor = 'pointer';
+      const goRedeem = (e) => {
+        e.stopPropagation();
+        document.getElementById('redeem').scrollIntoView({ behavior: 'smooth' });
+      };
+      pill.addEventListener('click', goRedeem);
+      pill.addEventListener('touchend', goRedeem, { passive: true });
+    })();
+
+    function syncHeroToForm() {
+      const h = document.getElementById('heroTheme').value.trim();
+      if (h) document.getElementById('themeInput').value = h;
+    }
+    document.getElementById('heroTheme').addEventListener('change', syncHeroToForm);
+    document.getElementById('heroTheme').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        syncHeroToForm();
+        document.getElementById('workspace').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    async function trackModule() {
+      try {
+        await fetch('/track-event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: 'module_click' }),
+        });
+        const r = await fetch('/public-stats');
+        const d = await r.json();
+        if (d.stats) document.getElementById('stMod').textContent = d.stats.module_clicks;
+      } catch (e) {}
+    }
+
+    function goWorkspace(intent) {
+      sessionStorage.setItem('paper_intent', intent);
+      syncHeroToForm();
+      document.getElementById('workspace').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.querySelectorAll('.mod, .sub-card').forEach((el) => {
+      el.addEventListener('click', () => {
+        trackModule();
+        const m = el.getAttribute('data-module') || el.getAttribute('data-sc');
+        goWorkspace(m || 'weekly');
+      });
+    });
+
+    document.getElementById('btnContinue').onclick = () => goWorkspace('weekly');
+    document.getElementById('btnBeta').onclick = () => document.getElementById('beta').scrollIntoView({ behavior: 'smooth' });
+
+    fetch('/track-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: 'home_visit' }),
+    }).catch(() => {});
+
+    fetch('/public-stats')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (!d || !d.stats) return;
+        document.getElementById('stHome').textContent = d.stats.home_visits;
+        document.getElementById('stMod').textContent = d.stats.module_clicks;
+        document.getElementById('stReg').textContent = d.stats.register_count;
+        document.getElementById('stFb').textContent = d.stats.feedback_count;
+      })
+      .catch(() => {});
+
+    fetch('/health')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (!d) return;
+        document.getElementById('appVer').textContent = 'v' + (d.app_version || '—');
+        const modelLabel = d.model || '';
+        document.getElementById('statusPill').textContent = d.api_key_configured
+          ? ('AI 引擎 · 密钥已配置 · ' + modelLabel)
+          : ('AI 引擎 · 未配置密钥 · ' + modelLabel);
+      })
+      .catch(() => {
+        document.getElementById('statusPill').textContent = 'AI 引擎 · 连接检测失败';
+      });
+
+    document.getElementById('regSubmit').onclick = async () => {
+      const identifier = document.getElementById('regPhone').value.trim();
+      const role = document.getElementById('regRole').value;
+      const kindergarten = document.getElementById('regKg').value.trim();
+      const msg = document.getElementById('regMsg');
+      msg.textContent = '';
+      try {
+        const res = await fetch('/register-lite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifier,
+            role,
+            kindergarten,
+            page_url: location.href,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || '提交失败');
+        msg.textContent = '已收到申请，感谢支持！';
+        document.getElementById('stReg').textContent = data.register_count || 0;
+      } catch (e) {
+        msg.textContent = e.message || '失败';
+      }
+    };
+
+    document.getElementById('fileInput').onchange = function () {
+      const f = this.files && this.files[0];
+      document.getElementById('fileName').textContent = f ? f.name : '未选择文件';
+    };
+    document.getElementById('childInitiative').onchange = function () {
+      document.getElementById('childDescInput').classList.toggle('hidden', !this.checked);
+    };
+
+    function getFormBase() {
+      return {
+        theme: document.getElementById('themeInput').value.trim(),
+        phil: document.getElementById('philInput').value,
+        classLevel: document.getElementById('classLevelInput').value,
+        childInitiative: document.getElementById('childInitiative').checked,
+        childDesc: document.getElementById('childDescInput').value.trim(),
+        activitiesJson: JSON.stringify(selectedActivityIds()),
+      };
+    }
+
+    async function parseErrorResponse(res) {
+      try {
+        const data = await res.json();
+        const d = data.detail;
+        if (Array.isArray(d)) return d.map((x) => x.msg || JSON.stringify(x)).join('；');
+        if (typeof d === 'string') return d;
+        return data.message || JSON.stringify(data);
+      } catch (e) {
+        return res.statusText || '请求失败';
+      }
+    }
+
+    function parseFilenameFromDisposition(header) {
+      if (!header) return null;
+      const mStar = header.match(/filename\*=UTF-8''([^;]+)/i);
+      if (mStar) {
+        try { return decodeURIComponent(mStar[1].trim()); } catch (e) { return mStar[1]; }
+      }
+      const m = header.match(/filename="([^"]+)"/);
+      return m ? m[1] : null;
+    }
+
+    // ── 按钮词语循环（Contemplating 风格） ──────────────────────────
+    const THINKING_WORDS = [
+      '探索ing...', '酝酿ing...', '推演ing...', '构思ing...',
+      '提炼ing...', '编织ing...', '洞察ing...', '凝聚ing...',
+    ];
+    function startWordCycle(btn) {
+      let i = 0;
+      btn.textContent = THINKING_WORDS[0];
+      const timer = setInterval(() => {
+        i = (i + 1) % THINKING_WORDS.length;
+        btn.textContent = THINKING_WORDS[i];
+      }, 1800);
+      return timer;
+    }
+    function stopWordCycle(btn, timer, label) {
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+
+    // ── 结果区平滑展开 ────────────────────────────────────────────
+    function showResultArea() {
+      const ra = document.getElementById('resultArea');
+      ra.style.display = 'block';
+      // 先量高度，再动画展开
+      ra.style.maxHeight = '0';
+      ra.style.opacity = '0';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          ra.style.maxHeight = ra.scrollHeight + 200 + 'px';
+          ra.style.opacity = '1';
+        });
+      });
+    }
+
+    // ── 账号（user_id）持久化 ──────────────────────────────────────
+    const LS_KEY = 'sta_user_id';
+    function getSavedUserId() { return localStorage.getItem(LS_KEY) || ''; }
+    function setSavedUserId(uid) {
+      localStorage.setItem(LS_KEY, uid);
+      updateLoginHint();
+    }
+    function updateLoginHint() {
+      const uid = getSavedUserId();
+      const el = document.getElementById('loginHint');
+      if (!el) return;
+      el.textContent = uid ? ('已登录账号：' + uid + ' · 点击兑换中心可切换') : '未登录，请先在兑换中心兑换卡密';
+      el.style.color = uid ? 'var(--brand)' : '#c0392b';
+    }
+    updateLoginHint();
+
+    // ── 预览内容格式化（把 JSON 渲染成易读段落）────────────────────
+    const FIELD_LABELS = {
+      // 周目标
+      weekly_targets:    '📋 本周目标',
+      teaching:          '🎯 教学目标',
+      life:              '🌱 生活目标',
+      family:            '🏠 家园联动',
+      environment:       '🖼️ 环境创设',
+      // 五大领域目标
+      goals:             '🌟 五大领域目标',
+      // 活动准备
+      preparation:       '📦 活动准备',
+      resource_list:     '📦 资源与材料清单',
+      // 各类活动
+      morning:           '🌅 晨间活动',
+      outdoor:           '🏃 户外与体能活动',
+      study:             '📚 学习活动',
+      game:              '🎮 游戏活动',
+      area:              '🧩 区域活动',
+      life_activity:     '🧹 生活活动',
+      departure:         '👋 离园活动',
+      nap_guidance:      '😴 午睡指导',
+      // 家园 & 个别
+      family_link:       '🏠 家园联动',
+      individual_support:'👤 个别化支持',
+      safety_risk:       '⚠️ 安全提示',
+      // 反思 & 衔接
+      evaluation:        '💭 反思评价',
+      reflection:        '💭 反思',
+      next_week_plan:    '➡️ 下周衔接',
+      observation_plan:  '🔍 观察计划',
+      // 日计划
+      introduction:      '🚪 导入',
+      process:           '🔄 活动过程',
+      extension:         '🌱 延伸',
+      // 观察记录
+      summary:           '📝 观察概述',
+      analysis:          '🔍 行为分析',
+      support:           '💡 支持策略',
+      // 其他 meta
+      theme:             '主题',
+      philosophy:        '教育理念',
+      class_info:        '班级信息',
+      key_difficulty:    '重难点',
+      daily_points:      '每日要点',
+      guidance:          '指导要点',
+      activities:        '活动安排',
+      child_initiative:  '幼儿自主活动',
+      child_initiative_note: '自主活动备注',
+    };
+    function renderPreviewContent(content) {
+      if (typeof content === 'string') return content;
+      if (typeof content !== 'object' || content === null) return String(content);
+      const lines = [];
+      function walk(obj, depth) {
+        if (Array.isArray(obj)) {
+          obj.forEach((item, i) => {
+            if (typeof item === 'object') { walk(item, depth + 1); }
+            else { lines.push('  '.repeat(depth) + '• ' + item); }
+          });
+        } else {
+          Object.entries(obj).forEach(([k, v]) => {
+            const label = FIELD_LABELS[k] || k;
+            if (typeof v === 'object' && v !== null) {
+              lines.push('');
+              lines.push('  '.repeat(depth) + '【' + label + '】');
+              walk(v, depth + 1);
+            } else {
+              lines.push('  '.repeat(depth) + label + '：' + String(v));
+            }
+          });
+        }
+      }
+      walk(content, 0);
+      return lines.join('\n').trim();
+    }
+
+    document.getElementById('previewBtn').onclick = async () => {
+      const f = getFormBase();
+      if (!f.theme) { alert('请填写教学主题'); return; }
+      const btn = document.getElementById('previewBtn');
+      btn.disabled = true; const _pt = startWordCycle(btn);
+      const body = new URLSearchParams();
+      body.set('theme', f.theme);
+      body.set('phil', f.phil);
+      body.set('activities', f.activitiesJson);
+      body.set('child_initiative', f.childInitiative ? 'true' : 'false');
+      body.set('child_desc', f.childDesc);
+      body.set('class_level', f.classLevel);
+      try {
+        const res = await fetch('/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: body.toString(),
+        });
+        if (!res.ok) throw new Error(await parseErrorResponse(res));
+        const data = await res.json();
+        document.getElementById('resultHint').textContent = 'AI 文案预览 · 点击「生成并下载 Word」套入模板';
+        document.getElementById('aiContent').textContent = renderPreviewContent(data.content);
+        document.getElementById('downloadBtn').style.display = 'none';
+        showResultArea();
+      } catch (e) {
+        alert('预览失败：' + e.message);
+      } finally {
+        stopWordCycle(btn, _pt, '预览 AI 文案');
+      }
+    };
+
+    document.getElementById('generateBtn').onclick = async () => {
+      const f = getFormBase();
+      if (!f.theme) { alert('请填写教学主题'); return; }
+      const userId = getSavedUserId();
+      if (!userId) {
+        alert('请先在下方「兑换中心」输入账号并兑换卡密，然后再生成。');
+        document.getElementById('redeem').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      const file = document.getElementById('fileInput').files[0];
+      if (!file || !file.name.toLowerCase().endsWith('.docx')) {
+        alert('请上传 .docx 模板');
+        return;
+      }
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true; const _gt = startWordCycle(btn);
+      const fd = new FormData();
+      fd.append('theme', f.theme);
+      fd.append('phil', f.phil);
+      fd.append('activities', f.activitiesJson);
+      fd.append('child_initiative', f.childInitiative ? 'true' : 'false');
+      fd.append('child_desc', f.childDesc);
+      fd.append('class_level', f.classLevel);
+      const exportFormat = document.querySelector('input[name="exportFormat"]:checked')?.value || 'docx';
+      fd.append('export_format', exportFormat);
+      fd.append('client', 'web');
+      fd.append('user_id', userId);
+      fd.append('template', file);
+      const formatLabel = exportFormat === 'pdf' ? 'PDF' : exportFormat === 'png' ? '图片' : 'Word';
+      try {
+        const res = await fetch('/generate', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error(await parseErrorResponse(res));
+        const blob = await res.blob();
+        if (blob.size < 500) {
+          const text = await blob.text();
+          throw new Error('文件异常（' + blob.size + ' 字节）：' + text.slice(0, 100));
+        }
+        const url = URL.createObjectURL(blob);
+        const defaultExt = exportFormat === 'pdf' ? '教案.pdf' : exportFormat === 'png' ? '教案.png' : '教案.docx';
+        const name = parseFilenameFromDisposition(res.headers.get('Content-Disposition')) || defaultExt;
+        document.getElementById('resultHint').textContent = '✅ ' + formatLabel + ' 已生成，正在下载…';
+        document.getElementById('aiContent').textContent = '文件名：' + name;
+        showResultArea();
+        const a = document.getElementById('downloadBtn');
+        a.href = url;
+        a.download = name;
+        a.style.display = 'inline-block';
+        a.click();
+      } catch (e) {
+        alert('生成失败：' + e.message);
+      } finally {
+        stopWordCycle(btn, _gt, '生成并下载');
+      }
+    };
+
+    document.getElementById('redeemBtn').onclick = async () => {
+      const user_id = document.getElementById('redeemUserId').value.trim();
+      const code = document.getElementById('redeemCode').value.trim();
+      const msg = document.getElementById('redeemMsg');
+      msg.textContent = '';
+      if (!user_id || !code) { msg.textContent = '请填写账号与卡密'; return; }
+      try {
+        const res = await fetch('/redeem', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, user_id, source: 'web_index' }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { msg.textContent = data.detail || '失败'; return; }
+        if (data.ok) {
+          setSavedUserId(user_id);  // 兑换成功 → 保存账号
+          msg.textContent = '✅ ' + (data.message || '兑换成功，已记住账号');
+        } else {
+          msg.textContent = data.message || '未完成';
+        }
+      } catch (e) {
+        msg.textContent = '网络错误';
+      }
+    };
+
+    const fbModal = document.getElementById('fbModal');
+    document.getElementById('fabFeedback').onclick = () => fbModal.classList.add('open');
+    document.getElementById('fbClose').onclick = () => fbModal.classList.remove('open');
+    document.getElementById('fbSend').onclick = async () => {
+      try {
+        const res = await fetch('/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: document.getElementById('fbMsg').value.trim(),
+            role: document.getElementById('fbRole').value,
+            nickname: document.getElementById('fbNick').value.trim(),
+            contact: document.getElementById('fbContact').value.trim(),
+            page_url: location.href,
+            user_agent: navigator.userAgent,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || '发送失败');
+        alert('感谢留言！');
+        fbModal.classList.remove('open');
+        document.getElementById('stFb').textContent = data.feedback_count || 0;
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    buildActivityChips();
+  </script>
+</body>
+</html>

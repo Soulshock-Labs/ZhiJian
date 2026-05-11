@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>纸笺 · 品牌方向</title>
+<meta name="viewport" content="width=1600"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<!-- Noto Sans SC (思源黑体) -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- 霞鹜文楷 LXGW WenKai via cdn -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css"/>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  html, body { margin:0; padding:0; background:#f3efe7; }
+  * { box-sizing: border-box; }
+  .sans { font-family: "Noto Sans SC", "HarmonyOS Sans SC", "PingFang SC", -apple-system, system-ui, sans-serif; }
+  .wenkai { font-family: "LXGW WenKai Screen", "LXGW WenKai", "Ma Shan Zheng", serif; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+  .inter { font-family: "Inter", sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+/* ============ design-canvas inlined ============ */
+const DC = {
+  bg: '#f0eee9',
+  grid: 'rgba(0,0,0,0.06)',
+  label: 'rgba(60,50,40,0.7)',
+  title: 'rgba(40,30,20,0.85)',
+  subtitle: 'rgba(60,50,40,0.6)',
+  postitBg: '#fef4a8',
+  postitText: '#5a4a2a',
+  font: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+};
+function DesignCanvas({ children, minScale = 0.1, maxScale = 8, style = {} }) {
+  const vpRef = React.useRef(null);
+  const worldRef = React.useRef(null);
+  const tf = React.useRef({ x: 0, y: 0, scale: 1 });
+  const apply = React.useCallback(() => {
+    const { x, y, scale } = tf.current;
+    const el = worldRef.current;
+    if (el) el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+  }, []);
+  React.useEffect(() => {
+    const vp = vpRef.current; if (!vp) return;
+    const zoomAt = (cx, cy, factor) => {
+      const r = vp.getBoundingClientRect();
+      const px = cx - r.left, py = cy - r.top;
+      const t = tf.current;
+      const next = Math.min(maxScale, Math.max(minScale, t.scale * factor));
+      const k = next / t.scale;
+      t.x = px - (px - t.x) * k; t.y = py - (py - t.y) * k; t.scale = next;
+      apply();
+    };
+    const isMouseWheel = (e) => e.deltaMode !== 0 || (e.deltaX === 0 && Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 40);
+    let isGesturing = false;
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (isGesturing) return;
+      if (e.ctrlKey) zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.01));
+      else if (isMouseWheel(e)) zoomAt(e.clientX, e.clientY, Math.exp(-Math.sign(e.deltaY) * 0.18));
+      else { tf.current.x -= e.deltaX; tf.current.y -= e.deltaY; apply(); }
+    };
+    let gsBase = 1;
+    const onGestureStart = (e) => { e.preventDefault(); isGesturing = true; gsBase = tf.current.scale; };
+    const onGestureChange = (e) => { e.preventDefault(); zoomAt(e.clientX, e.clientY, (gsBase * e.scale) / tf.current.scale); };
+    const onGestureEnd = (e) => { e.preventDefault(); isGesturing = false; };
+    let drag = null;
+    const onPointerDown = (e) => {
+      const onBg = e.target === vp || e.target === worldRef.current;
+      if (!(e.button === 1 || (e.button === 0 && onBg))) return;
+      e.preventDefault(); vp.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, lx: e.clientX, ly: e.clientY };
+      vp.style.cursor = 'grabbing';
+    };
+    const onPointerMove = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      tf.current.x += e.clientX - drag.lx; tf.current.y += e.clientY - drag.ly;
+      drag.lx = e.clientX; drag.ly = e.clientY; apply();
+    };
+    const onPointerUp = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      vp.releasePointerCapture(e.pointerId); drag = null; vp.style.cursor = '';
+    };
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    vp.addEventListener('gesturestart', onGestureStart, { passive: false });
+    vp.addEventListener('gesturechange', onGestureChange, { passive: false });
+    vp.addEventListener('gestureend', onGestureEnd, { passive: false });
+    vp.addEventListener('pointerdown', onPointerDown);
+    vp.addEventListener('pointermove', onPointerMove);
+    vp.addEventListener('pointerup', onPointerUp);
+    vp.addEventListener('pointercancel', onPointerUp);
+    return () => {
+      vp.removeEventListener('wheel', onWheel);
+      vp.removeEventListener('gesturestart', onGestureStart);
+      vp.removeEventListener('gesturechange', onGestureChange);
+      vp.removeEventListener('gestureend', onGestureEnd);
+      vp.removeEventListener('pointerdown', onPointerDown);
+      vp.removeEventListener('pointermove', onPointerMove);
+      vp.removeEventListener('pointerup', onPointerUp);
+      vp.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [apply, minScale, maxScale]);
+  const gridSvg = `url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M120 0H0v120' fill='none' stroke='${encodeURIComponent(DC.grid)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  return (
+    <div ref={vpRef} className="design-canvas" style={{
+      height: '100vh', width: '100vw', background: DC.bg, overflow: 'hidden',
+      overscrollBehavior: 'none', touchAction: 'none', position: 'relative',
+      fontFamily: DC.font, boxSizing: 'border-box', ...style,
+    }}>
+      <div ref={worldRef} style={{
+        position: 'absolute', top: 0, left: 0, transformOrigin: '0 0',
+        willChange: 'transform', width: 'max-content', minWidth: '100%',
+        minHeight: '100%', padding: '60px 0 80px',
+        backgroundImage: gridSvg, backgroundSize: '120px 120px',
+      }}>{children}</div>
+    </div>
+  );
+}
+function DCSection({ title, subtitle, children, gap = 48 }) {
+  return (
+    <div style={{ marginBottom: 80, position: 'relative' }}>
+      <div style={{ padding: '0 60px 36px' }}>
+        <div style={{ fontSize: 22, fontWeight: 600, color: DC.title, letterSpacing: -0.3, marginBottom: 4 }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 14, fontWeight: 400, color: DC.subtitle }}>{subtitle}</div>}
+      </div>
+      <div style={{ display: 'flex', gap, padding: '0 60px', alignItems: 'flex-start', width: 'max-content' }}>{children}</div>
+    </div>
+  );
+}
+function DCArtboard({ label, children, width, height, style = {} }) {
+  return (
+    <div style={{ position: 'relative', flexShrink: 0 }}>
+      {label && <div style={{ position: 'absolute', bottom: '100%', left: 0, paddingBottom: 8, fontSize: 12, fontWeight: 500, color: DC.label, whiteSpace: 'nowrap' }}>{label}</div>}
+      <div style={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06)', overflow: 'hidden', width, height, background: '#fff', ...style }}>{children}</div>
+    </div>
+  );
+}
+function DCPostIt({ children, top, left, right, bottom, rotate = -2, width = 180 }) {
+  return (
+    <div style={{ position: 'absolute', top, left, right, bottom, width, background: DC.postitBg, padding: '14px 16px',
+      fontFamily: '"Comic Sans MS", "Marker Felt", "Segoe Print", cursive', fontSize: 14, lineHeight: 1.4, color: DC.postitText,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)', transform: `rotate(${rotate}deg)`, zIndex: 5 }}>{children}</div>
+  );
+}
+/* ============ /design-canvas inlined ============ */
+
+/* ---------- palette ---------- */
+// Warm off-white paper + ink + a single muted accent.
+// I keep chroma < 0.06 everywhere — nothing saturated.
+const paper   = "#f6f1e7";   // canvas
+const paperHi = "#fbf7ed";   // raised
+const ink     = "#2a2520";   // body text (not pure black)
+const ink2    = "#5a5148";   // secondary
+const ink3    = "#8a8178";   // tertiary
+const rule    = "#d9d0bd";   // hairline
+
+// Three accent options, same lightness & chroma, different hue.
+const accents = {
+  // soft persimmon — warm, slightly orange-red. Matches 纸笺 ink stamp.
+  persimmon: { solid: "oklch(0.62 0.14 40)",  tint: "oklch(0.95 0.03 40)" , on: "#fff" },
+  // sage — calm teacher-y green
+  sage:      { solid: "oklch(0.56 0.08 150)", tint: "oklch(0.94 0.03 150)", on: "#fff" },
+  // indigo-ink — bookish blue
+  indigo:    { solid: "oklch(0.42 0.10 255)", tint: "oklch(0.94 0.03 255)", on: "#fff" },
+};
+
+/* ---------- tiny UI primitives ---------- */
+const Card = ({children, style, onClick}) => (
+  <div onClick={onClick} style={{
+    background: paperHi,
+    border: `1px solid ${rule}`,
+    borderRadius: 14,
+    padding: 20,
+    boxShadow: "0 1px 0 rgba(0,0,0,0.02), 0 6px 20px -12px rgba(60,40,20,0.18)",
+    ...style,
+  }}>{children}</div>
+);
+
+const Tag = ({children, tone="neutral"}) => {
+  const colors = {
+    neutral: { bg:"#ece5d4", fg: ink2 },
+    ok:      { bg: accents.sage.tint, fg: "oklch(0.38 0.07 150)" },
+    hot:     { bg: accents.persimmon.tint, fg: "oklch(0.42 0.10 40)" },
+    info:    { bg: accents.indigo.tint, fg: "oklch(0.36 0.09 255)" },
+  }[tone];
+  return (
+    <span style={{
+      display:"inline-flex", alignItems:"center", gap:6,
+      background: colors.bg, color: colors.fg,
+      padding: "3px 10px", borderRadius: 999, fontSize: 11.5, fontWeight: 500,
+      letterSpacing: 0.2,
+    }}>{children}</span>
+  );
+};
+
+const PillBtn = ({children, primary, accent = accents.persimmon, style}) => (
+  <button style={{
+    border: primary ? "none" : `1px solid ${rule}`,
+    background: primary ? accent.solid : "transparent",
+    color: primary ? accent.on : ink,
+    padding: "10px 18px", borderRadius: 999,
+    fontSize: 13, fontWeight: 500, cursor: "pointer",
+    fontFamily: "inherit",
+    ...style,
+  }}>{children}</button>
+);
+
+/* ---------- the three "option frames" ----------
+   Each is a wide card showing: label, the fonts in use,
+   a mini app-UI sample, and a verdict. Keep them visually
+   parallel so the user can scan and pick. */
+
+const OptionHeader = ({num, title, recipe, verdict}) => (
+  <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between",
+                marginBottom: 18, paddingBottom: 14, borderBottom: `1px solid ${rule}` }}>
+    <div>
+      <div className="mono" style={{ fontSize: 11, color: ink3, letterSpacing: 1.5, textTransform: "uppercase" }}>
+        OPTION {num}
+      </div>
+      <div className="sans" style={{ fontSize: 28, fontWeight: 600, color: ink, letterSpacing: -0.3, marginTop: 4 }}>
+        {title}
+      </div>
+      <div className="sans" style={{ fontSize: 13, color: ink2, marginTop: 6 }}>
+        {recipe}
+      </div>
+    </div>
+    <div className="sans" style={{ fontSize: 12, color: ink3, maxWidth: 260, textAlign:"right", lineHeight: 1.55 }}>
+      {verdict}
+    </div>
+  </div>
+);
+
+/* --- specimen block: shows the actual fonts at typographic scale --- */
+const Specimen = ({ headlineFont, headlineClass, bodyFont, bodyClass, numberFont, numberClass }) => (
+  <Card style={{padding: 28}}>
+    <div style={{display:"flex", gap: 32}}>
+      {/* left: large brand + tagline */}
+      <div style={{flex: 1.1, borderRight: `1px dashed ${rule}`, paddingRight: 28}}>
+        <div className="mono" style={{fontSize: 10, color: ink3, letterSpacing: 1.5, marginBottom: 12}}>
+          BRAND / 标题
+        </div>
+        <div className={headlineClass} style={{fontSize: 88, lineHeight: 1, color: ink, letterSpacing: -1, fontWeight: headlineClass === "wenkai" ? 400 : 600}}>
+          纸笺
+        </div>
+        <div className={headlineClass} style={{fontSize: 18, color: ink2, marginTop: 10, letterSpacing: 1}}>
+          · 智伴幼师 ·
+        </div>
+        <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 24}}>
+          {headlineFont}
+        </div>
+      </div>
+
+      {/* middle: body copy */}
+      <div style={{flex: 1.2, borderRight: `1px dashed ${rule}`, paddingRight: 28}}>
+        <div className="mono" style={{fontSize: 10, color: ink3, letterSpacing: 1.5, marginBottom: 12}}>
+          BODY / 正文
+        </div>
+        <div className={bodyClass} style={{fontSize: 15, lineHeight: 1.75, color: ink}}>
+          今天，从一份更轻松的周计划开始。输入主题、选择理念、套用模板，几步完成本周周计划。不需要复杂培训，打开就能开始。
+        </div>
+        <div className={bodyClass} style={{fontSize: 13, lineHeight: 1.7, color: ink2, marginTop: 14}}>
+          一线幼师 · 园长 · 园所管理者。从周计划到日教案，再到观察记录，这里会陪你一步步做完。
+        </div>
+        <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 20}}>
+          {bodyFont}
+        </div>
+      </div>
+
+      {/* right: numbers + en + ui labels */}
+      <div style={{flex: 0.9}}>
+        <div className="mono" style={{fontSize: 10, color: ink3, letterSpacing: 1.5, marginBottom: 12}}>
+          数字 / 英数
+        </div>
+        <div className={numberClass} style={{fontSize: 40, fontWeight: 600, color: ink, letterSpacing: -0.5}}>
+          128<span style={{color: ink3, fontWeight: 400}}>/200</span>
+        </div>
+        <div className={numberClass} style={{fontSize: 12, color: ink2, marginTop: 4, letterSpacing: 0.5}}>
+          本月剩余生成次数
+        </div>
+        <div className={numberClass} style={{fontSize: 22, fontWeight: 500, color: ink, marginTop: 18}}>
+          Wed · Apr 22
+        </div>
+        <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 22}}>
+          {numberFont}
+        </div>
+      </div>
+    </div>
+
+    {/* bottom strip: the 6-weight ladder */}
+    <div style={{marginTop: 24, paddingTop: 18, borderTop: `1px dashed ${rule}`, display:"flex", gap: 28, alignItems:"baseline"}}>
+      <div className={bodyClass} style={{fontWeight: 300, fontSize: 22, color: ink3}}>纸笺幼师</div>
+      <div className={bodyClass} style={{fontWeight: 400, fontSize: 22, color: ink2}}>纸笺幼师</div>
+      <div className={bodyClass} style={{fontWeight: 500, fontSize: 22, color: ink}}>纸笺幼师</div>
+      <div className={bodyClass} style={{fontWeight: 600, fontSize: 22, color: ink}}>纸笺幼师</div>
+      <div className={bodyClass} style={{fontWeight: 700, fontSize: 22, color: ink}}>纸笺幼师</div>
+      <div className="mono" style={{fontSize: 10, color: ink3, marginLeft: "auto"}}>300 · 400 · 500 · 600 · 700</div>
+    </div>
+  </Card>
+);
+
+/* --- 周一~周五 进度网格：第1列只放"周"字，后5列上字下格 --- */
+const WeekGrid = ({ done = [false,false,false,false,false], accent, ink2, ink3, rule, bodyClass }) => {
+  const days = ["一", "二", "三", "四", "五"];
+  return (
+    <div style={{
+      marginTop: 14,
+      display: "grid",
+      gridTemplateColumns: "auto repeat(5, 1fr)",
+      columnGap: 8,
+      rowGap: 6,
+      alignItems: "center",
+    }}>
+      {/* row 1: "周" + 一二三四五 */}
+      <div className={bodyClass} style={{fontSize: 12, color: ink3, paddingRight: 4, lineHeight: 1}}>周</div>
+      {days.map(d => (
+        <div key={"d-"+d} className={bodyClass} style={{fontSize: 12, color: ink2, textAlign:"center", lineHeight: 1}}>
+          {d}
+        </div>
+      ))}
+      {/* row 2: 空 + 5 个格子 */}
+      <div />
+      {done.map((isDone, i) => (
+        <div key={"b-"+i} style={{
+          height: 22,
+          borderRadius: 4,
+          border: `1px solid ${isDone ? accent.solid : rule}`,
+          background: isDone ? accent.solid : "transparent",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          color: accent.on || "#fff", fontSize: 12, lineHeight: 1, fontWeight: 600,
+        }}>
+          {isDone ? "✓" : ""}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+/* --- mini "home page" mock so the fonts get tested in real UI context --- */
+const MiniHome = ({ headlineClass, bodyClass, accent }) => {
+  return (
+    <Card style={{ padding: 0, overflow: "hidden" }}>
+      {/* app chrome */}
+      <div style={{
+        padding: "14px 22px",
+        borderBottom: `1px solid ${rule}`,
+        display:"flex", alignItems:"center", justifyContent:"space-between",
+        background: paper,
+      }}>
+        <div style={{display:"flex", alignItems:"center", gap: 10}}>
+          <div style={{
+            width: 26, height: 26, borderRadius: 6,
+            background: accent.solid,
+            display:"grid", placeItems:"center",
+            color: "#fff", fontSize: 14, fontWeight: 600,
+          }} className={headlineClass}>笺</div>
+          <div className={headlineClass} style={{fontSize: 16, fontWeight: 600, color: ink, letterSpacing: 0.5}}>
+            纸笺 <span style={{color: ink3, fontWeight: 400, fontSize: 13}}>· 幼师工作台</span>
+          </div>
+        </div>
+        <div className={bodyClass} style={{display:"flex", gap: 22, fontSize: 13, color: ink2}}>
+          <span>工作台</span><span>周计划</span><span>日教案</span><span>观察记录</span><span>模板</span>
+        </div>
+        <div className={bodyClass} style={{display:"flex", alignItems:"center", gap: 10, fontSize: 12, color: ink2}}>
+          <span style={{
+            width: 6, height: 6, borderRadius:"50%", background: accents.sage.solid,
+            display:"inline-block",
+          }}/>
+          已连接
+          <div style={{
+            width: 28, height: 28, borderRadius: "50%",
+            background: "#e5dcc8", color: ink2, display:"grid", placeItems:"center", fontSize: 12, fontWeight: 500, marginLeft: 6,
+          }}>L</div>
+        </div>
+      </div>
+
+      {/* content */}
+      <div style={{padding: "34px 40px 30px", background: paperHi}}>
+        {/* greeting */}
+        <div className={bodyClass} style={{fontSize: 12, color: ink3, marginBottom: 8, letterSpacing: 0.5}}>
+          星期三 · 上午 9:04 · 第 16 周
+        </div>
+        <div className={headlineClass} style={{
+          fontSize: 34, fontWeight: headlineClass === "wenkai" ? 400 : 600,
+          color: ink, letterSpacing: -0.3, lineHeight: 1.25, maxWidth: 620,
+        }}>
+          今天，从一份更轻松的周计划开始
+        </div>
+        <div className={bodyClass} style={{fontSize: 14, color: ink2, marginTop: 10, maxWidth: 560, lineHeight: 1.65}}>
+          你上周停在「春天来了」主题的周四教案。可以继续补完，也可以直接开始下一周。
+        </div>
+        <div style={{display:"flex", gap: 10, marginTop: 20}}>
+          <PillBtn primary accent={accent}>继续上次任务</PillBtn>
+          <PillBtn>开始本周周计划</PillBtn>
+        </div>
+
+        {/* 3 task cards */}
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap: 14, marginTop: 28}}>
+          {[
+            { tag:"进行中", tone:"hot",  title:"本周周计划", body:"春天来了 · 中班", meta:"周二已补完" },
+            { tag:"推荐",   tone:"info", title:"我的日教案", body:null,            meta:"从周计划延续生成 · 约 2 分钟", week: [true, true, false, false, false] },
+            { tag:"空",     tone:"neutral", title:"今日观察",  body:"拍一张或说一句都行", meta:"随手记录" },
+          ].map((c,i) => (
+            <div key={i} style={{
+              background: "#fff", border: `1px solid ${rule}`, borderRadius: 12, padding: 18,
+            }}>
+              <Tag tone={c.tone}>{c.tag}</Tag>
+              <div className={headlineClass} style={{fontSize: 17, fontWeight: 600, color: ink, marginTop: 12, letterSpacing: -0.2}}>
+                {c.title}
+              </div>
+              {c.week ? (
+                <WeekGrid done={c.week} accent={accent} ink2={ink2} ink3={ink3} rule={rule} bodyClass={bodyClass} />
+              ) : (
+                <div className={bodyClass} style={{fontSize: 13, color: ink2, marginTop: 6, lineHeight: 1.55}}>
+                  {c.body}
+                </div>
+              )}
+              <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 14, letterSpacing: 0.5}}>
+                {c.meta}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* status strip */}
+        <div style={{
+          marginTop: 22, paddingTop: 18, borderTop: `1px dashed ${rule}`,
+          display:"flex", gap: 28, fontSize: 12,
+        }}>
+          <div className={bodyClass} style={{color: ink2}}>
+            <span className="mono" style={{color: ink3, marginRight: 6}}>知识库</span>
+            已同步 · 114 份文件
+          </div>
+          <div className={bodyClass} style={{color: ink2}}>
+            <span className="mono" style={{color: ink3, marginRight: 6}}>会员</span>
+            剩余 128 次 · 5月23日到期
+          </div>
+          <div className={bodyClass} style={{color: ink2}}>
+            <span className="mono" style={{color: ink3, marginRight: 6}}>连续</span>
+            已连续使用 7 天
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+/* ---------- three options ---------- */
+
+function OptionOne() {
+  return (
+    <div>
+      <OptionHeader
+        num="01"
+        title="黑体优先 · 工程稳"
+        recipe="Noto Sans SC / HarmonyOS Sans SC (一种字体包打全部) + Inter 数字"
+        verdict="最安全：三端完全一致、开源可商用、幼师熟悉。缺点是少一点品牌温度。"
+      />
+      <Specimen
+        headlineClass="sans" headlineFont="Noto Sans SC · 600"
+        bodyClass="sans"     bodyFont="Noto Sans SC · 400"
+        numberClass="inter"  numberFont="Inter · 500"
+      />
+      <div style={{marginTop: 20}}>
+        <MiniHome headlineClass="sans" bodyClass="sans" accent={accents.persimmon}/>
+      </div>
+    </div>
+  );
+}
+
+function OptionTwo() {
+  return (
+    <div>
+      <OptionHeader
+        num="02"
+        title="黑体 + 文楷点睛 · 推荐"
+        recipe="霞鹜文楷 Screen (仅用于品牌名 · 大标题) + Noto Sans SC 主力 + Inter 数字"
+        verdict="我推荐这一条：UI 还是干净黑体不累眼，品牌名和 Hero 大标题用文楷，呼应「纸笺」。"
+      />
+      <Specimen
+        headlineClass="wenkai" headlineFont="LXGW WenKai Screen · 400"
+        bodyClass="sans"       bodyFont="Noto Sans SC · 400"
+        numberClass="inter"    numberFont="Inter · 500"
+      />
+      <div style={{marginTop: 20}}>
+        <MiniHome headlineClass="wenkai" bodyClass="sans" accent={accents.persimmon}/>
+      </div>
+    </div>
+  );
+}
+
+function OptionThree() {
+  return (
+    <div>
+      <OptionHeader
+        num="03"
+        title="文楷为主 · 书卷气重"
+        recipe="霞鹜文楷 Screen 大标题 + 霞鹜文楷 正文 + Inter 数字"
+        verdict="最有味道但最冒险：长文会累、小字可读性弱。适合愿意给味道付一点可读性成本的团队。"
+      />
+      <Specimen
+        headlineClass="wenkai" headlineFont="LXGW WenKai Screen · 400"
+        bodyClass="wenkai"     bodyFont="LXGW WenKai Screen · 400"
+        numberClass="inter"    numberFont="Inter · 500"
+      />
+      <div style={{marginTop: 20}}>
+        <MiniHome headlineClass="wenkai" bodyClass="wenkai" accent={accents.indigo}/>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- color swatches ---------- */
+function ColorRow() {
+  const swatch = (name, hex, meta) => (
+    <div style={{flex:1}}>
+      <div style={{
+        height: 68, borderRadius: 10, background: hex,
+        border: `1px solid ${rule}`,
+      }}/>
+      <div className="sans" style={{fontSize: 12, color: ink, marginTop: 8, fontWeight: 500}}>{name}</div>
+      <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 2, letterSpacing: 0.5}}>{meta}</div>
+    </div>
+  );
+  return (
+    <Card>
+      <div className="sans" style={{fontSize: 13, fontWeight: 600, color: ink, marginBottom: 4}}>
+        色彩基底 · 纸面 + 墨色 + 一点朱砂
+      </div>
+      <div className="sans" style={{fontSize: 12, color: ink2, marginBottom: 16}}>
+        整体沿用您架构图的米纸+红棕气质。白与黑都带暖调，不上纯色。
+      </div>
+      <div style={{display:"flex", gap: 12}}>
+        {swatch("paper",    paper,    "#f6f1e7")}
+        {swatch("paperHi",  paperHi,  "#fbf7ed")}
+        {swatch("rule",     rule,     "#d9d0bd")}
+        {swatch("ink-3",    ink3,     "#8a8178")}
+        {swatch("ink-2",    ink2,     "#5a5148")}
+        {swatch("ink",      ink,      "#2a2520")}
+      </div>
+      <div className="sans" style={{fontSize: 13, fontWeight: 600, color: ink, marginTop: 22, marginBottom: 4}}>
+        主色候选 · 同 chroma / lightness，hue 不同
+      </div>
+      <div className="sans" style={{fontSize: 12, color: ink2, marginBottom: 14}}>
+        最后只选一种作为主色。我默认倾向朱砂，呼应印章和您架构图的暖红。
+      </div>
+      <div style={{display:"flex", gap: 12}}>
+        <div style={{flex:1}}>
+          <div style={{height: 68, borderRadius: 10, background: accents.persimmon.solid, display:"grid", placeItems:"center", color:"#fff"}} className="sans">
+            <span style={{fontWeight:500}}>朱砂 · 推荐</span>
+          </div>
+          <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 8}}>oklch(0.62 0.14 40)</div>
+        </div>
+        <div style={{flex:1}}>
+          <div style={{height: 68, borderRadius: 10, background: accents.sage.solid, display:"grid", placeItems:"center", color:"#fff"}} className="sans">
+            <span style={{fontWeight:500}}>青绿</span>
+          </div>
+          <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 8}}>oklch(0.56 0.08 150)</div>
+        </div>
+        <div style={{flex:1}}>
+          <div style={{height: 68, borderRadius: 10, background: accents.indigo.solid, display:"grid", placeItems:"center", color:"#fff"}} className="sans">
+            <span style={{fontWeight:500}}>藏青</span>
+          </div>
+          <div className="mono" style={{fontSize: 10, color: ink3, marginTop: 8}}>oklch(0.42 0.10 255)</div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* ---------- three-end consideration card ---------- */
+function ThreeEnds() {
+  const cell = (label, fontA, fontB, note, ok) => (
+    <div style={{
+      flex: 1, padding: "18px 20px",
+      background: paperHi, border: `1px solid ${rule}`, borderRadius: 12,
+    }}>
+      <div className="sans" style={{fontSize: 13, fontWeight: 600, color: ink}}>{label}</div>
+      <div className="sans" style={{fontSize: 12, color: ink2, marginTop: 4, lineHeight: 1.6}}>
+        {fontA}<br/>{fontB}
+      </div>
+      <div style={{marginTop: 14, display:"flex", alignItems:"center", gap:6}}>
+        <span style={{
+          width:8, height:8, borderRadius:"50%",
+          background: ok ? accents.sage.solid : accents.persimmon.solid,
+        }}/>
+        <span className="mono" style={{fontSize: 10, color: ink3, letterSpacing: 0.5}}>
+          {note}
+        </span>
+      </div>
+    </div>
+  );
+  return (
+    <Card>
+      <div className="sans" style={{fontSize: 13, fontWeight: 600, color: ink, marginBottom: 4}}>
+        三端字体落地方式 · 网页 / 小程序 / Android
+      </div>
+      <div className="sans" style={{fontSize: 12, color: ink2, marginBottom: 16}}>
+        选开源字体最大的好处：三个端真的能一致。下面是推荐方案落地时各端怎么接入。
+      </div>
+      <div style={{display:"flex", gap: 12}}>
+        {cell("网页端 Web",
+          "@font-face 引入 Noto Sans SC + LXGW WenKai",
+          "CDN 或自托管；仅子集化需要的字",
+          "可子集化到 ~600KB", true)}
+        {cell("微信小程序",
+          "wx.loadFontFace() 加载 CDN woff2",
+          "LXGW 仅用于品牌名/标题（小范围）",
+          "启动页预加载", true)}
+        {cell("Android 壳",
+          "assets/fonts/ 打包 + Typeface.createFromAsset",
+          "或 WebView 共用 Web 字体文件",
+          "WebView 方案复用最省力", true)}
+      </div>
+    </Card>
+  );
+}
+
+/* ---------- canvas assembly ---------- */
+function App() {
+  return (
+    <DesignCanvas>
+      {/* page title */}
+      <div style={{padding: "20px 60px 40px"}}>
+        <div className="mono" style={{fontSize: 11, color: ink3, letterSpacing: 2, textTransform:"uppercase"}}>
+          Brand Direction · 01
+        </div>
+        <div className="wenkai" style={{fontSize: 56, fontWeight: 400, color: ink, letterSpacing: 0.5, marginTop: 6}}>
+          纸笺 · 字体与视觉方向
+        </div>
+        <div className="sans" style={{fontSize: 14, color: ink2, marginTop: 10, maxWidth: 720, lineHeight: 1.7}}>
+          目标：三端（Web · 微信小程序 · Android）视觉一致，开源可商用，兼顾「纸笺」的书卷气与幼师工作台的易读性。
+          下面三条路线并排放，挑一条，我再展开整套页面。
+        </div>
+      </div>
+
+      {/* color + three-ends context first */}
+      <DCSection title="视觉基底" subtitle="色彩 · 三端字体落地">
+        <DCArtboard width={760} style={{background: "transparent", boxShadow:"none"}}>
+          <ColorRow/>
+        </DCArtboard>
+        <DCArtboard width={760} style={{background: "transparent", boxShadow:"none"}}>
+          <ThreeEnds/>
+        </DCArtboard>
+      </DCSection>
+
+      {/* the three options */}
+      <DCSection title="三条字体路线" subtitle="每一条都配了真实 UI 上下文预览">
+        <DCArtboard width={1180} style={{background:"transparent", boxShadow:"none"}}>
+          <OptionOne/>
+        </DCArtboard>
+        <DCArtboard width={1180} style={{background:"transparent", boxShadow:"none"}}>
+          <OptionTwo/>
+        </DCArtboard>
+        <DCArtboard width={1180} style={{background:"transparent", boxShadow:"none"}}>
+          <OptionThree/>
+        </DCArtboard>
+      </DCSection>
+
+      {/* postit with my recommendation */}
+      <DCPostIt top={120} right={80} rotate={3} width={220}>
+        我的推荐：<b>OPTION 02</b><br/>
+        黑体做主力 + 文楷做品牌字<br/>
+        三端一致，书卷气又不累眼
+      </DCPostIt>
+
+      <DCPostIt top={520} right={80} rotate={-4} width={220}>
+        <b>不推荐苹方</b><br/>
+        Apple 版权 · Android 会 fallback 成各家系统字，三端视觉会飘
+      </DCPostIt>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

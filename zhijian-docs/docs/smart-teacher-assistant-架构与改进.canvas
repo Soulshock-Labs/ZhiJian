@@ -1,0 +1,164 @@
+{
+  "metadata": { "version": "1.0" },
+  "nodes": [
+    {
+      "id": "hub-main",
+      "type": "text",
+      "x": -420,
+      "y": -340,
+      "width": 840,
+      "height": 520,
+      "color": "6",
+      "text": "## 智伴幼师 · smart-teacher-assistant\n### 中央锚点（你现在在看什么）\n\n| 层级 | 位置 | 说明 |\n|------|------|------|\n| 后端单体 | `main.py`（约 4900 行） | 几乎全部 HTTP 路由、业务、持久化逻辑 |\n| 同域前端 | 根目录 `index.html` | `GET /` 用 `FileResponse` 直出；当前仓库内为极简品牌落地页 |\n| 另一套静态站 | `static-www-soulshock/` | Firebase 托管相关静态页（与主站入口可能分流） |\n| 微信 / Android | `mini-program/`、`android-app/` | 移动端与云端 API 联调 |\n| 提示词配置 | `prompt_engineering/` | `get_prompt_template`、理念/班型 hints JSON |\n| Word 净空 | `kindergarten_template_cleaner.py` | 模板清洗、表头行识别 |\n| 知识库资产 | `knowledge_base/` | 索引、档案、入库材料 |\n| 工程记忆 | `MEMORY.md`、`docs/ENGINEERING_*` | 决策、检查单、变更记录 |\n\n**版本线索**：`main.py` 中 `APP_VERSION`（默认 1.2.1）；以部署环境变量为准。\n\n**依赖主线**：用户输入 →（可选）模板分析/清洗 → LLM → JSON → `python-docx` / 可选 Aspose → 下载。"
+    },
+    {
+      "id": "legend",
+      "type": "text",
+      "x": -420,
+      "y": 220,
+      "width": 840,
+      "height": 200,
+      "color": "2",
+      "text": "## 图例 · 如何一眼找「要改哪里」\n\n- **颜色**：`6` 紫=总览 · `1` 红=技术债/风险高 · `2` 橙=产品/架构待补齐 · `3` 黄=依赖外部或配置 · `4` 绿=相对清晰 · `5` 青=运营与数据面\n- **节点内标记**：行首 `>>` = 建议优先改进；`--` = 已知约束；`!!` = 上线/多实例必查\n\n**总判断**：最大矛盾是「单文件承载全业务」+「JSON 本地文件状态 vs Cloud Run 多副本」+「多端入口与 README 描述的前端形态可能不一致」。"
+    },
+    {
+      "id": "ai-prompt",
+      "type": "text",
+      "x": -1180,
+      "y": -620,
+      "width": 420,
+      "height": 380,
+      "color": "3",
+      "text": "## AI 与提示词工程\n**代码**：`prompt_engineering/prompt_config.py`、`*_hints.json`；`main.py` 内 OpenAI 兼容客户端（DashScope / 可选 OpenAI 语音）\n\n- **职责**：理念词表、模板键、生成 JSON 结构约束\n- **健康点**：提示词与代码分离，可迭代调参\n\n>> **改进**：把「班型/周次/逐日生成」等 PRD 规则（见 `docs/PRD-周计划与教案生成.md`）系统性地映射到 prompt 层与校验层，避免只靠模型自觉\n-- `ALLOW_MOCK_CONTENT` 默认关：线上 Key 异常时行为要可预期、可观测"
+    },
+    {
+      "id": "word-template",
+      "type": "text",
+      "x": -680,
+      "y": -720,
+      "width": 420,
+      "height": 420,
+      "color": "1",
+      "text": "## Word · 模板 · 导出引擎\n**代码**：`kindergarten_template_cleaner.py`；`main.py` 内表格遍历与填充；可选 `aspose.words`\n\n- **接口**：`/template/analyze`、`/template/clean-download`、`/generate`、`/generate-daily` 等\n- **健康点**：双策略填格、保留 run 样式的产品护城河\n\n>> **改进**：导出路径测试矩阵（表头变体、合并单元格、中英文文件名）自动化\n!! **Aspose**：默认 `ENABLE_ASPOSE_WORDS=0`，启用有 CLR 级崩溃风险——文档化「何时开、如何回退」\n>> **改进**：将「填表逻辑」从 `main.py` 拆为独立模块，降低 5000 行单文件维护成本"
+    },
+    {
+      "id": "core-generate",
+      "type": "text",
+      "x": 220,
+      "y": -720,
+      "width": 440,
+      "height": 400,
+      "color": "4",
+      "text": "## 核心生成链路（To C 主战场）\n**路由**：`/generate`、`/preview`、`/generate-weekly`、`/generate-daily`、`/preview-daily` 等（tags: 核心接口 / 周日联动）\n\n- **职责**：活动计划表、周计划 JSON、日教案四维、预览调试\n- **健康点**：接口面较完整，与 README 描述一致\n\n>> **改进**：周→日强绑定与「只生成某天」的计费/权益（PRD P0）在 API 契约里显式化\n>> **改进**：`/generate` 的 `client=mini` 等分支与线上 revision 同步（MEMORY 已记录过往不同步问题）"
+    },
+    {
+      "id": "tob-roadmap",
+      "type": "text",
+      "x": 720,
+      "y": -520,
+      "width": 400,
+      "height": 360,
+      "color": "4",
+      "text": "## 园部 To B · 路线图\n**路由**：`/generate-term-plan`、`/apply-daily-feedback`、`/roadmap`\n\n- **职责**：学期/月/周骨架、日反馈回流周、分期模块配置输出\n- **健康点**：P0 闭环在架构上已占位\n\n>> **改进**：MEMORY 中「幼师日常 vs 园区工作台」轻量切换 UI + 后端路由前缀分层尚未勾选完成\n>> **改进**：园区侧从「接口可用」到「可卖可交付」还差字段模型、权限与模板包"
+    },
+    {
+      "id": "commerce-user",
+      "type": "text",
+      "x": 880,
+      "y": -80,
+      "width": 400,
+      "height": 400,
+      "color": "2",
+      "text": "## 商业化 · 兑换 · 用户账号\n**路由**：`/redeem`、`/partner/*`、`/user/wxlogin`、`/user/register`、`/redeem/query` 等\n\n- **持久化**：`redeem_codes.json`、可选 `REDEEM_CODES_GCS_URI`；`user_services.json`、`user_accounts.json` 等\n\n!! **多实例**：核销码与用户权益在 Cloud Run 多副本下必须走 GCS/Firestore，否则状态漂移\n>> **改进**：计费 PRD（MEMORY/docs 已提示）与「按次/按天」消耗模型对齐实现\n>> **改进**：第三方兑换 API（`docs/third-party-redeem-api.md`）与审计、幂等、对账"
+    },
+    {
+      "id": "ops-analytics",
+      "type": "text",
+      "x": 720,
+      "y": 360,
+      "width": 400,
+      "height": 360,
+      "color": "5",
+      "text": "## 运营 · 统计 · 反馈\n**路由**：`/public-stats`、`/track-event`、`/register-lite`、`/feedback`、`/feedback-feed`、`/bug-report`\n\n- **文件**：`app_public_stats.json`、`feedback_messages.jsonl`、`registrations.jsonl` 等\n\n>> **改进**：运营数据从「文件追加」演进到可查询存储（至少只读仪表板）\n>> **改进**：`/bug-report` 与导出失败场景联动做结构化告警，而不止打日志"
+    },
+    {
+      "id": "knowledge",
+      "type": "text",
+      "x": 200,
+      "y": 360,
+      "width": 400,
+      "height": 320,
+      "color": "4",
+      "text": "## 知识库（RAG 资产侧）\n**目录**：`knowledge_base/`（indexes、library、profiles…）\n**接口**：`/knowledge-base/status`、生成侧若已接线则依赖索引质量\n\n>> **改进**：明确「哪些生成路径已吃知识库、哪些是纯 LLM」，并在 `/health` 或独立状态页展示索引新鲜度与覆盖率"
+    },
+    {
+      "id": "multi-client",
+      "type": "text",
+      "x": -280,
+      "y": 360,
+      "width": 400,
+      "height": 360,
+      "color": "3",
+      "text": "## 多端交付\n**小程序**：`mini-program/` — 开发态本机优先、超时与错误归一化（MEMORY 04-12）\n**Android**：`android-app/`\n**相关接口**：`/generate-mini*`、`/transcribe-voice-mini`、`/mini-export/{token}` 等\n\n>> **改进**：维护「接口矩阵」：哪端调用哪条路径、哪条已弃用/仅调试，避免再出现「云端 revision 与客户端不一致」\n>> **改进**：真机域名校验、局域网/穿透方案文档化（MEMORY 待办）"
+    },
+    {
+      "id": "obs-voice-batch",
+      "type": "text",
+      "x": -780,
+      "y": 360,
+      "width": 400,
+      "height": 360,
+      "color": "2",
+      "text": "## 观察记录 · 语音 · 批量\n**路由**：`/preview-observation`、`/generate-observation`、`/generate-observation-mini`、`/transcribe-voice-mini`、`/batch/*`\n\n>> **改进**：MEMORY 待办：「拍照观察」真实上传与结构化输出——属于 P0 体验缺口\n>> **改进**：语音依赖 `OPENAI_API_KEY`：国内部署的可用性与合规要在产品层说明\n>> **改进**：批量速写接口的鉴权、配额与滥用防护（若对公网开放）"
+    },
+    {
+      "id": "deploy-security",
+      "type": "text",
+      "x": -1180,
+      "y": -80,
+      "width": 420,
+      "height": 400,
+      "color": "1",
+      "text": "## 部署 · 安全 · 可观测性\n**交付**：`Dockerfile`、Cloud Run；`requirements.txt`\n**可选云**：Firestore 懒加载、GCS\n\n!! **CORS**：`allow_origins=[\"*\"]` + `allow_credentials=False` — 理解为何这样设，但长期要分级（公开 API vs 管理端）\n>> **改进**：结构化日志字段统一（request_id、user 匿名 id、导出引擎标记）\n>> **改进**：密钥校验：`/health` 已注明「配置了但未验证有效性」— 可增加轻量 probe（注意成本）\n>> **改进**：仓库内大二进制（如 `google-cloud-cli-*.tar.gz`）是否应移出 Git — 体积与克隆体验"
+    },
+    {
+      "id": "docs-engineering",
+      "type": "text",
+      "x": -1180,
+      "y": 360,
+      "width": 420,
+      "height": 320,
+      "color": "5",
+      "text": "## 文档与工程纪律\n**关键文件**：`MEMORY.md`、`docs/ENGINEERING_PREFLIGHT_CHECKLIST.md`、`docs/ENGINEERING_CHANGELOG.md`、`docs/PRD-周计划与教案生成.md`、`TEMPLATE_STANDARD.md`\n\n- **健康点**：「先读记忆再开发」已制度化\n\n>> **改进**：README 中部分路径仍指向 Dropbox 旧路径 — 与当前仓库根目录对齐，避免新人迷路\n>> **改进**：每次上线把 revision 与对外域名写一条到 CHANGELOG（MEMORY 已建议）"
+    },
+    {
+      "id": "template-center",
+      "type": "text",
+      "x": -200,
+      "y": -720,
+      "width": 380,
+      "height": 300,
+      "color": "4",
+      "text": "## 模板中心（标准件）\n**路由**：`/template-standard`、`/standard-templates`、`/standard-template/{id}/download`、`/standard-weekly-draft`、`/standard-weekly-export`\n\n>> **改进**：标准模板下载统计（`template_download_stats.json`）与运营看板联通\n-- 与「用户自带模板」策略并存时的产品叙事要清晰"
+    }
+  ],
+  "edges": [
+    { "id": "e-hub-ai", "fromNode": "hub-main", "fromSide": "left", "toNode": "ai-prompt", "toSide": "right", "color": "6" },
+    { "id": "e-hub-word", "fromNode": "hub-main", "fromSide": "top", "toNode": "word-template", "toSide": "bottom", "color": "6" },
+    { "id": "e-hub-core", "fromNode": "hub-main", "fromSide": "top", "toNode": "core-generate", "toSide": "bottom", "color": "6" },
+    { "id": "e-hub-tob", "fromNode": "hub-main", "fromSide": "right", "toNode": "tob-roadmap", "toSide": "left", "color": "6" },
+    { "id": "e-hub-commerce", "fromNode": "hub-main", "fromSide": "right", "toNode": "commerce-user", "toSide": "left", "color": "6" },
+    { "id": "e-hub-ops", "fromNode": "hub-main", "fromSide": "right", "toNode": "ops-analytics", "toSide": "top", "color": "6" },
+    { "id": "e-hub-kb", "fromNode": "hub-main", "fromSide": "bottom", "toNode": "knowledge", "toSide": "top", "color": "6" },
+    { "id": "e-hub-multi", "fromNode": "hub-main", "fromSide": "bottom", "toNode": "multi-client", "toSide": "top", "color": "6" },
+    { "id": "e-hub-obs", "fromNode": "hub-main", "fromSide": "bottom", "toNode": "obs-voice-batch", "toSide": "top", "color": "6" },
+    { "id": "e-hub-deploy", "fromNode": "hub-main", "fromSide": "left", "toNode": "deploy-security", "toSide": "right", "color": "6" },
+    { "id": "e-hub-docs", "fromNode": "hub-main", "fromSide": "left", "toNode": "docs-engineering", "toSide": "right", "color": "6" },
+    { "id": "e-word-template-center", "fromNode": "word-template", "fromSide": "right", "toNode": "template-center", "toSide": "left", "color": "4" },
+    { "id": "e-ai-core", "fromNode": "ai-prompt", "fromSide": "right", "toNode": "core-generate", "toSide": "left", "color": "4" },
+    { "id": "e-core-word", "fromNode": "core-generate", "fromSide": "left", "toNode": "word-template", "toSide": "right", "color": "4" },
+    { "id": "e-core-commerce", "fromNode": "core-generate", "fromSide": "right", "toNode": "commerce-user", "toSide": "left", "color": "2" },
+    { "id": "e-multi-core", "fromNode": "multi-client", "fromSide": "top", "toNode": "core-generate", "toSide": "bottom", "color": "3" },
+    { "id": "e-legend-hub", "fromNode": "legend", "fromSide": "top", "toNode": "hub-main", "toSide": "bottom", "color": "2" }
+  ]
+}

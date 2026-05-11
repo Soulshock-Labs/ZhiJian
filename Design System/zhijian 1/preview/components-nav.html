@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{background:var(--color-paper);padding:0;font-family:var(--font-sans);}
+/* TopNav */
+.topnav{display:flex;align-items:center;gap:20px;height:64px;padding:0 28px;background:var(--color-paper-hi);border-bottom:1px solid var(--color-rule);}
+.logo-mark{width:28px;height:28px;border-radius:var(--radius-xs);background:var(--color-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-wenkai);font-size:16px;font-weight:600;flex-shrink:0;}
+.logo-name{font-family:var(--font-wenkai);font-size:var(--fs-h3);letter-spacing:.08em;color:var(--color-ink);}
+.nav-links{display:flex;gap:4px;margin-left:20px;}
+.nav-link{height:36px;padding:0 16px;display:inline-flex;align-items:center;border-radius:var(--radius-pill);font-size:var(--fs-body-sm);color:var(--color-ink-2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.nav-link.active{background:var(--color-paper-hi);color:var(--color-ink);box-shadow:var(--shadow-xs);}
+.nav-link:hover{background:var(--color-paper-sunk);color:var(--color-ink);}
+.spacer{flex:1}
+.btn-login{height:32px;padding:0 16px;border-radius:var(--radius-pill);background:var(--color-brand);color:#fff;font-size:var(--fs-meta);font-weight:600;border:none;cursor:pointer;}
+
+/* SideNav */
+.layout{display:flex;height:180px;}
+.sidenav{width:220px;background:var(--color-paper);border-right:1px solid var(--color-rule);padding:12px;flex-shrink:0;overflow:hidden;}
+.eyebrow{font-size:10px;font-family:var(--font-mono);letter-spacing:1.2px;text-transform:uppercase;color:var(--color-ink-3);padding:10px 10px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:var(--radius-sm);font-size:var(--fs-body-sm);cursor:pointer;transition:all .15s;color:var(--color-ink-2);}
+.nav-item.active{background:var(--color-brand-tint);color:var(--color-brand);font-weight:500;}
+.nav-item:hover:not(.active):not(.disabled){background:var(--color-paper-sunk);color:var(--color-ink);}
+.nav-item.disabled{color:var(--color-ink-4);cursor:not-allowed;}
+.nav-icon{width:16px;height:16px;border-radius:2px;background:currentColor;opacity:.4;flex-shrink:0;}
+.nav-badge{margin-left:auto;font-size:var(--fs-meta);font-family:var(--font-mono);color:var(--color-ink-3);}
+.coming{margin-left:auto;font-size:10px;color:var(--color-ink-4);}
+.content-area{flex:1;background:var(--color-paper-sunk);display:flex;align-items:center;justify-content:center;color:var(--color-ink-4);font-size:var(--fs-meta);}
+</style></head><body>
+<!-- TopNav -->
+<div class="topnav">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="logo-mark">笺</div>
+    <span class="logo-name">小纸笺</span>
+  </div>
+  <div class="nav-links">
+    <span class="nav-link active">工作台</span>
+    <span class="nav-link">周计划</span>
+    <span class="nav-link">日教案</span>
+    <span class="nav-link">观察记录</span>
+    <span class="nav-link">模板</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn-login">登录 / 注册</button>
+</div>
+<!-- SideNav -->
+<div class="layout">
+  <div class="sidenav">
+    <div class="eyebrow">今天</div>
+    <div class="nav-item active"><span class="nav-icon"></span>工作台<span class="nav-badge">3</span></div>
+    <div class="nav-item disabled"><span class="nav-icon"></span>日教案<span class="coming">即将上线</span></div>
+    <div class="eyebrow">本周</div>
+    <div class="nav-item"><span class="nav-icon"></span>周计划</div>
+    <div class="eyebrow">资源</div>
+    <div class="nav-item"><span class="nav-icon"></span>我的知识库</div>
+  </div>
+  <div class="content-area">内容区域</div>
+</div>
+</body></html>

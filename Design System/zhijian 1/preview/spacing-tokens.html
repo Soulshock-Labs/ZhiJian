@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{background:var(--color-paper);padding:20px 24px;font-family:var(--font-sans);}
+section{margin-bottom:20px;}
+.section-label{font-size:10px;font-family:var(--font-mono);letter-spacing:1px;text-transform:uppercase;color:var(--color-ink-4);margin-bottom:8px;}
+.sp-row{display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap;}
+.sp-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.sp-bar{background:var(--color-brand);border-radius:2px;width:18px;}
+.sp-label{font-size:9px;font-family:var(--font-mono);color:var(--color-ink-3);}
+.radius-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.radius-box{width:40px;height:40px;background:var(--color-brand-tint);border:1.5px solid var(--color-brand);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--font-mono);color:var(--color-ink-3);}
+.shadow-row{display:flex;gap:12px;flex-wrap:wrap;}
+.shadow-box{width:56px;height:40px;background:var(--color-paper-hi);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--font-mono);color:var(--color-ink-3);}
+</style></head><body>
+<section>
+  <div class="section-label">Spacing Scale</div>
+  <div class="sp-row">
+    <div class="sp-item"><div class="sp-bar" style="height:4px"></div><span class="sp-label">sp-1<br>4px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:8px"></div><span class="sp-label">sp-2<br>8px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:12px"></div><span class="sp-label">sp-3<br>12px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:16px"></div><span class="sp-label">sp-4<br>16px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:20px"></div><span class="sp-label">sp-5<br>20px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:24px"></div><span class="sp-label">sp-6<br>24px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:32px"></div><span class="sp-label">sp-7<br>32px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:40px"></div><span class="sp-label">sp-8<br>40px</span></div>
+    <div class="sp-item"><div class="sp-bar" style="height:48px"></div><span class="sp-label">sp-9<br>48px</span></div>
+  </div>
+</section>
+<section>
+  <div class="section-label">Border Radius</div>
+  <div class="radius-row">
+    <div class="sp-item"><div class="radius-box" style="border-radius:var(--radius-xs)"></div><span class="sp-label">xs·4px</span></div>
+    <div class="sp-item"><div class="radius-box" style="border-radius:var(--radius-sm)"></div><span class="sp-label">sm·8px</span></div>
+    <div class="sp-item"><div class="radius-box" style="border-radius:var(--radius-md)"></div><span class="sp-label">md·12px</span></div>
+    <div class="sp-item"><div class="radius-box" style="border-radius:var(--radius-lg)"></div><span class="sp-label">lg·16px</span></div>
+    <div class="sp-item"><div class="radius-box" style="border-radius:var(--radius-xl)"></div><span class="sp-label">xl·24px</span></div>
+    <div class="sp-item"><div class="radius-box" style="border-radius:var(--radius-pill);width:64px"></div><span class="sp-label">pill·∞</span></div>
+  </div>
+</section>
+<section>
+  <div class="section-label">Shadows</div>
+  <div class="shadow-row">
+    <div class="sp-item"><div class="shadow-box" style="box-shadow:var(--shadow-xs)"></div><span class="sp-label">xs</span></div>
+    <div class="sp-item"><div class="shadow-box" style="box-shadow:var(--shadow-sm)"></div><span class="sp-label">sm</span></div>
+    <div class="sp-item"><div class="shadow-box" style="box-shadow:var(--shadow-md)"></div><span class="sp-label">md</span></div>
+    <div class="sp-item"><div class="shadow-box" style="box-shadow:var(--shadow-lg)"></div><span class="sp-label">lg</span></div>
+    <div class="sp-item"><div class="shadow-box" style="box-shadow:var(--shadow-xl)"></div><span class="sp-label">xl</span></div>
+    <div class="sp-item"><div class="shadow-box" style="box-shadow:var(--shadow-focus);border:1px solid var(--color-rule)"></div><span class="sp-label">focus</span></div>
+  </div>
+</section>
+</body></html>

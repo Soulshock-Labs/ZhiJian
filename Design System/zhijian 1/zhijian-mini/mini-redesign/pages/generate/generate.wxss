@@ -1,0 +1,126 @@
+/* pages/generate/generate.wxss */
+
+.page {
+  min-height: 100vh;
+  background: var(--color-paper);
+  padding-bottom: 48rpx;
+}
+
+/* ── Mascot bubble ── */
+.bubble-row {
+  display: flex; align-items: flex-end; gap: 16rpx;
+  padding: 40rpx 32rpx 24rpx;
+}
+.bubble-chick { width: 96rpx; height: 112rpx; flex-shrink: 0; }
+.bubble-box {
+  background: #fff;
+  border-radius: 28rpx 28rpx 28rpx 8rpx;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(60,40,20,.08);
+  flex: 1;
+}
+.bubble-success { background: var(--color-success-tint); }
+.bubble-text { font-size: var(--fs-sm); color: var(--color-ink-2); line-height: 1.7; }
+
+/* ── Form ── */
+.step-form { padding: 0 32rpx; }
+
+.form-card {
+  background: var(--color-paper-hi);
+  border-radius: var(--radius-md);
+  border: 2rpx solid var(--color-rule-soft);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+.form-label {
+  display: block; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--color-ink); margin-bottom: 16rpx;
+}
+.required { color: var(--color-danger); }
+.form-input {
+  width: 100%; height: 80rpx;
+  background: var(--color-paper); border-radius: var(--radius-sm);
+  border: 2rpx solid var(--color-rule);
+  padding: 0 24rpx; font-size: var(--fs-base);
+  color: var(--color-ink);
+}
+
+/* ── Options grid ── */
+.options-grid {
+  display: flex; gap: 16rpx; margin-bottom: 20rpx;
+}
+.option-card {
+  flex: 1; background: var(--color-paper-hi);
+  border-radius: var(--radius-md); border: 2rpx solid var(--color-rule-soft);
+  padding: 20rpx 24rpx;
+}
+.option-label { display: block; font-size: var(--fs-xs); color: var(--color-ink-4); margin-bottom: 8rpx; }
+.option-picker { display: flex; align-items: center; justify-content: space-between; }
+.option-value { font-size: var(--fs-sm); font-weight: 600; color: var(--color-ink); }
+.option-arrow { font-size: var(--fs-md); color: var(--color-ink-4); }
+
+/* ── Upload ── */
+.upload-card {
+  display: flex; align-items: center; gap: 20rpx;
+  background: var(--color-paper-hi); border-radius: var(--radius-md);
+  border: 2rpx dashed var(--color-rule); padding: 24rpx;
+  margin-bottom: 32rpx;
+}
+.upload-icon { font-size: 40rpx; flex-shrink: 0; }
+.upload-text { flex: 1; }
+.upload-title { display: block; font-size: var(--fs-sm); font-weight: 600; color: var(--color-ink); margin-bottom: 4rpx; }
+.upload-sub   { display: block; font-size: var(--fs-xs); color: var(--color-ink-3); }
+.upload-clear { font-size: var(--fs-md); color: var(--color-ink-4); padding: 8rpx; }
+
+/* ── Submit ── */
+.submit-wrap { padding-bottom: 40rpx; }
+
+/* ── Thinking ── */
+.step-thinking {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 120rpx 48rpx 0;
+  gap: 24rpx;
+}
+.thinking-chick { width: 200rpx; height: 234rpx; }
+.thinking-title { font-size: var(--fs-xl); font-weight: 700; color: var(--color-ink); }
+.thinking-sub   { font-size: var(--fs-sm); color: var(--color-ink-3); text-align: center; line-height: 1.8; }
+.thinking-dots  { display: flex; gap: 16rpx; margin-top: 16rpx; }
+.dot {
+  width: 16rpx; height: 16rpx; border-radius: 50%;
+  background: var(--color-brand);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.dot-1 { animation-delay: 0s;    opacity: .3; }
+.dot-2 { animation-delay: .3s;   opacity: .6; }
+.dot-3 { animation-delay: .6s;   opacity: .9; }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.3); }
+}
+
+/* ── Result ── */
+.step-result { padding: 0 32rpx 0; }
+
+.plan-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16rpx; margin-bottom: 24rpx; padding: 0 4rpx;
+}
+.plan-title { display: block; font-size: var(--fs-xl); font-weight: 700; color: var(--color-ink); margin-bottom: 6rpx; }
+.plan-meta  { display: block; font-size: var(--fs-xs); color: var(--color-ink-3); }
+
+.plan-list  { display: flex; flex-direction: column; gap: 12rpx; margin-bottom: 32rpx; }
+.plan-day {
+  display: flex; align-items: flex-start; gap: 20rpx;
+  background: var(--color-paper-hi); border-radius: var(--radius-sm);
+  border: 2rpx solid var(--color-rule-soft); padding: 24rpx;
+}
+.plan-day-label {
+  font-family: monospace; font-size: var(--fs-sm); font-weight: 700;
+  color: var(--color-brand); width: 56rpx; flex-shrink: 0; padding-top: 4rpx;
+}
+.plan-day-content { flex: 1; }
+.plan-day-title { display: block; font-size: var(--fs-sm); font-weight: 600; color: var(--color-ink); margin-bottom: 6rpx; }
+.plan-day-sub   { display: block; font-size: var(--fs-xs); color: var(--color-ink-3); }
+.plan-day-arrow { font-size: var(--fs-md); color: var(--color-brand); padding-top: 4rpx; }
+
+.result-actions { padding-bottom: 40rpx; }

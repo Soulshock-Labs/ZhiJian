@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{background:var(--color-paper);padding:20px;font-family:var(--font-sans);}
+.group{display:flex;gap:6px;margin-bottom:10px;align-items:stretch;}
+.swatch{border-radius:var(--radius-sm);padding:12px;display:flex;flex-direction:column;justify-content:space-between;min-height:60px;}
+.swatch label{font-size:10px;font-family:var(--font-mono);opacity:.7;}
+.swatch span{font-size:var(--fs-body-sm);font-weight:600;}
+.base{flex:2;min-height:70px;}
+.tint{flex:3;}
+.ink{flex:2;}
+.row-label{font-size:var(--fs-meta);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:1px;color:var(--color-ink-3);margin-bottom:4px;}
+</style></head><body>
+<div class="row-label">Success · 成功</div>
+<div class="group">
+  <div class="swatch base" style="background:var(--color-success);color:#fff"><label>success</label><span>Sage Green</span></div>
+  <div class="swatch tint" style="background:var(--color-success-tint);color:var(--color-success-ink);border:1px solid oklch(0.56 0.08 150 / 0.2)"><label>success-tint</label><span>操作成功 · 已完成</span></div>
+  <div class="swatch ink" style="background:var(--color-success-tint);color:var(--color-success-ink);border:1px solid var(--color-rule-soft)"><label>success-ink</label><span>文字色</span></div>
+</div>
+<div class="row-label">Info · 信息</div>
+<div class="group">
+  <div class="swatch base" style="background:var(--color-info);color:#fff"><label>info</label><span>Calm Blue</span></div>
+  <div class="swatch tint" style="background:var(--color-info-tint);color:var(--color-info-ink);border:1px solid oklch(0.42 0.10 255 / 0.2)"><label>info-tint</label><span>提示 · 说明</span></div>
+  <div class="swatch ink" style="background:var(--color-info-tint);color:var(--color-info-ink);border:1px solid var(--color-rule-soft)"><label>info-ink</label><span>文字色</span></div>
+</div>
+<div class="row-label">Warn · 警告</div>
+<div class="group">
+  <div class="swatch base" style="background:var(--color-warn);color:#fff"><label>warn</label><span>Amber</span></div>
+  <div class="swatch tint" style="background:var(--color-warn-tint);color:var(--color-warn-ink);border:1px solid oklch(0.70 0.13 75 / 0.2)"><label>warn-tint</label><span>注意 · 待处理</span></div>
+  <div class="swatch ink" style="background:var(--color-warn-tint);color:var(--color-warn-ink);border:1px solid var(--color-rule-soft)"><label>warn-ink</label><span>文字色</span></div>
+</div>
+</body></html>

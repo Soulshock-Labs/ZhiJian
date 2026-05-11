@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小纸笺 · 微信小程序</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #e8e0cc;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  padding: 32px 24px;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+/* ── Chick SVG (inline, small) ── */
+const ChickSmall = ({ size = 44 }) => (
+  <svg width={size} height={size * 1.17} viewBox="0 0 220 260" fill="none">
+    <ellipse cx="110" cy="244" rx="45" ry="6" fill="rgba(60,40,20,.08)"/>
+    <ellipse cx="110" cy="178" rx="65" ry="60" fill="#f5c036"/>
+    <ellipse cx="110" cy="190" rx="42" ry="38" fill="#fde68a" opacity=".55"/>
+    <ellipse cx="48" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(-25 48 178)"/>
+    <ellipse cx="172" cy="178" rx="28" ry="18" fill="#e8a820" transform="rotate(25 172 178)"/>
+    <line x1="88" y1="238" x2="95" y2="228" stroke="oklch(0.62 0.14 40)" strokeWidth="5" strokeLinecap="round"/>
+    <line x1="132" y1="238" x2="125" y2="228" stroke="oklch(0.62 0.14 40)" strokeWidth="5" strokeLinecap="round"/>
+    <path d="M88 238 L82 252 M88 238 L90 252 M88 238 L96 250" stroke="oklch(0.62 0.14 40)" strokeWidth="4" strokeLinecap="round"/>
+    <path d="M132 238 L126 252 M132 238 L134 252 M132 238 L140 250" stroke="oklch(0.62 0.14 40)" strokeWidth="4" strokeLinecap="round"/>
+    <circle cx="110" cy="108" r="58" fill="#f5c036"/>
+    <ellipse cx="110" cy="118" rx="36" ry="28" fill="#fde68a" opacity=".4"/>
+    <ellipse cx="110" cy="52" rx="10" ry="16" fill="#f5c036" transform="rotate(-8 110 52)"/>
+    <ellipse cx="124" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(10 124 56)"/>
+    <ellipse cx="96" cy="56" rx="8" ry="13" fill="#f0b830" transform="rotate(-10 96 56)"/>
+    <ellipse cx="86" cy="105" rx="19" ry="20" fill="white"/>
+    <ellipse cx="134" cy="105" rx="19" ry="20" fill="white"/>
+    <circle cx="89" cy="107" r="13" fill="#2a2218"/>
+    <circle cx="137" cy="107" r="13" fill="#2a2218"/>
+    <circle cx="83" cy="101" r="5" fill="white"/>
+    <circle cx="131" cy="101" r="5" fill="white"/>
+    <circle cx="89" cy="108" r="6" fill="#0f0d0a"/>
+    <circle cx="137" cy="108" r="6" fill="#0f0d0a"/>
+    <ellipse cx="68" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+    <ellipse cx="152" cy="120" rx="11" ry="7" fill="oklch(0.62 0.14 40)" opacity=".25"/>
+    <path d="M103 122 Q110 132 117 122 Q110 118 103 122Z" fill="oklch(0.62 0.14 40)"/>
+    <rect x="85" y="54" width="50" height="8" rx="2" fill="#2a2218"/>
+    <rect x="97" y="44" width="26" height="12" rx="2" fill="#2a2218"/>
+    <line x1="134" y1="58" x2="140" y2="70" stroke="#2a2218" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="140" cy="72" r="3" fill="oklch(0.62 0.14 40)"/>
+  </svg>
+);
+
+/* ── Shared mini styles ── */
+const C = {
+  paper: '#f6f1e7',
+  paperHi: '#fbf7ed',
+  paperSunk: '#efe8da',
+  brand: 'oklch(0.62 0.14 40)',
+  brandTint: 'oklch(0.94 0.05 55)',
+  ink: '#2a2520',
+  ink2: '#5a5148',
+  ink3: '#8a8178',
+  ink4: '#b8ad9c',
+  rule: '#d9d0bd',
+  success: 'oklch(0.56 0.08 150)',
+  successTint: 'oklch(0.94 0.03 150)',
+  successInk: 'oklch(0.38 0.07 150)',
+};
+
+/* ── Screen: Home ── */
+function HomeScreen({ goTo }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', background: C.paper, fontFamily:'Noto Sans SC,sans-serif' }}>
+      {/* Header */}
+      <div style={{ background: C.paperHi, padding:'16px 16px 12px', borderBottom:`1px solid ${C.rule}` }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ width:30, height:30, borderRadius:7, background:C.brand, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Ma Shan Zheng,serif', fontSize:17, color:'#fff' }}>笺</div>
+          <div>
+            <div style={{ fontFamily:'Ma Shan Zheng,serif', fontSize:18, color:C.ink, lineHeight:1 }}><span style={{ fontSize:11, color:C.brand, letterSpacing:'.2em' }}>小</span>纸笺</div>
+          </div>
+        </div>
+        <div style={{ marginTop:10, fontSize:12, color:C.ink3, fontFamily:'monospace', letterSpacing:1, textTransform:'uppercase' }}>周一 · 第十七周</div>
+        <div style={{ fontSize:18, fontFamily:'Ma Shan Zheng,serif', color:C.ink, marginTop:4 }}>你好，老师！今天想做什么？</div>
+      </div>
+
+      {/* Quick cards */}
+      <div style={{ padding:'14px 14px 0', flex:1, overflowY:'auto' }}>
+        {/* AI card */}
+        <div onClick={() => goTo('generate')} style={{ background: C.paperHi, borderRadius:14, padding:'14px 14px 12px', marginBottom:10, border:`1px solid ${C.rule}`, cursor:'pointer' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+            <ChickSmall size={40} />
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:C.ink }}>小纸鸡 AI 助手</div>
+              <div style={{ fontSize:11, color:C.ink3, marginTop:2 }}>点击生成本周周计划 →</div>
+            </div>
+            <div style={{ marginLeft:'auto', width:28, height:28, borderRadius:14, background:C.brand, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:16 }}>+</div>
+          </div>
+          <div style={{ background:C.brandTint, borderRadius:8, padding:'8px 12px', fontSize:11, color:C.brand, lineHeight:1.6 }}>
+            「上周生成了 3 份教案，本周继续加油！」
+          </div>
+        </div>
+
+        {/* Task list */}
+        {[
+          { icon:'📋', title:'生成周计划', sub:'语言主题 · 中班', tag:'待完成', tagColor: C.brand, tagBg: C.brandTint, screen:'generate' },
+          { icon:'📝', title:'日教案生成', sub:'即将上线', tag:'即将上线', tagColor: C.ink4, tagBg: C.paperSunk, screen:null },
+          { icon:'📸', title:'成长观察记录', sub:'即将上线', tag:'即将上线', tagColor: C.ink4, tagBg: C.paperSunk, screen:null },
+        ].map((t, i) => (
+          <div key={i} onClick={() => t.screen && goTo(t.screen)}
+            style={{ display:'flex', alignItems:'center', gap:10, background: C.paperHi, borderRadius:10, padding:'11px 12px', marginBottom:8, border:`1px solid ${C.rule}`, cursor: t.screen ? 'pointer' : 'default', opacity: t.screen ? 1 : .7 }}>
+            <div style={{ width:36, height:36, borderRadius:8, background:C.brandTint, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{t.icon}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:C.ink }}>{t.title}</div>
+              <div style={{ fontSize:11, color:C.ink3, marginTop:2 }}>{t.sub}</div>
+            </div>
+            <div style={{ fontSize:10, padding:'2px 8px', borderRadius:20, background:t.tagBg, color:t.tagColor, fontWeight:600, whiteSpace:'nowrap' }}>{t.tag}</div>
+          </div>
+        ))}
+
+        {/* Knowledge -->*/}
+        <div style={{ background: C.paperHi, borderRadius:12, padding:'12px 12px 8px', border:`1px solid ${C.rule}`, marginBottom:10 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+            <span style={{ fontSize:12, fontWeight:600, color:C.ink }}>我的知识库</span>
+            <span style={{ fontSize:11, color:C.brand }}>+ 上传</span>
+          </div>
+          {['春天主题周计划模板.docx','户外观察照片_0425.jpg'].map((f,i) => (
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderTop: i > 0 ? `1px solid ${C.rule}` : 'none' }}>
+              <div style={{ width:24, height:24, borderRadius:4, background:C.brandTint, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12 }}>📄</div>
+              <span style={{ fontSize:11, color:C.ink2, flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab bar */}
+      <TabBar active="home" goTo={goTo} />
+    </div>
+  );
+}
+
+/* ── Screen: Generate ── */
+function GenerateScreen({ goTo }) {
+  const [step, setStep] = useState('form'); // form | thinking | result
+  const [theme, setTheme] = useState('');
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', background: C.paper }}>
+      {/* Nav bar */}
+      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 14px', background: C.paperHi, borderBottom:`1px solid ${C.rule}` }}>
+        <button onClick={() => goTo('home')} style={{ background:'none', border:'none', fontSize:18, color:C.ink2, cursor:'pointer', padding:'0 4px' }}>‹</button>
+        <span style={{ fontSize:15, fontWeight:600, color:C.ink }}>生成周计划</span>
+      </div>
+
+      <div style={{ flex:1, overflowY:'auto', padding:'16px 14px' }}>
+        {step === 'form' && (
+          <>
+            {/* Mascot prompt */}
+            <div style={{ display:'flex', gap:10, marginBottom:16, alignItems:'flex-end' }}>
+              <div style={{ width:44, height:52, flexShrink:0 }}><ChickSmall size={44} /></div>
+              <div style={{ background:'#fff', borderRadius:'14px 14px 14px 4px', padding:'10px 13px', boxShadow:'0 1px 6px rgba(60,40,20,.08)', maxWidth:200 }}>
+                <p style={{ fontSize:12, color:C.ink2, lineHeight:1.6, margin:0 }}>你好！告诉我这周的主题，我来帮你生成五天的活动计划 ✨</p>
+              </div>
+            </div>
+
+            {/* Form */}
+            <div style={{ background: C.paperHi, borderRadius:14, padding:14, border:`1px solid ${C.rule}`, marginBottom:12 }}>
+              <label style={{ fontSize:12, fontWeight:600, color:C.ink, display:'block', marginBottom:6 }}>周主题 <span style={{ color:'oklch(0.61 0.13 38)' }}>*</span></label>
+              <input value={theme} onChange={e => setTheme(e.target.value)}
+                placeholder="例：春天来了 / 小小科学家"
+                style={{ width:'100%', height:40, borderRadius:8, border:`1px solid ${C.rule}`, background: C.paper, padding:'0 12px', fontSize:13, fontFamily:'inherit', outline:'none', color: C.ink }} />
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:16 }}>
+              {[['班级','中班'],['教育理念','游戏化学习']].map(([label, val]) => (
+                <div key={label} style={{ background: C.paperHi, borderRadius:10, padding:'10px 12px', border:`1px solid ${C.rule}` }}>
+                  <div style={{ fontSize:10, color:C.ink4, marginBottom:4 }}>{label}</div>
+                  <div style={{ fontSize:13, fontWeight:500, color:C.ink, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                    {val} <span style={{ color:C.ink4 }}>›</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button onClick={() => { if(theme.trim()) setStep('thinking'); }}
+              style={{ width:'100%', height:48, borderRadius:24, background: theme.trim() ? C.brand : C.paperSunk, color: theme.trim() ? '#fff' : C.ink4, border:'none', fontSize:15, fontWeight:600, fontFamily:'inherit', cursor: theme.trim() ? 'pointer' : 'not-allowed', transition:'all .15s', boxShadow: theme.trim() ? '0 4px 16px oklch(0.62 0.14 40 / 0.28)' : 'none' }}>
+              生成周计划
+            </button>
+          </>
+        )}
+
+        {step === 'thinking' && (
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', paddingTop:48, gap:20 }}>
+            <ChickSmall size={80} />
+            <div style={{ textAlign:'center' }}>
+              <div style={{ fontSize:16, fontWeight:600, color:C.ink, marginBottom:6 }}>小纸鸡正在思考…</div>
+              <div style={{ fontSize:12, color:C.ink3, lineHeight:1.6 }}>正在为你生成「{theme}」<br/>五天活动计划，请稍候</div>
+            </div>
+            <div style={{ display:'flex', gap:6 }}>
+              {[0,1,2].map(i => (
+                <div key={i} style={{ width:8, height:8, borderRadius:4, background: C.brand, opacity: .4 + i * .2, animation:'pulse 1s infinite' }} />
+              ))}
+            </div>
+            <button onClick={() => setStep('result')} style={{ marginTop:16, height:36, padding:'0 20px', borderRadius:18, border:`1px solid ${C.rule}`, background:C.paperHi, color:C.ink2, fontSize:12, fontFamily:'inherit', cursor:'pointer' }}>模拟完成 →</button>
+          </div>
+        )}
+
+        {step === 'result' && (
+          <>
+            <div style={{ display:'flex', gap:10, marginBottom:14, alignItems:'flex-end' }}>
+              <div style={{ width:40, height:47, flexShrink:0 }}><ChickSmall size={40} /></div>
+              <div style={{ background:'#fff', borderRadius:'14px 14px 14px 4px', padding:'10px 13px', boxShadow:'0 1px 6px rgba(60,40,20,.08)', maxWidth:200 }}>
+                <p style={{ fontSize:12, color: 'oklch(0.38 0.07 150)', lineHeight:1.6, margin:0 }}>✓ 生成完成！五天计划已准备好，点击任意一天可下载日教案。</p>
+              </div>
+            </div>
+            <div style={{ background:C.paperHi, borderRadius:12, padding:'12px', border:`1px solid ${C.rule}`, marginBottom:12 }}>
+              <div style={{ fontSize:14, fontWeight:600, color:C.ink, marginBottom:2 }}>{theme || '春天来了'}</div>
+              <div style={{ fontSize:11, color:C.ink3, marginBottom:12 }}>中班 · 游戏化学习</div>
+              {[['周一','语言：《春天的故事》绘本阅读'],['周二','科学：春天的植物与种子'],['周三','艺术：棉签画樱花'],['周四','健康：春日体能游戏'],['周五','社会：我们的春游计划']].map(([day, act]) => (
+                <div key={day} style={{ display:'flex', gap:10, alignItems:'center', padding:'9px 10px', borderRadius:8, background:C.paper, marginBottom:5, border:`1px solid ${C.rule}` }}>
+                  <span style={{ fontFamily:'monospace', fontSize:11, color:C.brand, fontWeight:700, width:24, flexShrink:0 }}>{day}</span>
+                  <span style={{ fontSize:12, color:C.ink, flex:1 }}>{act}</span>
+                  <span style={{ fontSize:10, color:C.brand }}>↓</span>
+                </div>
+              ))}
+            </div>
+            <button style={{ width:'100%', height:44, borderRadius:22, background:C.brand, color:'#fff', border:'none', fontSize:14, fontWeight:600, fontFamily:'inherit', cursor:'pointer', boxShadow:'0 4px 14px oklch(0.62 0.14 40 / 0.28)' }}>
+              下载 Word 文档 ↓
+            </button>
+            <button onClick={() => setStep('form')} style={{ width:'100%', height:40, borderRadius:20, background:'none', color:C.ink3, border:'none', fontSize:13, fontFamily:'inherit', cursor:'pointer', marginTop:8 }}>重新生成</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Screen: Profile ── */
+function ProfileScreen({ goTo }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', background:C.paper }}>
+      <div style={{ padding:'20px 16px 16px', background:C.paperHi, borderBottom:`1px solid ${C.rule}` }}>
+        <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+          <div style={{ width:56, height:56, borderRadius:28, background:C.brand, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:22, fontWeight:600 }}>师</div>
+          <div>
+            <div style={{ fontSize:16, fontWeight:600, color:C.ink }}>小李老师</div>
+            <div style={{ fontSize:12, color:C.ink3, marginTop:2 }}>中班 · 幼师 · 会员号 Z****</div>
+          </div>
+        </div>
+        {/* Usage */}
+        <div style={{ marginTop:14, background:C.paper, borderRadius:10, padding:'10px 12px', border:`1px solid ${C.rule}` }}>
+          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+            <span style={{ fontSize:11, color:C.ink3 }}>本月 AI 用量</span>
+            <span style={{ fontSize:11, fontFamily:'monospace', color:C.ink2 }}>18%</span>
+          </div>
+          <div style={{ height:5, borderRadius:3, background:C.paperSunk, overflow:'hidden' }}>
+            <div style={{ width:'18%', height:'100%', borderRadius:3, background:C.brand }} />
+          </div>
+        </div>
+      </div>
+      <div style={{ flex:1, padding:'12px 14px' }}>
+        {[['📋','我的教案',14],['📝','观察记录',8],['💬','家园沟通',22],['📚','知识库文件',3]].map(([icon,label,count]) => (
+          <div key={label} style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 12px', background:C.paperHi, borderRadius:10, marginBottom:6, border:`1px solid ${C.rule}`, cursor:'pointer' }}>
+            <span style={{ fontSize:18 }}>{icon}</span>
+            <span style={{ fontSize:13, color:C.ink, flex:1, fontWeight:500 }}>{label}</span>
+            <span style={{ fontSize:11, fontFamily:'monospace', color:C.ink4 }}>{count}</span>
+            <span style={{ color:C.ink4 }}>›</span>
+          </div>
+        ))}
+      </div>
+      <TabBar active="profile" goTo={goTo} />
+    </div>
+  );
+}
+
+/* ── Tab Bar ── */
+function TabBar({ active, goTo }) {
+  const tabs = [
+    { id:'home', label:'工作台', icon:'⬜' },
+    { id:'generate', label:'生成', icon:'✦' },
+    { id:'profile', label:'我的', icon:'○' },
+  ];
+  return (
+    <div style={{ display:'flex', background:C.paperHi, borderTop:`1px solid ${C.rule}`, padding:'8px 0 16px' }}>
+      {tabs.map(t => (
+        <button key={t.id} onClick={() => goTo(t.id)}
+          style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:3, background:'none', border:'none', cursor:'pointer', padding:'4px 0' }}>
+          <div style={{ width:24, height:24, borderRadius:6, background: active===t.id ? C.brand : C.paperSunk, display:'flex', alignItems:'center', justifyContent:'center', transition:'all .15s' }}>
+            {active===t.id && t.id==='generate' ? <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>+</span>
+              : <div style={{ width:10, height:10, borderRadius:3, background: active===t.id ? '#fff' : C.ink4, opacity: active===t.id ? 1 : .5 }} />}
+          </div>
+          <span style={{ fontSize:10, color: active===t.id ? C.brand : C.ink4, fontWeight: active===t.id ? 600 : 400 }}>{t.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ── App ── */
+function App() {
+  const [screen, setScreen] = useState('home');
+  const screens = { home: HomeScreen, generate: GenerateScreen, profile: ProfileScreen };
+  const Screen = screens[screen] || HomeScreen;
+
+  return (
+    <div style={{ display:'flex', gap:32, alignItems:'flex-start', justifyContent:'center', flexWrap:'wrap' }}>
+      {/* Phone frame */}
+      <div>
+        <IosFrame statusBarStyle="dark" width={375} height={812}>
+          <Screen goTo={setScreen} />
+        </IosFrame>
+        <div style={{ textAlign:'center', marginTop:12, fontFamily:'monospace', fontSize:10, color:'#9a8a78', letterSpacing:1, textTransform:'uppercase' }}>
+          {screen === 'home' ? '首页 · 工作台' : screen === 'generate' ? '生成周计划' : '个人中心'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

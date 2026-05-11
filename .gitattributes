@@ -1,0 +1,24 @@
+# 统一换行符 — Mac/Windows/Linux 协作不乱码
+* text=auto
+
+*.py   text eol=lf
+*.js   text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.jsx  text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf
+*.html text eol=lf
+*.css  text eol=lf
+*.wxss text eol=lf
+*.wxml text eol=lf
+
+# 二进制文件不转换
+*.png  binary
+*.jpg  binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary

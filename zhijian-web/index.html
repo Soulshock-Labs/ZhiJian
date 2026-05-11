@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Soulshock.Ai — 以沉静的技术，托举每一间教室的日常。" />
+  <title>Soulshock.Ai</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <style>
+    :root {
+      --bg: #fbfbfd;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --link: #0071e3;
+      --link-hover: #0077ed;
+      --max: 40rem;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(1.5rem, 5vw, 3rem);
+    }
+    main {
+      width: 100%;
+      max-width: var(--max);
+      text-align: center;
+    }
+    .tagline {
+      font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+      font-weight: 400;
+      line-height: 1.65;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 1rem 2rem;
+      text-align: center;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    footer a:hover,
+    footer a:focus-visible {
+      color: var(--link);
+      outline: none;
+    }
+    footer a:focus-visible {
+      border-radius: 2px;
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.35);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --text: #f5f5f7;
+        --muted: #a1a1a6;
+        --link: #2997ff;
+        --link-hover: #5eb0ff;
+      }
+      footer a:focus-visible {
+        box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.4);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="tagline">以沉静的技术，托举每一间教室的日常。</p>
+  </main>
+  <footer>
+    <a href="https://zhijian.soulshock.cn" rel="noopener noreferrer">Soulshock.Ai</a>
+  </footer>
+</body>
+</html>

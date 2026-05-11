@@ -1,0 +1,131 @@
+/* pages/profile/profile.wxss */
+
+.page {
+  min-height: 100vh;
+  background: var(--color-paper);
+}
+
+/* ── User card ── */
+.user-card {
+  display: flex; align-items: center; gap: 24rpx;
+  padding: 48rpx 32rpx 32rpx;
+  background: linear-gradient(160deg, var(--color-brand-light) 0%, var(--color-paper-hi) 100%);
+  border-bottom: 2rpx solid var(--color-rule-soft);
+}
+.avatar {
+  width: 96rpx; height: 96rpx; border-radius: 48rpx;
+  background: var(--color-brand);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 20rpx rgba(224,112,64,.3);
+}
+.avatar-letter { font-size: 40rpx; font-weight: 700; color: #fff; }
+.user-info { flex: 1; }
+.user-name { display: block; font-size: var(--fs-xl); font-weight: 700; color: var(--color-ink); margin-bottom: 6rpx; }
+.user-role { display: block; font-size: var(--fs-xs); color: var(--color-ink-3); }
+.user-badge {
+  background: var(--color-brand-light); border: 2rpx solid rgba(224,112,64,.2);
+  border-radius: var(--radius-pill); padding: 8rpx 20rpx;
+}
+.user-badge-text { font-size: var(--fs-xs); color: var(--color-brand); font-weight: 600; }
+
+/* ── Usage ── */
+.usage-card {
+  margin: 24rpx 32rpx;
+  background: var(--color-paper-hi); border-radius: var(--radius-md);
+  border: 2rpx solid var(--color-rule-soft); padding: 28rpx 28rpx 24rpx;
+}
+.usage-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16rpx;
+}
+.usage-label { font-size: var(--fs-sm); font-weight: 600; color: var(--color-ink); }
+.usage-pct   { font-size: var(--fs-sm); font-weight: 700; color: var(--color-brand); font-family: monospace; }
+.usage-track {
+  height: 12rpx; border-radius: 6rpx;
+  background: var(--color-paper-sunk); overflow: hidden; margin-bottom: 12rpx;
+}
+.usage-fill {
+  height: 100%; border-radius: 6rpx;
+  background: linear-gradient(90deg, var(--color-brand), #f0904a);
+}
+.usage-sub { font-size: var(--fs-xs); color: var(--color-ink-3); }
+
+/* ── Menu ── */
+.menu-list {
+  margin: 0 32rpx 24rpx;
+  background: var(--color-paper-hi);
+  border-radius: var(--radius-md);
+  border: 2rpx solid var(--color-rule-soft);
+  overflow: hidden;
+}
+.menu-item {
+  display: flex; align-items: center; gap: 20rpx;
+  padding: 28rpx 28rpx;
+  border-bottom: 2rpx solid var(--color-rule-soft);
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item.danger .menu-label { color: var(--color-danger); }
+.menu-icon  { font-size: 36rpx; flex-shrink: 0; width: 48rpx; }
+.menu-label { flex: 1; font-size: var(--fs-md); color: var(--color-ink); }
+.menu-count { font-size: var(--fs-sm); font-family: monospace; color: var(--color-ink-4); margin-right: 8rpx; }
+.menu-arrow { font-size: var(--fs-xl); color: var(--color-ink-4); }
+
+/* ── Login page ── */
+.login-page {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 80rpx 48rpx 48rpx;
+}
+.login-chick { width: 200rpx; height: 234rpx; margin-bottom: 16rpx; }
+.login-brand {
+  display: flex; align-items: center; gap: 16rpx; margin-bottom: 32rpx;
+}
+.login-sq {
+  width: 64rpx; height: 64rpx; border-radius: 16rpx;
+  background: var(--color-brand);
+  display: flex; align-items: center; justify-content: center;
+}
+.login-sq-text { font-size: 36rpx; color: #fff; font-weight: 700; }
+.login-name-small { font-size: 22rpx; color: var(--color-brand); letter-spacing: 4rpx; }
+.login-name { font-size: 48rpx; font-weight: 700; color: var(--color-ink); letter-spacing: 4rpx; }
+.login-title { font-size: var(--fs-xl); font-weight: 700; color: var(--color-ink); margin-bottom: 16rpx; text-align: center; }
+.login-sub {
+  font-size: var(--fs-sm); color: var(--color-ink-3); text-align: center;
+  line-height: 1.7; margin-bottom: 48rpx; max-width: 500rpx;
+}
+.login-actions { width: 100%; margin-bottom: 32rpx; }
+.login-agree { font-size: var(--fs-xs); color: var(--color-ink-4); text-align: center; }
+
+/* ── Form input (shared) ── */
+.form-input {
+  width: 100%; height: 88rpx;
+  background: var(--color-paper); border-radius: var(--radius-sm);
+  border: 2rpx solid var(--color-rule);
+  padding: 0 24rpx; font-size: var(--fs-base); color: var(--color-ink);
+}
+
+/* ── Modal ── */
+.modal-mask {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(30,24,18,.5);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.modal-box {
+  width: 100%; background: var(--color-paper-hi);
+  border-radius: 40rpx 40rpx 0 0;
+  padding: 32rpx 32rpx 64rpx;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 24rpx;
+}
+.modal-title { font-size: var(--fs-xl); font-weight: 700; color: var(--color-ink); }
+.modal-close { font-size: var(--fs-xl); color: var(--color-ink-3); padding: 8rpx; }
+.modal-tabs {
+  display: flex; border-bottom: 2rpx solid var(--color-rule-soft); margin-bottom: 32rpx;
+}
+.modal-tab {
+  flex: 1; text-align: center; padding: 20rpx 0;
+  font-size: var(--fs-md); color: var(--color-ink-3);
+  border-bottom: 4rpx solid transparent; margin-bottom: -2rpx;
+}
+.modal-tab.active { color: var(--color-brand); border-bottom-color: var(--color-brand); font-weight: 600; }
+.modal-body { padding-top: 8rpx; }

@@ -1,0 +1,75 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="88" y1="84" x2="930" y2="934" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F7F6DA"></stop>
+      <stop offset="0.45" stop-color="#EAF8D9"></stop>
+      <stop offset="1" stop-color="#D9F4E2"></stop>
+    </linearGradient>
+    <linearGradient id="leaf" x1="214" y1="188" x2="792" y2="814" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#62CC7A"></stop>
+      <stop offset="1" stop-color="#33A95C"></stop>
+    </linearGradient>
+    <linearGradient id="hatMain" x1="248" y1="324" x2="780" y2="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FCEB84"></stop>
+      <stop offset="1" stop-color="#F3C95B"></stop>
+    </linearGradient>
+    <linearGradient id="hatBand" x1="346" y1="420" x2="678" y2="466" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#42B866"></stop>
+      <stop offset="1" stop-color="#2E9C52"></stop>
+    </linearGradient>
+    <linearGradient id="poncho" x1="446" y1="650" x2="586" y2="858" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66CC86"></stop>
+      <stop offset="1" stop-color="#2EA55B"></stop>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(302 248) rotate(40) scale(214 190)">
+      <stop offset="0" stop-color="#FFF6BB"></stop>
+      <stop offset="1" stop-color="#FFF6BB" stop-opacity="0"></stop>
+    </radialGradient>
+    <filter id="softShadow" x="138" y="138" width="748" height="782" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"></feColorMatrix>
+      <feOffset dy="18"></feOffset>
+      <feGaussianBlur stdDeviation="20"></feGaussianBlur>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.2 0 0 0 0 0.45 0 0 0 0 0.28 0 0 0 0.24 0"></feColorMatrix>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"></feBlend>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"></feBlend>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="240" fill="url(#bg)"></rect>
+  <ellipse cx="512" cy="890" rx="304" ry="60" fill="#BEDBC8" opacity="0.55"></ellipse>
+  <ellipse cx="302" cy="248" rx="218" ry="196" fill="url(#sunGlow)"></ellipse>
+
+  <g filter="url(#softShadow)">
+    <rect x="232" y="190" width="560" height="642" rx="224" fill="#F8FFF7" fill-opacity="0.62" stroke="#BEE2C9" stroke-width="6"></rect>
+  </g>
+
+  <path d="M204 472C266 380 760 374 820 470C764 566 256 564 204 472Z" fill="url(#hatMain)" stroke="#D9B248" stroke-width="8"></path>
+  <ellipse cx="512" cy="456" rx="258" ry="72" fill="#F7D36A" stroke="#D4A947" stroke-width="6"></ellipse>
+  <path d="M286 450C342 418 680 418 738 450" stroke="#FFF2C8" stroke-width="6" stroke-linecap="round" opacity="0.7"></path>
+
+  <path d="M338 468C384 486 640 486 686 468" stroke="url(#hatBand)" stroke-width="22" stroke-linecap="round"></path>
+  <path d="M354 468C398 480 626 480 670 468" stroke="#D7F4DF" stroke-width="5" stroke-linecap="round" opacity="0.75"></path>
+
+  <path d="M406 442L432 466L406 490" stroke="#F3A66A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M618 442L592 466L618 490" stroke="#F3A66A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"></path>
+
+  <ellipse cx="512" cy="604" rx="96" ry="88" fill="#FBE9C8" stroke="#E9C68A" stroke-width="6"></ellipse>
+  <circle cx="480" cy="596" r="8" fill="#3E8F5A"></circle>
+  <path d="M534 596C540 588 552 588 559 596" stroke="#3E8F5A" stroke-width="6" stroke-linecap="round"></path>
+  <path d="M488 632C498 642 526 642 536 632" stroke="#3E8F5A" stroke-width="6" stroke-linecap="round"></path>
+  <ellipse cx="468" cy="620" rx="10" ry="6" fill="#F6B7A5" opacity="0.7"></ellipse>
+  <ellipse cx="560" cy="620" rx="10" ry="6" fill="#F6B7A5" opacity="0.7"></ellipse>
+
+  <path d="M434 708C434 664 468 640 512 640C556 640 590 664 590 708V798C590 842 556 876 512 876C468 876 434 842 434 798V708Z" fill="url(#poncho)" stroke="#2F9557" stroke-width="6"></path>
+  <path d="M460 714C486 724 538 724 564 714" stroke="#D7F4DF" stroke-width="5" stroke-linecap="round" opacity="0.8"></path>
+  <path d="M456 752C484 764 540 764 568 752" stroke="#D7F4DF" stroke-width="5" stroke-linecap="round" opacity="0.72"></path>
+  <path d="M452 790C482 804 542 804 572 790" stroke="#D7F4DF" stroke-width="5" stroke-linecap="round" opacity="0.66"></path>
+
+  <circle cx="408" cy="758" r="18" fill="#FFB8C5"></circle>
+  <circle cx="616" cy="758" r="18" fill="#FFD56B"></circle>
+  <circle cx="616" cy="758" r="8" fill="#FFF7C9"></circle>
+  <circle cx="408" cy="758" r="8" fill="#FFE6EC"></circle>
+
+  <path d="M238 832C388 886 628 878 790 794" stroke="url(#leaf)" stroke-width="8" stroke-linecap="round" opacity="0.78"></path>
+</svg>

@@ -1,0 +1,245 @@
+{
+  "nodes": [
+    {
+      "id": "room-title",
+      "type": "text",
+      "text": "# 纸笺数据库房间\n\n**第一阶段目标：账号不丢、资料不丢、最近生成不丢。**\n\n迁移策略：先双写 JSON + DB，再逐步切读到 DB。\n\n**阶段划分：**\n🟢 第一阶段（现在建）：核心 7 张表\n🟡 第二阶段（补充）：模板、日志、反馈、审计\n🔵 第三阶段（未来）：Discord 式权限、agent 池",
+      "x": -660,
+      "y": -500,
+      "width": 500,
+      "height": 300,
+      "color": "4"
+    },
+
+    {
+      "id": "phase1-label",
+      "type": "text",
+      "text": "## 🟢 第一阶段：核心表（现在建）",
+      "x": -660,
+      "y": -140,
+      "width": 500,
+      "height": 60,
+      "color": "4"
+    },
+
+    {
+      "id": "accounts",
+      "type": "text",
+      "text": "## accounts\n用户主档，替代 `user_accounts.json`\n\n- `account_id` PK\n- `member_no` UNIQUE NOT NULL\n- `phone` UNIQUE nullable\n- `openid` UNIQUE nullable\n- `password_hash`\n- `role`  teacher / org_admin / platform_admin\n- `org_id`  预留外键，现阶段存字符串\n- `agent_profile` JSONB\n- `created_at_utc`\n- `updated_at_utc`",
+      "x": -660,
+      "y": -60,
+      "width": 440,
+      "height": 360,
+      "color": "1"
+    },
+    {
+      "id": "account-tokens",
+      "type": "text",
+      "text": "## account_tokens\n多端登录 token，替代 `active_tokens` 数组。\n\n- `token` PK\n- `account_id` FK → accounts\n- `created_at_utc`\n- `last_used_at_utc`\n- `revoked_at_utc`  软吊销，null = 有效\n\n应用层保留最多 5 个有效 token。",
+      "x": -140,
+      "y": -60,
+      "width": 420,
+      "height": 280,
+      "color": "2"
+    },
+    {
+      "id": "member-counter",
+      "type": "text",
+      "text": "## member_no_counter\n会员号递增高水位，防并发冲突。\n\n- `key` PK  固定值 'global'\n- `value`  当前最大会员号\n- `updated_at_utc`\n\n⚠️ 初始化取现网最大 member_no。\n代码当前起点 60001。",
+      "x": 360,
+      "y": -60,
+      "width": 400,
+      "height": 240,
+      "color": "3"
+    },
+    {
+      "id": "user-services",
+      "type": "text",
+      "text": "## user_services\n用户权益 / 会员 / 配额，替代 `user_services.json`\n\n- `account_id` PK FK → accounts\n- `plan`  free / basic / pro / org\n- `membership_until`  到期时间，null = 无限期\n- `quota_total`  总配额次数\n- `quota_used`  已用次数\n- `balance`  余额（备用）\n- `updated_at_utc`",
+      "x": 360,
+      "y": 240,
+      "width": 400,
+      "height": 300,
+      "color": "6"
+    },
+    {
+      "id": "documents",
+      "type": "text",
+      "text": "## documents\n文档空间索引，替代 `users/{user_id}/docs/index.json`。\n原文件和 Markdown 仍放现有 StorageBackend。\n\n- `doc_id` PK\n- `account_id` FK → accounts\n- `filename`\n- `file_type`  document / pdf / image\n- `ext`  docx / pdf / jpg / png / webp / md\n- `source_kind`  personal / org / template / temporary / system\n- `visibility_scope`  private / org / platform\n- `size_bytes`\n- `md_chars`  Markdown 字符数\n- `char_count`  正文字符数\n- `table_count`  表格数\n- `storage_provider`  local / gcs / supabase\n- `original_path`\n- `md_path`\n- `extra_meta` JSONB\n- `deleted_at`  软删除\n- `created_at`",
+      "x": -140,
+      "y": 280,
+      "width": 440,
+      "height": 540,
+      "color": "5"
+    },
+    {
+      "id": "generation-records",
+      "type": "text",
+      "text": "## generation_records\n每次 AI 生成存一行，支持查看 / 复制 / 重新生成 / 下载。\n\n- `record_id` PK\n- `account_id` FK → accounts\n- `type`  weekly / daily / observation / document\n- `status`  pending / success / failed\n- `error_message`\n- `title`  如"春天来了·中班·第16周"\n- `class_level`  小班 / 中班 / 大班\n- `theme`\n- `phil`  教育理念\n- `day`  星期几（日教案用）\n- `input_payload` JSONB  用户输入\n- `result_payload` JSONB  AI 返回内容\n- `file_path`  导出文件路径\n- `model_used`  kimi-k2.5 等\n- `duration_ms`  耗时毫秒\n- `export_count`  下载次数\n- `export_format`  docx / pdf / copy\n- `created_at_utc`",
+      "x": -660,
+      "y": 360,
+      "width": 460,
+      "height": 580,
+      "color": "6"
+    },
+    {
+      "id": "redeem-codes",
+      "type": "text",
+      "text": "## redeem_codes\n兑换码主表。\n\n- `code` PK\n- `status`  active / used / expired / revoked\n- `token_type`  membership / quota / trial\n- `batch`  批次号\n- `role_granted`\n- `quota_granted`  增加配额次数\n- `days_granted`  增加会员天数\n- `org_id`\n- `expires_at_utc`\n- `used_by_account_id` FK → accounts\n- `used_at_utc`\n- `created_at_utc`",
+      "x": 360,
+      "y": 620,
+      "width": 400,
+      "height": 400,
+      "color": "3"
+    },
+
+    {
+      "id": "phase2-label",
+      "type": "text",
+      "text": "## 🟡 第二阶段：生产辅助表（后续补）",
+      "x": -660,
+      "y": 1060,
+      "width": 500,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "templates",
+      "type": "text",
+      "text": "## templates\n模板中心，替代现有文件存储。\n\n- `template_id` PK\n- `title`\n- `type`  weekly / daily / observation\n- `age_group`  小班 / 中班 / 大班\n- `subject`  领域\n- `content_json` JSONB\n- `download_count`\n- `is_official`\n- `created_by` FK → accounts\n- `created_at_utc`\n\n关联：`template_downloads`（谁下载了什么）",
+      "x": -660,
+      "y": 1160,
+      "width": 400,
+      "height": 400,
+      "color": "3"
+    },
+    {
+      "id": "redeem-logs",
+      "type": "text",
+      "text": "## redeem_logs\n兑换操作日志 + webhook 重试记录。\n\n- `log_id` PK\n- `code` FK → redeem_codes\n- `account_id` FK\n- `action`  redeemed / failed / webhook_sent\n- `payload` JSONB\n- `created_at_utc`\n\n关联：`webhook_retries`（第三方回调失败重试）",
+      "x": -200,
+      "y": 1160,
+      "width": 400,
+      "height": 320,
+      "color": "3"
+    },
+    {
+      "id": "audit-logs",
+      "type": "text",
+      "text": "## audit_logs\n高风险操作审计，后台一定会救命。\n\n- `log_id` PK\n- `operator_id` FK → accounts  谁操作的\n- `target_id`  操作对象（账号/文档/码）\n- `action`  reset_password / change_phone / grant_role...\n- `before_json` JSONB  改之前\n- `after_json` JSONB  改之后\n- `ip`\n- `created_at_utc`",
+      "x": 260,
+      "y": 1160,
+      "width": 400,
+      "height": 340,
+      "color": "1"
+    },
+    {
+      "id": "ops-tables",
+      "type": "text",
+      "text": "## 运营表（ops）\n替代 ops.py 里的内存/文件存储。\n\n**feedback_messages**\n- `id` PK\n- `account_id` FK nullable\n- `content`\n- `contact`\n- `created_at_utc`\n\n**beta_registrations**\n- `id` PK\n- `email / phone`\n- `source`  landing / mini / referral\n- `created_at_utc`\n\n**app_stats**\n- `date` PK\n- `new_users`\n- `generations`\n- `active_users`",
+      "x": 720,
+      "y": 1160,
+      "width": 400,
+      "height": 420,
+      "color": "2"
+    },
+
+    {
+      "id": "phase3-label",
+      "type": "text",
+      "text": "## 🔵 第三阶段：权限系统（未来）\n\nDiscord 式细粒度权限：\n- `roles` — 角色定义\n- `permissions` — 权限点\n- `role_permissions` — 角色×权限绑定\n- `account_roles` — 用户×角色绑定\n\n现阶段硬编码在 auth.py，迁移时有过渡层。",
+      "x": -660,
+      "y": 1640,
+      "width": 860,
+      "height": 200,
+      "color": "2"
+    },
+
+    {
+      "id": "migration",
+      "type": "text",
+      "text": "## 迁移顺序\n\n1. 建核心 7 张表 ← 当前步骤\n2. 写 UserRepository\n3. 注册 / 登录 / token 验证双写 DB\n4. 文档上传索引双写 DB\n5. 最近生成写入 generation_records\n6. JSON → DB 一次性历史迁移\n7. 读路径切 DB\n8. JSON 降级为备份导出\n9. （第二阶段）补模板、日志、审计表",
+      "x": 360,
+      "y": 1080,
+      "width": 400,
+      "height": 360,
+      "color": "4"
+    },
+    {
+      "id": "json-risk",
+      "type": "text",
+      "text": "## 当前风险\n\nCloud Run 本地 JSON 可能随实例重启丢失。\n\n高风险：\n- `user_accounts.json`\n- `account_index.json`\n- `user_services.json`\n- 文档索引 `index.json`\n- localStorage 生成历史无法跨端",
+      "x": 820,
+      "y": 600,
+      "width": 380,
+      "height": 280,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "accounts-to-tokens",
+      "fromNode": "accounts",
+      "fromSide": "right",
+      "toNode": "account-tokens",
+      "toSide": "left",
+      "label": "1:n"
+    },
+    {
+      "id": "accounts-to-services",
+      "fromNode": "accounts",
+      "fromSide": "right",
+      "toNode": "user-services",
+      "toSide": "left",
+      "label": "1:1"
+    },
+    {
+      "id": "accounts-to-documents",
+      "fromNode": "accounts",
+      "fromSide": "bottom",
+      "toNode": "documents",
+      "toSide": "top",
+      "label": "1:n"
+    },
+    {
+      "id": "accounts-to-generations",
+      "fromNode": "accounts",
+      "fromSide": "left",
+      "toNode": "generation-records",
+      "toSide": "top",
+      "label": "1:n"
+    },
+    {
+      "id": "counter-to-accounts",
+      "fromNode": "member-counter",
+      "fromSide": "left",
+      "toNode": "accounts",
+      "toSide": "right",
+      "label": "allocates member_no"
+    },
+    {
+      "id": "documents-to-generations",
+      "fromNode": "documents",
+      "fromSide": "left",
+      "toNode": "generation-records",
+      "toSide": "right",
+      "label": "references"
+    },
+    {
+      "id": "redeem-to-services",
+      "fromNode": "redeem-codes",
+      "fromSide": "top",
+      "toNode": "user-services",
+      "toSide": "bottom",
+      "label": "激活权益"
+    },
+    {
+      "id": "risk-to-migration",
+      "fromNode": "json-risk",
+      "fromSide": "left",
+      "toNode": "migration",
+      "toSide": "right",
+      "label": "drives"
+    }
+  ]
+}

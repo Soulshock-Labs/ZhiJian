@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小纸笺 · 工作台</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); min-height: 100vh; }
+
+/* ── Layout ── */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+.body-row { display: flex; flex: 1; }
+.main { flex: 1; overflow-y: auto; padding: 32px 40px 64px; max-width: 900px; }
+
+/* ── TopNav ── */
+.topnav {
+  position: sticky; top: 0; z-index: 200;
+  height: 64px; display: flex; align-items: center; gap: 0;
+  padding: 0 28px;
+  background: rgba(251,247,237,0.92);
+  backdrop-filter: saturate(1.1) blur(12px);
+  border-bottom: 1px solid var(--color-rule);
+}
+.topnav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.brand-square {
+  width: 28px; height: 28px; border-radius: var(--radius-xs);
+  background: var(--color-brand); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-wenkai); font-size: 16px; font-weight: 600;
+}
+.brand-name { font-family: var(--font-wenkai); font-size: var(--fs-h3); letter-spacing: .08em; color: var(--color-ink); }
+.topnav-links { display: flex; gap: 4px; margin-left: 28px; }
+.nav-link {
+  height: 36px; padding: 0 16px;
+  display: inline-flex; align-items: center;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-body-sm); color: var(--color-ink-2);
+  cursor: pointer; transition: all .15s; white-space: nowrap; border: none; background: none;
+  font-family: var(--font-sans);
+}
+.nav-link.active { background: var(--color-paper-hi); color: var(--color-ink); box-shadow: var(--shadow-xs); }
+.nav-link:hover:not(.active) { background: var(--color-paper-sunk); color: var(--color-ink); }
+.topnav-spacer { flex: 1; }
+.topnav-actions { display: flex; align-items: center; gap: 10px; }
+.redeem-btn {
+  height: 40px; padding: 0 20px; border-radius: var(--radius-pill);
+  background: var(--color-success-tint); color: var(--color-success-ink);
+  border: 1px solid oklch(0.56 0.08 150 / 0.3);
+  font-size: var(--fs-meta); font-weight: 600; cursor: pointer; font-family: var(--font-sans);
+  transition: all .15s;
+}
+.search-input {
+  height: 40px; width: 172px; border-radius: var(--radius-pill);
+  border: 1px solid var(--color-rule); background: #fff;
+  padding: 0 16px; font-size: var(--fs-meta); color: var(--color-ink);
+  outline: none; font-family: var(--font-sans);
+  transition: border-color .15s, box-shadow .15s;
+}
+.search-input::placeholder { color: var(--color-ink-4); }
+.search-input:focus { border-color: var(--color-brand); box-shadow: var(--shadow-focus); }
+.login-btn {
+  height: 32px; padding: 0 16px; border-radius: var(--radius-pill);
+  background: var(--color-brand); color: #fff;
+  border: none; font-size: var(--fs-meta); font-weight: 600;
+  cursor: pointer; font-family: var(--font-sans);
+  transition: filter .15s;
+}
+.login-btn:hover { filter: brightness(1.05); }
+.avatar-btn {
+  display: flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 12px; border-radius: var(--radius-pill);
+  background: none; border: 1px solid transparent;
+  cursor: pointer; transition: all .15s; font-family: var(--font-sans);
+  color: var(--color-ink-2);
+}
+.avatar-btn:hover { background: var(--color-paper-sunk); }
+.avatar-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--color-brand); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-micro); font-weight: 600;
+}
+.usage-pill {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  gap: 3px; height: 40px; min-width: 132px;
+  padding: 0 16px; border-radius: var(--radius-pill);
+  border: 1px solid var(--color-rule); background: var(--color-paper-hi);
+  cursor: pointer; transition: background .15s;
+}
+.usage-pill:hover { background: var(--color-paper-sunk); }
+.usage-top { font-size: 10px; color: var(--color-ink-3); line-height: 1; }
+.usage-bar-row { display: flex; align-items: center; gap: 6px; width: 100%; }
+.usage-bar-track { flex: 1; height: 4px; border-radius: 2px; background: var(--color-rule); overflow: hidden; }
+.usage-bar-fill { height: 100%; border-radius: 2px; background: var(--color-brand); }
+.usage-pct { font-size: 11px; font-family: var(--font-num); color: var(--color-ink-2); line-height: 1; }
+
+/* ── SideNav ── */
+.sidenav {
+  width: var(--sidenav-w); flex-shrink: 0;
+  background: var(--color-paper);
+  border-right: 1px solid var(--color-rule);
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--color-ink-3); padding: 14px 12px 6px; }
+.side-item {
+  display: flex; align-items: center; gap: 10px;
+  height: 40px; padding: 0 12px; border-radius: var(--radius-sm);
+  font-size: var(--fs-body-sm); cursor: pointer; transition: all .15s;
+  color: var(--color-ink-2); border: none; background: none;
+  font-family: var(--font-sans); width: 100%; text-align: left;
+}
+.side-item.active { background: var(--color-brand-tint); color: var(--color-brand); font-weight: 500; }
+.side-item:hover:not(.active):not(.disabled) { background: var(--color-paper-sunk); color: var(--color-ink); }
+.side-item.disabled { color: var(--color-ink-4); cursor: not-allowed; }
+.side-icon { width: 18px; height: 18px; border-radius: 2px; background: currentColor; opacity: .4; flex-shrink: 0; }
+.side-badge { margin-left: auto; font-size: var(--fs-meta); font-family: var(--font-mono); color: var(--color-ink-3); }
+.coming { margin-left: auto; font-size: 10px; color: var(--color-ink-4); }
+
+/* ── Hero Section ── */
+.hero { padding-bottom: 32px; }
+.hero .eyebrow-row { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--color-ink-3); }
+.hero h1 { font-family: var(--font-wenkai); font-weight: 400; font-size: 34px; line-height: 1.25; color: var(--color-ink); margin-top: 8px; max-width: 620px; }
+.hero p { font-size: var(--fs-body); color: var(--color-ink-2); margin-top: 12px; max-width: 560px; line-height: var(--lh-body); }
+.hero-actions { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
+.progress-pill {
+  position: relative; flex: 1; max-width: 340px; height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-hi); border: 1px solid var(--color-rule);
+  overflow: hidden;
+}
+.progress-fill { position: absolute; inset: 0; right: auto; background: var(--color-brand); border-radius: var(--radius-pill); }
+.progress-labels {
+  position: relative; z-index: 1; height: 100%;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+}
+.progress-labels span { font-size: var(--fs-meta); font-weight: 600; color: #fff; mix-blend-mode: difference; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; cursor: pointer; font-family: var(--font-sans); font-weight: 600;
+  border-radius: var(--radius-pill); transition: all .15s; white-space: nowrap;
+}
+.btn-primary { height: 40px; padding: 0 20px; font-size: var(--fs-body-sm); background: var(--color-brand); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-primary:hover { filter: brightness(1.05); }
+.btn-primary:active { transform: scale(.97); }
+.btn-secondary { height: 40px; padding: 0 20px; font-size: var(--fs-body-sm); background: var(--color-paper-hi); color: var(--color-ink-2); border: 1px solid var(--color-rule); }
+.btn-secondary:hover { background: var(--color-paper-sunk); color: var(--color-ink); }
+.btn-ghost { height: 36px; padding: 0 16px; font-size: var(--fs-body-sm); background: transparent; color: var(--color-brand); border: 1.5px solid var(--color-brand); }
+.btn-ghost:hover { background: var(--color-brand-tint); }
+.btn-sm { height: 32px; padding: 0 14px; font-size: var(--fs-meta); }
+
+/* ── Task Cards ── */
+.task-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+.task-card {
+  background: var(--color-paper-hi); border-radius: var(--radius-md);
+  padding: 20px; box-shadow: var(--shadow-md); cursor: pointer;
+  transition: box-shadow .15s, transform .15s;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.task-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+.tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: var(--radius-pill); font-size: var(--fs-meta); font-weight: 500; }
+.tag-brand { background: var(--color-brand-tint); color: var(--color-brand); }
+.tag-success { background: var(--color-success-tint); color: var(--color-success-ink); }
+.tag-info { background: var(--color-info-tint); color: var(--color-info-ink); }
+.tag-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.task-title { font-size: var(--fs-h4); font-weight: 600; color: var(--color-ink); }
+.task-body { font-size: var(--fs-body-sm); color: var(--color-ink-3); line-height: 1.6; }
+.task-footer { display: flex; align-items: center; justify-content: space-between; font-size: var(--fs-meta); color: var(--color-ink-3); margin-top: auto; padding-top: 8px; border-top: 1px solid var(--color-rule-soft); }
+.task-arrow { color: var(--color-brand); font-weight: 600; }
+
+/* ── Section heading ── */
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: var(--fs-h4); font-weight: 600; color: var(--color-ink); }
+.section-link { font-size: var(--fs-meta); color: var(--color-brand); cursor: pointer; }
+
+/* ── Recent list ── */
+.recent-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 36px; }
+.recent-item {
+  display: flex; align-items: center; gap: 14px;
+  height: 52px; padding: 0 16px;
+  background: var(--color-paper-hi); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs); cursor: pointer; transition: background .15s;
+}
+.recent-item:hover { background: var(--color-paper-sunk); }
+.recent-icon { width: 32px; height: 32px; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.recent-name { font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink); flex: 1; }
+.recent-meta { font-size: var(--fs-meta); color: var(--color-ink-3); white-space: nowrap; }
+
+/* ── Knowledge vault ── */
+.kvault { background: var(--color-paper-hi); border-radius: var(--radius-lg); padding: 20px 24px; box-shadow: var(--shadow-sm); margin-bottom: 36px; border: 1px solid var(--color-rule-soft); }
+.kvault-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.kvault-files { display: flex; flex-direction: column; gap: 4px; }
+.kvault-file {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  border-radius: var(--radius-sm); cursor: pointer; transition: background .15s;
+}
+.kvault-file:hover { background: var(--color-paper-sunk); }
+.kvault-file-icon { width: 28px; height: 28px; border-radius: var(--radius-xs); background: var(--color-brand-tint); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.kvault-file-name { font-size: var(--fs-body-sm); color: var(--color-ink-2); flex: 1; }
+.kvault-file-meta { font-size: var(--fs-meta); color: var(--color-ink-4); }
+
+/* ── Modal overlay ── */
+.overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,.4);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.overlay.hidden { display: none; }
+.modal {
+  width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto;
+  background: #fff; border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid var(--color-rule-soft);
+  position: sticky; top: 0; background: #fff; z-index: 10;
+}
+.modal-header h2 { font-size: var(--fs-h3); font-weight: 600; color: var(--color-ink); }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: none; border: none; color: var(--color-ink-3);
+  font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.modal-close:hover { background: var(--color-paper-sunk); }
+.modal-body { padding: 20px 24px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink); margin-bottom: 6px; }
+.form-input, .form-select {
+  width: 100%; height: 40px; padding: 0 12px;
+  border-radius: var(--radius-md); border: 1px solid var(--color-rule);
+  background: var(--color-paper); color: var(--color-ink);
+  font-size: var(--fs-body-sm); font-family: var(--font-sans); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--color-brand); box-shadow: var(--shadow-focus); }
+.form-input::placeholder { color: var(--color-ink-4); }
+.form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.form-upload-box {
+  background: var(--color-paper-hi); border: 1px solid var(--color-rule-soft);
+  border-radius: var(--radius-md); padding: 12px;
+}
+.modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding-top: 16px; border-top: 1px solid var(--color-rule-soft); margin-top: 8px; }
+
+/* ── Plan result ── */
+.plan-day {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--color-rule-soft); background: var(--color-paper-hi);
+  margin-bottom: 6px; cursor: pointer; transition: background .15s;
+}
+.plan-day:hover { background: var(--color-paper-sunk); }
+.plan-day-label { font-family: var(--font-mono); color: var(--color-brand); font-weight: 600; width: 32px; flex-shrink: 0; padding-top: 2px; }
+.plan-day-title { font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink); }
+.plan-day-sub { font-size: var(--fs-meta); color: var(--color-ink-3); margin-top: 2px; }
+
+/* ── Auth modal ── */
+.auth-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--color-rule-soft); margin-bottom: 20px; }
+.auth-tab {
+  flex: 1; height: 44px; background: none; border: none; border-bottom: 2px solid transparent;
+  font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink-3); cursor: pointer;
+  font-family: var(--font-sans); transition: all .15s;
+}
+.auth-tab.active { color: var(--color-brand); border-bottom-color: var(--color-brand); }
+
+/* dropdown menu */
+.user-dropdown {
+  position: absolute; right: 0; top: calc(100% + 4px);
+  width: 192px; background: var(--color-paper); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl); border: 1px solid var(--color-rule);
+  overflow: hidden; z-index: 300;
+}
+.user-dropdown-header { padding: 12px 16px; border-bottom: 1px solid var(--color-rule); }
+.user-dropdown-header p:first-child { font-size: var(--fs-body-sm); font-weight: 500; color: var(--color-ink); }
+.user-dropdown-header p:last-child { font-size: var(--fs-meta); color: var(--color-ink-3); margin-top: 2px; }
+.user-dropdown-item {
+  width: 100%; text-align: left; padding: 10px 16px;
+  font-size: var(--fs-body-sm); color: var(--color-ink-2);
+  background: none; border: none; cursor: pointer; font-family: var(--font-sans);
+  transition: background .15s;
+}
+.user-dropdown-item:hover { background: var(--color-paper-sunk); color: var(--color-ink); }
+.relative { position: relative; }
+
+/* Status strip */
+.status-strip {
+  padding: 10px 0; margin-bottom: 20px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.status-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: var(--radius-pill);
+  font-size: var(--fs-meta); background: var(--color-paper-hi);
+  border: 1px solid var(--color-rule); color: var(--color-ink-2);
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- TopNav -->
+  <header class="topnav">
+    <a class="topnav-brand" href="#">
+      <div class="brand-square">笺</div>
+      <span class="brand-name">小纸笺</span>
+    </a>
+    <nav class="topnav-links" id="topLinks">
+      <button class="nav-link active" onclick="setTab(this)">工作台</button>
+      <button class="nav-link" onclick="setTab(this)">周计划</button>
+      <button class="nav-link" onclick="setTab(this)">日教案</button>
+      <button class="nav-link" onclick="setTab(this)">观察记录</button>
+      <button class="nav-link" onclick="setTab(this)">模板</button>
+    </nav>
+    <div class="topnav-spacer"></div>
+    <div class="topnav-actions">
+      <button class="redeem-btn" onclick="openModal('auth')">内测兑换</button>
+      <input class="search-input" placeholder="搜索教案、模板、主题">
+      <!-- logged-out -->
+      <div id="loggedOut">
+        <button class="login-btn" onclick="openModal('auth')">登录 / 注册</button>
+      </div>
+      <!-- logged-in -->
+      <div id="loggedIn" class="relative" style="display:none">
+        <div class="usage-pill">
+          <span class="usage-top">本月用量</span>
+          <div class="usage-bar-row">
+            <div class="usage-bar-track"><div class="usage-bar-fill" style="width:18%"></div></div>
+            <span class="usage-pct">18%</span>
+          </div>
+        </div>
+      </div>
+      <div id="avatarWrap" class="relative" style="display:none">
+        <button class="avatar-btn" onclick="toggleDropdown()">
+          <div class="avatar-circle">师</div>
+          <span style="font-size:var(--fs-meta);color:var(--color-ink-2)">幼师</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="user-dropdown" id="userDropdown" style="display:none">
+          <div class="user-dropdown-header">
+            <p>当前账号</p>
+            <p>会员号 Z****  ·  幼师</p>
+          </div>
+          <button class="user-dropdown-item" onclick="logout()">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="body-row">
+    <!-- SideNav -->
+    <aside class="sidenav">
+      <div class="eyebrow">今天</div>
+      <button class="side-item active" onclick="openModal('weekly')">
+        <span class="side-icon"></span>工作台<span class="side-badge">3</span>
+      </button>
+      <button class="side-item disabled">
+        <span class="side-icon"></span>日教案<span class="coming">即将上线</span>
+      </button>
+      <button class="side-item disabled">
+        <span class="side-icon"></span>观察记录<span class="coming">即将上线</span>
+      </button>
+      <div class="eyebrow">本周</div>
+      <button class="side-item" onclick="openModal('weekly')">
+        <span class="side-icon"></span>周计划
+      </button>
+      <button class="side-item disabled">
+        <span class="side-icon"></span>主题库<span class="coming">即将上线</span>
+      </button>
+      <div class="eyebrow">资源</div>
+      <button class="side-item disabled">
+        <span class="side-icon"></span>模板中心<span class="side-badge">114</span>
+      </button>
+      <button class="side-item">
+        <span class="side-icon"></span>我的知识库
+      </button>
+      <button class="side-item disabled">
+        <span class="side-icon"></span>我的班级<span class="coming">即将上线</span>
+      </button>
+      <div class="eyebrow">纸笺集</div>
+      <button class="side-item disabled">
+        <span class="side-icon"></span>我的 Agent<span class="coming">即将上线</span>
+      </button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="eyebrow-row">周一 · 上午 · 第十七周</div>
+        <h1>你好，准备好今天的工作了吗？</h1>
+        <p>用小纸笺记录每一个精彩瞬间，让 AI 帮你整理、生成、沉淀。</p>
+        <div class="hero-actions">
+          <div class="progress-pill">
+            <div class="progress-fill" style="width:18%"></div>
+            <div class="progress-labels">
+              <span>本周进度</span>
+              <span>18.00%</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('weekly')">生成周计划</button>
+          <button class="btn btn-secondary">查看模板</button>
+        </div>
+      </section>
+
+      <!-- Status strip -->
+      <div class="status-strip">
+        <span class="status-chip"><span class="status-dot" style="background:var(--color-success)"></span>AI 服务正常</span>
+        <span class="status-chip"><span class="status-dot" style="background:var(--color-brand)"></span>DeepSeek · 快速</span>
+        <span class="status-chip">本月已生成 14 份</span>
+      </div>
+
+      <!-- Task Cards -->
+      <div class="task-grid">
+        <div class="task-card" onclick="openModal('weekly')">
+          <span class="tag tag-brand"><span class="tag-dot"></span>本周任务</span>
+          <div>
+            <div class="task-title">生成本周周计划</div>
+            <div class="task-body">填写主题，AI 为你生成五天完整活动方案，可下载 Word 文档。</div>
+          </div>
+          <div class="task-footer"><span>周计划 · AI生成</span><span class="task-arrow">→</span></div>
+        </div>
+        <div class="task-card">
+          <span class="tag tag-success"><span class="tag-dot"></span>日常记录</span>
+          <div>
+            <div class="task-title">写今日观察记录</div>
+            <div class="task-body">记录孩子的精彩表现，AI 帮你润色，一键发送给家长。</div>
+          </div>
+          <div class="task-footer"><span>观察记录 · 即将上线</span><span class="task-arrow">→</span></div>
+        </div>
+        <div class="task-card">
+          <span class="tag tag-info"><span class="tag-dot"></span>家园沟通</span>
+          <div>
+            <div class="task-title">给家长发一条消息</div>
+            <div class="task-body">AI 辅助撰写高质量家长沟通文案，温暖专业。</div>
+          </div>
+          <div class="task-footer"><span>家园共育 · 即将上线</span><span class="task-arrow">→</span></div>
+        </div>
+      </div>
+
+      <!-- Knowledge vault -->
+      <div class="kvault">
+        <div class="kvault-head">
+          <span class="section-title">我的知识库</span>
+          <button class="btn btn-ghost btn-sm">+ 上传文档</button>
+        </div>
+        <div class="kvault-files">
+          <div class="kvault-file">
+            <div class="kvault-file-icon">📄</div>
+            <span class="kvault-file-name">春天主题周计划模板.docx</span>
+            <span class="kvault-file-meta">3天前</span>
+          </div>
+          <div class="kvault-file">
+            <div class="kvault-file-icon">📷</div>
+            <span class="kvault-file-name">户外活动观察照片_0425.jpg</span>
+            <span class="kvault-file-meta">昨天</span>
+          </div>
+          <div class="kvault-file">
+            <div class="kvault-file-icon">📋</div>
+            <span class="kvault-file-name">幼儿园教育法规摘要.pdf</span>
+            <span class="kvault-file-meta">1周前</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent list -->
+      <div class="section-head">
+        <span class="section-title">最近生成</span>
+        <span class="section-link">查看全部</span>
+      </div>
+      <div class="recent-list">
+        <div class="recent-item">
+          <div class="recent-icon" style="background:var(--color-brand-tint)">📋</div>
+          <span class="recent-name">春天来了 · 周计划</span>
+          <span class="recent-meta">中班 · 今天 10:23</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-icon" style="background:var(--color-success-tint)">📝</div>
+          <span class="recent-name">小小科学家 · 日教案</span>
+          <span class="recent-meta">大班 · 昨天 14:07</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-icon" style="background:var(--color-info-tint)">💬</div>
+          <span class="recent-name">家长沟通 · 月末总结</span>
+          <span class="recent-meta">中班 · 3天前</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Weekly Plan Modal -->
+<div class="overlay hidden" id="weeklyModal" onclick="overlayClick(event,'weeklyModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>生成本周周计划</h2>
+      <button class="modal-close" onclick="closeModal('weeklyModal')">✕</button>
+    </div>
+    <div class="modal-body" id="weeklyBody">
+      <!-- Form state -->
+      <div id="weeklyForm">
+        <div class="form-group">
+          <label class="form-label">周主题 <span style="color:var(--color-danger)">*</span></label>
+          <input class="form-input" id="themeInput" placeholder="例：春天来了 / 我爱我家 / 小小科学家">
+        </div>
+        <div class="form-group">
+          <div class="form-upload-box">
+            <label class="form-label" style="margin-bottom:8px">上传参考文档 <span style="color:var(--color-ink-3);font-weight:400">（旧计划 / 模板 / 拍照）</span></label>
+            <p style="font-size:var(--fs-meta);color:var(--color-ink-3)">支持 .docx .pdf .jpg .png .webp（拍照上传）</p>
+          </div>
+        </div>
+        <div class="form-row form-group">
+          <div>
+            <label class="form-label">教育理念</label>
+            <select class="form-select">
+              <option>游戏化学习</option>
+              <option>探究式学习</option>
+              <option>蒙台梭利</option>
+              <option>瑞吉欧</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">班级</label>
+            <select class="form-select">
+              <option>小班</option>
+              <option selected>中班</option>
+              <option>大班</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">生成模型</label>
+            <select class="form-select">
+              <option>🚀 DeepSeek（快）</option>
+              <option>⚡ Kimi 轻量版</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('weeklyModal')">取消</button>
+          <button class="btn btn-primary" onclick="showPlanResult()">生成周计划</button>
+        </div>
+      </div>
+      <!-- Result state -->
+      <div id="weeklyResult" style="display:none">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px">
+          <div>
+            <p style="font-size:var(--fs-h3);font-weight:600;color:var(--color-ink)">春天来了</p>
+            <p style="font-size:var(--fs-meta);color:var(--color-ink-3);margin-top:4px">中班 · 游戏化学习</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="resetPlan()">重新生成</button>
+        </div>
+        <div id="planDays">
+          <div class="plan-day"><span class="plan-day-label">周一</span><div><div class="plan-day-title">语言领域：《春天的故事》绘本阅读</div><div class="plan-day-sub">聚焦：语言表达 · 游戏化情境导入，鼓励幼儿创编结局</div></div></div>
+          <div class="plan-day"><span class="plan-day-label">周二</span><div><div class="plan-day-title">科学探索：春天的植物与种子</div><div class="plan-day-sub">聚焦：观察与记录 · 户外种植体验，引导感官观察</div></div></div>
+          <div class="plan-day"><span class="plan-day-label">周三</span><div><div class="plan-day-title">艺术领域：用棉签画樱花</div><div class="plan-day-sub">聚焦：创意表现 · 自由创作，欣赏彼此作品</div></div></div>
+          <div class="plan-day"><span class="plan-day-label">周四</span><div><div class="plan-day-title">健康：春日户外体能游戏</div><div class="plan-day-sub">聚焦：身体协调 · 追逐游戏与合作跑</div></div></div>
+          <div class="plan-day"><span class="plan-day-label">周五</span><div><div class="plan-day-title">社会：我们的班级春游计划</div><div class="plan-day-sub">聚焦：合作与沟通 · 幼儿参与活动设计</div></div></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('weeklyModal')">关闭</button>
+          <button class="btn btn-primary">下载 Word ↓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div class="overlay hidden" id="authModal" onclick="overlayClick(event,'authModal')">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h2 id="authTitle">登录小纸笺</h2>
+      <button class="modal-close" onclick="closeModal('authModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="setAuthTab(this,'登录小纸笺')">登录</button>
+        <button class="auth-tab" onclick="setAuthTab(this,'注册账号')">注册</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">手机号 / 邮箱</label>
+        <input class="form-input" placeholder="请输入手机号或邮箱">
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input class="form-input" type="password" placeholder="请输入密码">
+      </div>
+      <div class="modal-footer" style="border-top:none;padding-top:8px">
+        <button class="btn btn-ghost" onclick="closeModal('authModal')">取消</button>
+        <button class="btn btn-primary" style="flex:1" onclick="fakeLogin()">登录</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setTab(el) {
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+function openModal(id) {
+  document.getElementById(id + 'Modal').classList.remove('hidden');
+}
+function closeModal(id) {
+  document.getElementById(id + 'Modal').classList.add('hidden');
+  if (id === 'weekly') { document.getElementById('weeklyForm').style.display=''; document.getElementById('weeklyResult').style.display='none'; }
+}
+function overlayClick(e, id) { if (e.target === e.currentTarget) closeModal(id); }
+function showPlanResult() {
+  document.getElementById('weeklyForm').style.display = 'none';
+  document.getElementById('weeklyResult').style.display = '';
+}
+function resetPlan() {
+  document.getElementById('weeklyForm').style.display = '';
+  document.getElementById('weeklyResult').style.display = 'none';
+}
+function setAuthTab(el, title) {
+  document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('authTitle').textContent = title;
+}
+function fakeLogin() {
+  closeModal('auth');
+  document.getElementById('loggedOut').style.display = 'none';
+  document.getElementById('loggedIn').style.display = '';
+  document.getElementById('avatarWrap').style.display = '';
+}
+function toggleDropdown() {
+  const d = document.getElementById('userDropdown');
+  d.style.display = d.style.display === 'none' ? '' : 'none';
+}
+function logout() {
+  document.getElementById('loggedIn').style.display = 'none';
+  document.getElementById('avatarWrap').style.display = 'none';
+  document.getElementById('loggedOut').style.display = '';
+  document.getElementById('userDropdown').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('avatarWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    const d = document.getElementById('userDropdown');
+    if (d) d.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>

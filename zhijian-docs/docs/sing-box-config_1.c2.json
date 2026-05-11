@@ -1,0 +1,240 @@
+{
+  "log": {
+    "disabled": false,
+    "level": "info",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "proxy-dns",
+        "address": "https://8.8.8.8/dns-query",
+        "detour": "proxy"
+      },
+      {
+        "tag": "local-dns",
+        "address": "223.5.5.5"
+      }
+    ],
+    "rules": [
+      {
+        "domain_suffix": [
+          "api.openai.com",
+          "chatgpt.com",
+          "oaistatic.com",
+          "oaiusercontent.com",
+          "claude.ai",
+          "api.anthropic.com",
+          "telegram.org",
+          "api.telegram.org",
+          "t.me",
+          "telegra.ph",
+          "dropboxapi.com",
+          "dropboxusercontent.com",
+          "api.trello.com",
+          "discord.com",
+          "discordapp.com",
+          "discordapp.net",
+          "obsidian.md",
+          "api.github.com",
+          "githubusercontent.com",
+          "githubassets.com",
+          "googleapis.com",
+          "gstatic.com",
+          "googleusercontent.com"
+        ],
+        "server": "proxy-dns"
+      },
+      {
+        "domain_suffix": [
+          "weixin.qq.com",
+          "servicewechat.com",
+          "developers.weixin.qq.com",
+          "open.weixin.qq.com",
+          "mp.weixin.qq.com",
+          "res.wx.qq.com",
+          "work.weixin.qq.com",
+          "wx.qq.com",
+          "wx2.qq.com",
+          "wx.gtimg.com",
+          "wechat.com",
+          "wechatpay.com",
+          "tenpay.com"
+        ],
+        "server": "local-dns"
+      },
+      {
+        "clash_mode": "Global",
+        "server": "proxy-dns"
+      },
+      {
+        "clash_mode": "Direct",
+        "server": "local-dns"
+      },
+      {
+        "rule_set": "geosite-cn",
+        "server": "local-dns"
+      }
+    ],
+    "final": "proxy-dns",
+    "strategy": "ipv4_only"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "interface_name": "sb-tun",
+      "address": [
+        "172.19.0.1/30"
+      ],
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "gvisor"
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "216.36.112.120",
+      "server_port": 443,
+      "uuid": "952797fa-2f65-4b88-a4e8-727bd320e1ea",
+      "flow": "xtls-rprx-vision",
+      "packet_encoding": "xudp",
+      "tls": {
+        "enabled": true,
+        "server_name": "www.microsoft.com",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        },
+        "reality": {
+          "enabled": true,
+          "public_key": "5w2w_YjIG7l3cJmZCRc2doog-H8Qb-Lv-iIzDKfNJQg",
+          "short_id": "6ba85179e30d4fc2"
+        }
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "inbound": "tun-in",
+        "action": "sniff"
+      },
+      {
+        "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      {
+        "domain_suffix": [
+          "api.openai.com",
+          "chatgpt.com",
+          "oaistatic.com",
+          "oaiusercontent.com",
+          "claude.ai",
+          "api.anthropic.com",
+          "telegram.org",
+          "api.telegram.org",
+          "t.me",
+          "telegra.ph",
+          "dropboxapi.com",
+          "dropboxusercontent.com",
+          "api.trello.com",
+          "discord.com",
+          "discordapp.com",
+          "discordapp.net",
+          "obsidian.md",
+          "api.github.com",
+          "githubusercontent.com",
+          "githubassets.com",
+          "googleapis.com",
+          "gstatic.com",
+          "googleusercontent.com"
+        ],
+        "outbound": "proxy"
+      },
+      {
+        "domain_suffix": [
+          "weixin.qq.com",
+          "servicewechat.com",
+          "developers.weixin.qq.com",
+          "open.weixin.qq.com",
+          "mp.weixin.qq.com",
+          "res.wx.qq.com",
+          "work.weixin.qq.com",
+          "wx.qq.com",
+          "wx2.qq.com",
+          "wx.gtimg.com",
+          "wechat.com",
+          "wechatpay.com",
+          "tenpay.com"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "rule_set": "geosite-google",
+        "outbound": "proxy"
+      },
+      {
+        "rule_set": [
+          "geosite-cn",
+          "geoip-cn"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "rule_set": "geosite-ads",
+        "action": "reject"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": "geosite-google",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-google.srs"
+      },
+      {
+        "tag": "geosite-cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs"
+      },
+      {
+        "tag": "geoip-cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs"
+      },
+      {
+        "tag": "geosite-ads",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs"
+      }
+    ],
+    "final": "proxy",
+    "auto_detect_interface": true
+  },
+  "experimental": {
+    "clash_api": {
+      "external_controller": "127.0.0.1:9090",
+      "external_ui": "dashboard",
+      "secret": "change-me",
+      "default_mode": "Rule"
+    }
+  }
+}

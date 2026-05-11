@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+body {
+  background: #f2ede0;
+  padding: 32px 36px;
+  font-family: var(--font-sans);
+}
+
+/* ── Primary card ── */
+.card {
+  background: #fdfaf2;
+  border-radius: 18px;
+  padding: 28px 32px;
+  box-shadow: 0 1px 4px rgba(60,40,20,.05), 0 12px 48px -16px rgba(60,40,20,.15);
+  border: 1px solid rgba(195,170,120,.18);
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* ── Primary lockup ── */
+.logo-lockup {
+  display: flex; align-items: center; gap: 20px;
+}
+
+/* ── Seal: modern square with rounded corners ── */
+.seal svg { display: block; }
+
+/* ── Divider ── */
+.divider {
+  width: 1px; height: 64px; flex-shrink: 0;
+  background: linear-gradient(to bottom, transparent, rgba(180,150,90,.3), transparent);
+}
+
+/* ── Text block ── */
+.text-block {
+  display: flex; flex-direction: column; gap: 0;
+}
+
+/* 小 — 极细、现代感 */
+.xiao-char {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 300;
+  font-size: 15px;
+  color: oklch(0.62 0.14 40);
+  letter-spacing: .55em;
+  margin-bottom: 2px;
+  margin-left: 3px;
+}
+
+/* 纸笺 — 楷书，端庄文雅 */
+.zhijian-char {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 44px;
+  color: #1c1812;
+  line-height: .92;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+/* 底部双线 + 拼音 */
+.tagline-wrap {
+  margin-top: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.tagline-line { flex: 1; height: 1px; background: linear-gradient(to right, oklch(0.62 0.14 40 / 0.4), transparent); }
+.tagline {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #a09080;
+  white-space: nowrap;
+}
+
+/* ── Font comparison ── */
+.compare-label {
+  font-size: 10px; font-family: var(--font-mono); letter-spacing: 1.2px;
+  text-transform: uppercase; color: #9a8a78; margin-bottom: 16px;
+}
+.compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.compare-item {
+  padding: 20px 18px 16px; background: #fdfaf2; border-radius: 12px;
+  border: 1px solid rgba(195,170,120,.2);
+  display: flex; flex-direction: column;
+}
+.c-xiao { font-size: 12px; color: oklch(0.62 0.14 40); margin-bottom: -4px; margin-left: 2px; font-weight: 300; }
+.c-zj   { font-size: 52px; color: #1c1812; line-height: .9; }
+.c-name { margin-top: 10px; font-size: 9px; font-family: var(--font-mono); letter-spacing: .5px; color: #b0a090; }
+.c-badge {
+  margin-top: 5px; display: inline-block;
+  font-size: 9px; font-family: var(--font-mono); letter-spacing: .5px;
+  padding: 2px 8px; border-radius: 20px;
+  background: oklch(0.94 0.05 55); color: oklch(0.56 0.15 40); font-weight: 600;
+}
+
+/* ── Compact variants ── */
+.variants { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; margin-top: 4px; }
+.variant { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.v-label { font-size: 9px; font-family: var(--font-mono); color: #b0a090; letter-spacing: .5px; }
+
+.compact-logo { display: flex; align-items: center; gap: 10px; }
+.compact-text { display: flex; flex-direction: column; }
+.c-compact-xiao { font-family: 'Noto Serif SC', serif; font-weight: 300; font-size: 10px; color: oklch(0.62 0.14 40); line-height: 1; letter-spacing: .3em; margin-left: 2px; }
+.c-compact-zj   { font-family: 'Ma Shan Zheng', serif; font-size: 30px; color: #1c1812; line-height: .9; }
+
+.dark-box {
+  background: #1c1812; border-radius: 12px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.dark-box .c-compact-xiao { color: oklch(0.70 0.10 50); }
+.dark-box .c-compact-zj   { color: #fdfaf2; }
+</style>
+</head>
+<body>
+
+<!-- Primary -->
+<div class="card">
+  <div class="logo-lockup">
+    <!-- Modern refined seal -->
+    <div class="seal">
+      <svg width="72" height="72" viewBox="0 0 100 100" fill="none">
+        <!-- Outer square with rounded corners — modern seal -->
+        <rect x="4" y="4" width="92" height="92" rx="14" fill="oklch(0.62 0.14 40)"/>
+        <!-- Inner border — refined -->
+        <rect x="10" y="10" width="80" height="80" rx="10" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
+        <!-- 笺 in Noto Serif SC, elegant -->
+        <text x="50" y="70" text-anchor="middle"
+          font-family="'Noto Serif SC','LXGW WenKai Screen',serif"
+          font-weight="300"
+          font-size="52" fill="white" opacity=".95">笺</text>
+      </svg>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="text-block">
+      <span class="xiao-char">小</span>
+      <span class="zhijian-char">纸笺</span>
+      <div class="tagline-wrap">
+        <div class="tagline-line"></div>
+        <span class="tagline">Xiǎo Zhǐ Jiān</span>
+        <div class="tagline-line" style="background:linear-gradient(to left, oklch(0.62 0.14 40 / 0.4), transparent)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Font comparison -->
+<div class="card" style="padding:24px 28px">
+  <div class="compare-label">字体选项</div>
+  <div class="compare-grid">
+
+    <div class="compare-item">
+      <span class="c-xiao" style="font-family:'Noto Serif SC',serif;font-weight:300">小</span>
+      <span class="c-zj" style="font-family:'Ma Shan Zheng',serif">纸笺</span>
+      <span class="c-name">Ma Shan Zheng</span>
+      <span class="c-badge">✦ 推荐 · 楷书</span>
+    </div>
+
+    <div class="compare-item">
+      <span class="c-xiao" style="font-family:'Noto Serif SC',serif;font-weight:300">小</span>
+      <span class="c-zj" style="font-family:'Ma Shan Zheng',serif">纸笺</span>
+      <span class="c-name">Ma Shan Zheng</span>
+      <span class="c-name" style="color:oklch(0.56 0.15 40)">楷书 · 端雅</span>
+    </div>
+
+    <div class="compare-item">
+      <span class="c-xiao" style="font-family:'Noto Serif SC',serif;font-weight:300">小</span>
+      <span class="c-zj" style="font-family:'Noto Serif SC',serif;font-weight:300;letter-spacing:.1em">纸笺</span>
+      <span class="c-name">Noto Serif SC Light</span>
+      <span class="c-name" style="color:oklch(0.56 0.15 40)">宋体细体 · 极简</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- Compact variants -->
+<div class="card" style="padding:24px 28px">
+  <div class="compare-label">应用变体</div>
+  <div class="variants">
+
+    <!-- UI mark square -->
+    <div class="variant">
+      <div style="width:40px;height:40px;border-radius:7px;background:oklch(0.62 0.14 40);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(200,80,40,.22)">
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <text x="20" y="28" text-anchor="middle" font-family="'Noto Serif SC',serif" font-weight="300" font-size="22" fill="white">笺</text>
+        </svg>
+      </div>
+      <span class="v-label">UI Mark</span>
+    </div>
+
+    <!-- Compact horizontal -->
+    <div class="variant">
+      <div class="compact-logo">
+        <svg width="36" height="36" viewBox="0 0 100 100">
+          <rect x="4" y="4" width="92" height="92" rx="14" fill="oklch(0.62 0.14 40)"/>
+          <text x="50" y="70" text-anchor="middle" font-family="'Noto Serif SC',serif" font-weight="300" font-size="52" fill="white">笺</text>
+        </svg>
+        <div class="compact-text">
+          <span class="c-compact-xiao">小</span>
+          <span class="c-compact-zj">纸笺</span>
+        </div>
+      </div>
+      <span class="v-label">横排版</span>
+    </div>
+
+    <!-- Dark -->
+    <div class="variant">
+      <div class="dark-box">
+        <svg width="32" height="32" viewBox="0 0 100 100">
+          <rect x="4" y="4" width="92" height="92" rx="14" fill="oklch(0.62 0.14 40)"/>
+          <text x="50" y="70" text-anchor="middle" font-family="'Noto Serif SC',serif" font-weight="300" font-size="52" fill="white">笺</text>
+        </svg>
+        <div class="compact-text">
+          <span class="c-compact-xiao">小</span>
+          <span class="c-compact-zj">纸笺</span>
+        </div>
+      </div>
+      <span class="v-label">深色背景</span>
+    </div>
+
+    <!-- Wordmark only -->
+    <div class="variant">
+      <div style="display:flex;flex-direction:column;padding:4px 0">
+        <span style="font-family:'Noto Serif SC',serif;font-weight:300;font-size:12px;color:oklch(0.62 0.14 40);letter-spacing:.4em;margin-left:3px">小</span>
+        <span style="font-family:'Ma Shan Zheng',serif;font-size:50px;color:#1c1812;line-height:.88">纸笺</span>
+      </div>
+      <span class="v-label">纯文字版</span>
+    </div>
+
+  </div>
+</div>
+
+</body></html>

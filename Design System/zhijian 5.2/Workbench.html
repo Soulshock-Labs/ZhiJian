@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>纸笺 · 工作台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+<link rel="stylesheet" href="components.css"/>
+<style>
+  body { background: var(--color-paper); }
+  .wb-shell { display: grid; grid-template-columns: var(--sidenav-w) 1fr; min-height: calc(100vh - var(--nav-h-desktop)); }
+  .wb-main  { padding: var(--sp-9) var(--sp-7) var(--sp-10); max-width: var(--container-max); }
+
+  .hero h1 { font-family: var(--font-wenkai); font-weight: 400; font-size: var(--fs-h1);
+             color: var(--color-ink); letter-spacing: -0.2px; line-height: 1.25; margin-top: var(--sp-2); max-width: 620px; }
+  .hero p  { font-size: var(--fs-body); color: var(--color-ink-2); margin-top: var(--sp-3); max-width: 560px; }
+  .hero__ctas { display: flex; gap: var(--sp-3); margin-top: var(--sp-5); }
+
+  .tasks  { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); margin-top: var(--sp-5); }
+  .quick  { display: flex; gap: var(--sp-2); margin-top: var(--sp-8); }
+  .recent__head { display:flex; align-items:flex-end; justify-content:space-between; margin: var(--sp-8) 0 var(--sp-4); }
+  .recent__list { background: var(--color-paper-hi); border: var(--border-hair); border-radius: var(--radius-md); overflow: hidden; }
+  .recent__row {
+    display: flex; align-items: center; gap: var(--sp-4);
+    padding: 0 var(--sp-5); height: 60px; cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .recent__row + .recent__row { border-top: var(--border-soft); }
+  .recent__row:hover { background: var(--color-paper-sunk); }
+  .recent__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-body-sm); color: var(--color-ink); }
+  .recent__meta  { font-size: var(--fs-meta); color: var(--color-ink-3); }
+  .recent__icon  { width: 32px; height: 32px; border: 0; background: transparent; color: var(--color-ink-3); cursor: pointer; border-radius: 50%; }
+  .recent__icon:hover { background: var(--color-paper-sunk); }
+
+  .status { display:flex; gap: var(--sp-8); padding-top: var(--sp-5); margin-top: var(--sp-8);
+            border-top: var(--border-soft); font-size: var(--fs-meta); }
+  .status__item { color: var(--color-ink-2); }
+  .status__label { font-family: var(--font-mono); color: var(--color-ink-3); margin-right: var(--sp-2); }
+
+  /* mobile */
+  @media (max-width: 900px) {
+    .wb-shell { grid-template-columns: 1fr; }
+    .sidenav, .topbar { display: none; }
+    .wb-main { padding: var(--sp-5) var(--sp-4) calc(var(--tabbar-h-mobile) + var(--sp-8)); }
+    .tasks { grid-template-columns: 1fr; }
+    .hero__ctas { flex-direction: column; }
+    .hero__ctas .btn { width: 100%; }
+    .quick { overflow-x: auto; scroll-snap-type: x mandatory; margin: var(--sp-7) calc(var(--sp-4) * -1) 0; padding: 0 var(--sp-4); }
+    .quick .btn { scroll-snap-align: start; flex-shrink: 0; }
+    .status { flex-direction: column; gap: var(--sp-3); }
+    .topbar-m, .tabbar { display: flex; }
+  }
+  @media (min-width: 901px) {
+    .topbar-m, .tabbar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Desktop topbar -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__brand-mark">笺</span>
+    <span>纸笺</span>
+  </div>
+  <nav class="topbar__nav">
+    <a class="topbar__link is-active">工作台</a>
+    <a class="topbar__link">周计划</a>
+    <a class="topbar__link">日教案</a>
+    <a class="topbar__link">观察记录</a>
+    <a class="topbar__link">模板</a>
+  </nav>
+  <div class="topbar__spacer"></div>
+  <div class="topbar__actions">
+    <input class="input input--sm" placeholder="搜索教案、模板、孩子" style="width:220px"/>
+    <button class="btn btn--secondary btn--sm"><span class="num">128</span>&nbsp;次</button>
+    <div style="width:32px;height:32px;border-radius:50%;background:#e5dcc8;display:grid;place-items:center;font-size:13px;color:var(--color-ink-2);font-weight:500">L</div>
+  </div>
+</header>
+
+<!-- Mobile topbar -->
+<header class="topbar-m">
+  <button class="btn btn--icon btn--ghost btn--sm">☰</button>
+  <div class="topbar-m__title">工作台</div>
+  <button class="btn btn--icon btn--ghost btn--sm">🔔</button>
+</header>
+
+<div class="wb-shell">
+  <aside class="sidenav">
+    <div class="sidenav__group-title">今天</div>
+    <a class="sidenav__item is-active">工作台<span class="sidenav__item-badge">3</span></a>
+    <a class="sidenav__item">日教案</a>
+    <a class="sidenav__item">观察记录</a>
+    <div class="sidenav__group-title">本周</div>
+    <a class="sidenav__item">周计划</a>
+    <a class="sidenav__item">主题库</a>
+    <div class="sidenav__group-title">资源</div>
+    <a class="sidenav__item">模板中心<span class="sidenav__item-badge">114</span></a>
+    <a class="sidenav__item">知识库</a>
+    <a class="sidenav__item">我的班级</a>
+  </aside>
+
+  <main class="wb-main">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow">星期三 · 上午 9:04 · 第 16 周</div>
+      <h1>今天，从一份更轻松的周计划开始</h1>
+      <p>你上周停在「春天来了」主题的周四教案。可以继续补完，也可以直接开始下一周。</p>
+      <div class="hero__ctas">
+        <button class="btn btn--primary">继续上次任务</button>
+        <button class="btn btn--secondary">开始本周周计划</button>
+      </div>
+    </section>
+
+    <!-- TaskCards -->
+    <section class="tasks">
+      <div class="card card--hover">
+        <span class="tag tag--brand"><span class="tag__dot"></span>进行中</span>
+        <h4 class="card__title" style="margin-top:var(--sp-3)">本周周计划</h4>
+        <p class="card__body">春天来了 · 中班</p>
+        <div class="card__footer"><span>周二已补完</span><span style="color:var(--color-brand); font-weight:500">→</span></div>
+      </div>
+      <div class="card card--hover">
+        <span class="tag tag--info"><span class="tag__dot"></span>推荐</span>
+        <h4 class="card__title" style="margin-top:var(--sp-3)">日教案 · 周三</h4>
+        <p class="card__body">从周计划延续生成</p>
+        <div class="card__footer"><span>约 2 分钟</span><span style="color:var(--color-brand); font-weight:500">→</span></div>
+      </div>
+      <div class="card card--hover">
+        <span class="tag tag--neutral"><span class="tag__dot"></span>空</span>
+        <h4 class="card__title" style="margin-top:var(--sp-3)">今日观察</h4>
+        <p class="card__body">拍一张或说一句都行</p>
+        <div class="card__footer"><span>随手记录</span><span style="color:var(--color-brand); font-weight:500">→</span></div>
+      </div>
+    </section>
+
+    <!-- QuickActions -->
+    <section class="quick">
+      <button class="btn btn--secondary">＋ 新建观察</button>
+      <button class="btn btn--secondary">打开模板</button>
+      <button class="btn btn--secondary"># 本周主题</button>
+    </section>
+
+    <!-- RecentList -->
+    <section>
+      <div class="recent__head">
+        <h3>最近</h3>
+        <button class="btn btn--link">查看全部</button>
+      </div>
+      <div class="recent__list">
+        <div class="recent__row">
+          <span class="tag tag--outline tag--info">日教案</span>
+          <div class="recent__title">周二 · 户外游戏活动</div>
+          <div class="recent__meta">中班</div>
+          <div class="recent__meta">2 天前</div>
+          <button class="recent__icon">⋯</button>
+        </div>
+        <div class="recent__row">
+          <span class="tag tag--outline tag--brand">周计划</span>
+          <div class="recent__title">第 15 周 · 植物朋友</div>
+          <div class="recent__meta">中班</div>
+          <div class="recent__meta">5 天前</div>
+          <button class="recent__icon">⋯</button>
+        </div>
+        <div class="recent__row">
+          <span class="tag tag--outline tag--neutral" style="color:var(--color-ink-3)">观察</span>
+          <div class="recent__title">小远搭积木的专注时刻</div>
+          <div class="recent__meta">中班</div>
+          <div class="recent__meta">6 天前</div>
+          <button class="recent__icon">⋯</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- StatusStrip -->
+    <section class="status">
+      <div class="status__item"><span class="status__label">知识库</span>已同步 · 114 份文件</div>
+      <div class="status__item"><span class="status__label">会员</span>剩余 <span class="num">128</span> 次 · 5月23日到期</div>
+      <div class="status__item"><span class="status__label">连续</span>已连续使用 <span class="num">7</span> 天</div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Mobile tabbar -->
+<nav class="tabbar">
+  <a class="tabbar__item is-active"><span class="tabbar__item-icon">●</span>工作台</a>
+  <a class="tabbar__item"><span class="tabbar__item-icon">○</span>周计划</a>
+  <a class="tabbar__item"><span class="tabbar__item-icon">○</span>记录</a>
+  <a class="tabbar__item"><span class="tabbar__item-icon">○</span>模板</a>
+  <a class="tabbar__item"><span class="tabbar__item-icon">○</span>我的</a>
+</nav>
+
+</body>
+</html>

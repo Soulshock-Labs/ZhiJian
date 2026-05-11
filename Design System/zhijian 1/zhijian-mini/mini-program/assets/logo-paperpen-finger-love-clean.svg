@@ -1,0 +1,51 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="110" x2="900" y2="920" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111512"></stop>
+      <stop offset="1" stop-color="#0B0F0C"></stop>
+    </linearGradient>
+    <linearGradient id="skin" x1="394" y1="336" x2="646" y2="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFEBD8"></stop>
+      <stop offset="1" stop-color="#F4D6B7"></stop>
+    </linearGradient>
+    <linearGradient id="line" x1="324" y1="286" x2="710" y2="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E39A6C"></stop>
+      <stop offset="1" stop-color="#D27D4D"></stop>
+    </linearGradient>
+    <linearGradient id="cuff" x1="410" y1="708" x2="610" y2="868" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66CA84"></stop>
+      <stop offset="1" stop-color="#309F5A"></stop>
+    </linearGradient>
+    <filter id="shadow" x="266" y="250" width="520" height="642" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"></feColorMatrix>
+      <feOffset dy="10"></feOffset>
+      <feGaussianBlur stdDeviation="14"></feGaussianBlur>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.24 0"></feColorMatrix>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"></feBlend>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"></feBlend>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="976" height="976" rx="236" fill="url(#bg)"></rect>
+
+  <g filter="url(#shadow)">
+    <path d="M414 714C368 714 330 676 330 630C330 596 352 568 384 560C390 514 420 480 458 480C484 480 506 496 516 522C528 502 552 488 578 488C610 488 636 508 644 540C654 526 672 518 692 518C724 518 750 544 750 576C750 594 742 612 730 624C748 638 760 660 760 684C760 734 720 774 670 774H414V714Z" fill="url(#skin)"></path>
+    <path d="M462 556L548 394C560 372 586 362 608 374C630 386 638 412 626 434L550 582" fill="url(#skin)"></path>
+    <path d="M532 538L596 472C616 452 646 452 666 472C686 492 686 522 666 542L602 610" fill="url(#skin)"></path>
+
+    <path d="M414 714C368 714 330 676 330 630C330 596 352 568 384 560C390 514 420 480 458 480C484 480 506 496 516 522C528 502 552 488 578 488C610 488 636 508 644 540C654 526 672 518 692 518C724 518 750 544 750 576C750 594 742 612 730 624C748 638 760 660 760 684C760 734 720 774 670 774H414" stroke="url(#line)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+    <path d="M462 556L548 394C560 372 586 362 608 374C630 386 638 412 626 434L550 582" stroke="url(#line)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+    <path d="M532 538L596 472C616 452 646 452 666 472C686 492 686 522 666 542L602 610" stroke="url(#line)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+
+    <path d="M534 540L566 572" stroke="#D8865B" stroke-width="8" stroke-linecap="round"></path>
+    <path d="M604 604C614 620 632 630 650 630" stroke="#D8865B" stroke-width="8" stroke-linecap="round"></path>
+    <path d="M654 594C664 610 680 620 696 620" stroke="#D8865B" stroke-width="8" stroke-linecap="round"></path>
+
+    <path d="M430 760H608C608 814 564 856 510 856C456 856 412 814 412 760H430Z" fill="url(#cuff)" stroke="#2D9154" stroke-width="8" stroke-linejoin="round"></path>
+  </g>
+
+  <path d="M622 330L664 362L622 392L580 362L622 330Z" fill="#FBE8B6" stroke="#E39A6C" stroke-width="6" stroke-linejoin="round"></path>
+  <circle cx="678" cy="372" r="8" fill="#5EC67F"></circle>
+  <circle cx="572" cy="344" r="7" fill="#5EC67F"></circle>
+</svg>
