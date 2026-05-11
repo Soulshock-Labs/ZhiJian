@@ -6,8 +6,8 @@
     python scripts/extract_knowledge_gcs.py
 
 环境变量（复用 .env）：
-    DASHSCOPE_API_KEY   DeepSeek / DashScope API Key
-    DASHSCOPE_BASE_URL  API 基础 URL
+    MOONSHOT_API_KEY   DeepSeek / DashScope API Key
+    MOONSHOT_BASE_URL  API 基础 URL
     AI_MODEL            视觉模型（如 deepseek-chat，如有视觉模型请换成 deepseek-vl）
     GCS_KNOWLEDGE_BUCKET  GCS bucket 名，默认 apt-decorator-473807-t1-knowledge
     GCP_PROJECT_ID        GCP 项目 ID
@@ -47,8 +47,8 @@ except ImportError:
     sys.exit(1)
 
 # ── 配置 ──────────────────────────────────────────────────────────────
-API_KEY      = os.getenv("DASHSCOPE_API_KEY", "")
-BASE_URL     = os.getenv("DASHSCOPE_BASE_URL", "https://api.deepseek.com/v1")
+API_KEY      = os.getenv("MOONSHOT_API_KEY", "")
+BASE_URL     = os.getenv("MOONSHOT_BASE_URL", "https://api.deepseek.com/v1")
 AI_MODEL     = os.getenv("EXTRACT_AI_MODEL", os.getenv("AI_MODEL", "deepseek-chat"))
 PROJECT_ID   = os.getenv("GCP_PROJECT_ID", "apt-decorator-473807-t1")
 BUCKET_NAME  = os.getenv("GCS_KNOWLEDGE_BUCKET", f"{PROJECT_ID}-knowledge")
@@ -295,7 +295,7 @@ def process_pdf(blob: gcs.Blob, tmp_dir: Path) -> dict | None:
 
 def main():
     if not API_KEY:
-        print("[ERROR] 未设置 DASHSCOPE_API_KEY")
+        print("[ERROR] 未设置 MOONSHOT_API_KEY")
         sys.exit(1)
 
     print(f"[INFO] 连接 GCS bucket: {BUCKET_NAME}")

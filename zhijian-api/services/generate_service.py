@@ -11,7 +11,7 @@ from uuid import uuid4
 from docx import Document
 
 from ai_service import _parse_json_payload, build_system_prompt
-from core.settings import AI_MODEL, APP_VERSION, DASHSCOPE_API_KEY, _TEMP_EXPORT_DIR
+from core.settings import AI_MODEL, APP_VERSION, MOONSHOT_API_KEY, _TEMP_EXPORT_DIR
 from core.state import FIRESTORE_ENABLED, _TEMP_EXPORTS, _fs, client
 from core.clients import _raise_if_invalid_dashscope_key
 from core.utils import _utc_iso
@@ -131,7 +131,7 @@ def generate_observation_content(
     phil: str,
     photo_names: list[str],
 ) -> dict:
-    if not DASHSCOPE_API_KEY:
+    if not MOONSHOT_API_KEY:
         return _mock_observation_content(theme, child_name, scene, note, photo_names)
     try:
         resp = client.chat.completions.create(

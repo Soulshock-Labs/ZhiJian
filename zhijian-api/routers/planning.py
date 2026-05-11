@@ -351,17 +351,19 @@ async def start_generate_weekly_job(
     except (json.JSONDecodeError, TypeError):
         acts_list = []
 
-    # 提前读文件（UploadFile 只能在请求生命周期内读取）
-    doc_md = ""
+    # UploadFile 只能在请求生命周期内读取；读取字节很快，解析放进后台任务。
+    ref_doc_bytes: Optional[bytes] = None
+    ref_doc_filename = ""
     if ref_doc is not None:
-        filename = ref_doc.filename or ""
-        ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+        ref_doc_filename = ref_doc.filename or ""
+        ext = ref_doc_filename.lower().rsplit(".", 1)[-1] if "." in ref_doc_filename else ""
         ALLOWED_EXTS = {"docx", "pdf", "jpg", "jpeg", "png", "webp", "gif"}
-        if ext in ALLOWED_EXTS:
-            file_bytes = await _read_upload_with_limit(ref_doc, MAX_UPLOAD_FILE_SIZE)
-            ctx = extract_doc_context(file_bytes, filename)
-            if ctx.ok:
-                doc_md = to_markdown(ctx)
+        if ext not in ALLOWED_EXTS:
+            raise HTTPException(
+                status_code=400,
+                detail="参考文件仅支持 .docx、.pdf、.jpg、.jpeg、.png、.webp 格式",
+            )
+        ref_doc_bytes = await _read_upload_with_limit(ref_doc, MAX_UPLOAD_FILE_SIZE)
 
     job_id = f"wj_{uuid4().hex[:12]}"
     _JOB_STORE[job_id] = {
@@ -381,16 +383,38 @@ async def start_generate_weekly_job(
     async def _run_job():
         t0 = time.time()
         try:
+            doc_md = ""
+            doc_info: dict = {}
+            if ref_doc_bytes is not None:
+                ctx = extract_doc_context(ref_doc_bytes, ref_doc_filename)
+                if ctx.ok:
+                    doc_md = to_markdown(ctx)
+                    doc_info = {
+                        "source": "temp_upload",
+                        "filename": ctx.filename,
+                        "file_type": ctx.file_type,
+                        "char_count": ctx.char_count,
+                        "table_count": ctx.table_count,
+                    }
+                else:
+                    doc_info = {
+                        "source": "temp_upload",
+                        "filename": ref_doc_filename,
+                        "error": ctx.error,
+                    }
             loop = asyncio.get_event_loop()
             plan = await loop.run_in_executor(
                 None,
                 lambda: generate_weekly_content(theme, phil, acts_list, class_level, model=model, doc_md=doc_md),
             )
+            result: dict = {"status": "ok", "weekly_plan": plan}
+            if doc_info:
+                result["doc_analyzed"] = doc_info
             _JOB_STORE[job_id].update({
                 "status": "success",
                 "progress": 100,
                 "elapsed_seconds": round(time.time() - t0, 1),
-                "result": {"status": "ok", "weekly_plan": plan},
+                "result": result,
             })
         except Exception as exc:
             _JOB_STORE[job_id].update({

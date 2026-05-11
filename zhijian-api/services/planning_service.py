@@ -22,9 +22,9 @@ from typing import Optional
 from docx import Document
 from fastapi import HTTPException
 
-from core.settings import AI_MODEL, AI_MODEL_FAST, APP_VERSION, DASHSCOPE_API_KEY
-from core.state import client, deepseek_client, qwen_client, ENABLE_ASPOSE_WORDS
-from core.clients import _raise_if_invalid_dashscope_key
+from core.settings import AI_MODEL, AI_MODEL_FAST, APP_VERSION, MOONSHOT_API_KEY
+from core.state import client, deepseek_client, ENABLE_ASPOSE_WORDS
+from core.clients import _raise_if_invalid_key
 
 
 def _resolve_client(model_name: str):
@@ -33,11 +33,7 @@ def _resolve_client(model_name: str):
         if deepseek_client is None:
             raise HTTPException(status_code=503, detail="DeepSeek API 未配置（缺少 DEEPSEEK_API_KEY）")
         return deepseek_client
-    if model_name.startswith("qwen"):
-        if qwen_client is None:
-            raise HTTPException(status_code=503, detail="Qwen API 未配置（缺少 QWEN_API_KEY）")
-        return qwen_client
-    # 默认走 Moonshot（当前 client）
+    # 默认走 Kimi / Moonshot
     return client
 from word_engine.field_map import PHILOSOPHY_HINTS
 from word_engine.template_tools import _today_str, _get_cell_text, _is_colored_cell, clean_template_keep_style
@@ -175,7 +171,7 @@ def generate_weekly_content(
     model: 可指定模型，空字符串则使用 AI_MODEL_FAST。
     doc_md: 老师上传文档的 Markdown 内容，非空时先用 DeepSeek 分析再注入 prompt。
     """
-    if not DASHSCOPE_API_KEY:
+    if not MOONSHOT_API_KEY:
         return _mock_weekly(theme, phil)
     model_to_use = model.strip() if model.strip() else AI_MODEL_FAST
 
@@ -215,7 +211,7 @@ def generate_weekly_content(
     except Exception as e:
         import traceback, time
         logger.error("generate_weekly_content attempt failed: %s\n%s", e, traceback.format_exc())
-        _raise_if_invalid_dashscope_key(e)
+        _raise_if_invalid_key(e)
         # 超时或临时错误：重试一次
         try:
             time.sleep(2)
@@ -364,7 +360,7 @@ def generate_daily_content(
     phil: str,
 ) -> dict:
     """调用 AI 生成四维日教案 JSON，未配置 Key 时返回 Mock 数据。"""
-    if not DASHSCOPE_API_KEY:
+    if not MOONSHOT_API_KEY:
         return _mock_daily(week_theme, day, task, phil)
     phil_hint = PHILOSOPHY_HINTS.get(phil, "")
     try:
@@ -383,7 +379,7 @@ def generate_daily_content(
     except json.JSONDecodeError as e:
         raise HTTPException(status_code=502, detail=f"日教案内容解析失败：{e}")
     except Exception as e:
-        _raise_if_invalid_dashscope_key(e)
+        _raise_if_invalid_key(e)
         raise HTTPException(status_code=502, detail=f"日教案生成失败：{e}")
 
 

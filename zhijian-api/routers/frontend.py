@@ -7,7 +7,7 @@ import os
 
 
 
-from core.settings import AI_MODEL, APP_ENV, DASHSCOPE_API_KEY, _BASE_DIR, _FRONTEND
+from core.settings import AI_MODEL, APP_ENV, MOONSHOT_API_KEY, _BASE_DIR, _FRONTEND
 router = APIRouter()
 @router.get("/", tags=["前端"])
 async def serve_frontend():
@@ -18,7 +18,7 @@ async def serve_frontend():
         "service": "小纸笺 API",
         "status": "running",
         "model": AI_MODEL,
-        "api_key_configured": bool(DASHSCOPE_API_KEY),
+        "api_key_configured": bool(MOONSHOT_API_KEY),
     }
 @router.get("/mock-token", tags=["工具"], include_in_schema=False)
 async def mock_token_page():

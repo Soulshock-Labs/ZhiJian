@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 
 import datetime, json, uuid
 
-from core.settings import AI_MODEL, APP_VERSION, DASHSCOPE_API_KEY
+from core.settings import AI_MODEL, APP_VERSION, MOONSHOT_API_KEY
 from core.state import aw, logger
 from services.data_store import _knowledge_base_status
 router = APIRouter()
@@ -17,8 +17,8 @@ async def health():
         "status": "ok",
         "app_version": APP_VERSION,
         "model": AI_MODEL,
-        "api_key_configured": bool(DASHSCOPE_API_KEY),
-        "api_key_note": "api_key_configured 仅表示已设置 DASHSCOPE_API_KEY，未校验密钥是否有效",
+        "api_key_configured": bool(MOONSHOT_API_KEY),
+        "api_key_note": "api_key_configured 仅表示已设置 MOONSHOT_API_KEY，未校验密钥是否有效",
         "aspose_available": aw is not None,
         "export_note": (
             "/generate 与 /generate-daily 优先 Aspose，失败则回退 python-docx；"

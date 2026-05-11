@@ -8,12 +8,10 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from core.settings import (
-    DASHSCOPE_API_KEY,
-    DASHSCOPE_BASE_URL,
+    MOONSHOT_API_KEY,
+    MOONSHOT_BASE_URL,
     DEEPSEEK_API_KEY,
     DEEPSEEK_BASE_URL,
-    QWEN_API_KEY,
-    QWEN_BASE_URL,
     OPENAI_API_KEY,
     OPENAI_BASE_URL,
     VOICE_TRANSCRIBE_MODEL,
@@ -48,23 +46,18 @@ else:
 # 生成内容安全开关：默认不允许静默回退 Mock，避免线上“看似成功但内容跑偏”。
 ALLOW_MOCK_CONTENT = _env_truthy("ALLOW_MOCK_CONTENT", "0")
 
-# 阿里云百炼 / OpenAI-compatible client（当前实际为 Moonshot）
+# Kimi / Moonshot client（主力模型）
+# api_key 为空时用占位符，避免 SDK 在模块加载阶段抛 OpenAIError；
+# 实际调用无效 key 会返回 401，由 _raise_if_invalid_key 处理。
 client = OpenAI(
-    api_key=DASHSCOPE_API_KEY,
-    base_url=DASHSCOPE_BASE_URL,
+    api_key=MOONSHOT_API_KEY or "not-configured",
+    base_url=MOONSHOT_BASE_URL,
 )
 
-# DeepSeek client
+# DeepSeek client（快速/备用）
 deepseek_client = (
     OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
     if DEEPSEEK_API_KEY
-    else None
-)
-
-# Qwen / 阿里云 DashScope client
-qwen_client = (
-    OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL)
-    if QWEN_API_KEY
     else None
 )
 

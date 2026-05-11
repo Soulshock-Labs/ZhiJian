@@ -16,7 +16,7 @@ sys.path.insert(0, str(PROJECT))
 
 # Smoke tests must be deterministic and offline. Prevent .env from turning these
 # checks into real AI / voice API calls.
-os.environ["DASHSCOPE_API_KEY"] = ""
+os.environ["MOONSHOT_API_KEY"] = ""
 os.environ["OPENAI_API_KEY"] = ""
 os.environ["ALLOW_MOCK_CONTENT"] = "0"
 
@@ -141,7 +141,7 @@ def test_api_endpoints() -> bool:
             ok = False
             print(f"  ✗ {method} {path}: {type(e).__name__}: {e}")
 
-    # AI 端点（预期 503，因为通常没有配置 DASHSCOPE_API_KEY）
+    # AI 端点（预期 503，因为通常没有配置 MOONSHOT_API_KEY）
     ai_tests = [
         ("POST", "/preview", {"theme": "test", "phil": "五大领域", "activities": "[]", "class_level": "中班"}, [200, 503]),
         ("POST", "/generate-weekly", {"theme": "test", "phil": "五大领域", "activities": "[]", "class_level": "中班"}, [200, 503]),

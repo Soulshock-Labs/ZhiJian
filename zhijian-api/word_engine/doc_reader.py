@@ -289,11 +289,11 @@ def _extract_image(file_bytes: bytes, ctx: DocContext) -> None:
     通过 Kimi Vision OCR 识别图片中的文字。
     将识别结果写入 ctx.raw_text。
     """
-    from core.settings import DASHSCOPE_API_KEY, DASHSCOPE_BASE_URL
+    from core.settings import MOONSHOT_API_KEY, MOONSHOT_BASE_URL
     from openai import OpenAI
 
-    if not DASHSCOPE_API_KEY:
-        raise RuntimeError("未配置 DASHSCOPE_API_KEY，无法使用 Kimi Vision OCR")
+    if not MOONSHOT_API_KEY:
+        raise RuntimeError("未配置 MOONSHOT_API_KEY，无法使用 Kimi Vision OCR")
 
     ext = ctx.filename.lower().rsplit(".", 1)[-1]
     mime = _IMAGE_MIME.get(ext, "image/jpeg")
@@ -302,8 +302,8 @@ def _extract_image(file_bytes: bytes, ctx: DocContext) -> None:
 
     # Kimi 用 Moonshot base_url
     vision_client = OpenAI(
-        api_key=DASHSCOPE_API_KEY,
-        base_url=DASHSCOPE_BASE_URL,
+        api_key=MOONSHOT_API_KEY,
+        base_url=MOONSHOT_BASE_URL,
     )
 
     resp = vision_client.chat.completions.create(

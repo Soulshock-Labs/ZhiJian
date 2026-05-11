@@ -17,23 +17,16 @@ def _env_truthy(name: str, default: str = "0") -> bool:
     raw = os.getenv(name, default)
     return str(raw).strip().lower() in {"1", "true", "yes", "on"}
 
-DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+# ── Kimi / Moonshot ──
+MOONSHOT_API_KEY = os.getenv("MOONSHOT_API_KEY", "")
+MOONSHOT_BASE_URL = os.getenv("MOONSHOT_BASE_URL", "https://api.moonshot.cn/v1")
 
-DASHSCOPE_BASE_URL = os.getenv(
-    "DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"
-)
-
-AI_MODEL = os.getenv("AI_MODEL", "qwen-max")
-
-AI_MODEL_FAST = os.getenv("AI_MODEL_FAST", "qwen-turbo")
+AI_MODEL = os.getenv("AI_MODEL", "kimi-k2-5")
+AI_MODEL_FAST = os.getenv("AI_MODEL_FAST", "moonshot-v1-8k")
 
 # ── DeepSeek ──
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
-
-# ── 阿里云 DashScope（Qwen） ──
-QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
-QWEN_BASE_URL = os.getenv("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 

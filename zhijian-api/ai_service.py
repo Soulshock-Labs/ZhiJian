@@ -34,15 +34,15 @@ logger = logging.getLogger(__name__)
 # ──────────────────────────────────────────────
 # AI 客户端（模块加载时初始化）
 # ──────────────────────────────────────────────
-DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
-DASHSCOPE_BASE_URL = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-AI_MODEL = os.getenv("AI_MODEL", "qwen-max")
+MOONSHOT_API_KEY = os.getenv("MOONSHOT_API_KEY", "")
+MOONSHOT_BASE_URL = os.getenv("MOONSHOT_BASE_URL", "https://api.moonshot.cn/v1")
+AI_MODEL = os.getenv("AI_MODEL", "kimi-k2-5")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 VOICE_TRANSCRIBE_MODEL = os.getenv("VOICE_TRANSCRIBE_MODEL", "whisper-1")
 ALLOW_MOCK_CONTENT = str(os.getenv("ALLOW_MOCK_CONTENT", "0")).strip().lower() in {"1", "true", "yes", "on"}
 
-client = OpenAI(api_key=DASHSCOPE_API_KEY, base_url=DASHSCOPE_BASE_URL)
+client = OpenAI(api_key=MOONSHOT_API_KEY or "not-configured", base_url=MOONSHOT_BASE_URL)
 voice_client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL) if OPENAI_API_KEY else None
 
 _ACTIVITY_KEYS = ("morning", "outdoor", "environment", "life", "study", "game", "area", "family", "departure")
@@ -53,19 +53,13 @@ _OUTLINE_KEYS = (
 )
 
 
-def _raise_if_invalid_dashscope_key(exc: Exception) -> None:
+def _raise_if_invalid_key(exc: Exception) -> None:
     text = str(exc)
     low = text.lower()
     if "401" in text or "invalid_api_key" in low or "incorrect api key" in low:
         raise HTTPException(
             status_code=503,
-            detail=(
-                "阿里云百炼 API Key 无效或已过期。请在部署环境（Cloud Run 环境变量/密钥）"
-                "更新 DASHSCOPE_API_KEY 为百炼控制台生成的完整密钥。"
-                "使用通义 Qwen 时请保持 DASHSCOPE_BASE_URL="
-                "https://dashscope.aliyuncs.com/compatible-mode/v1，"
-                "勿将 DeepSeek / OpenAI 的 Key 与百炼 Base URL 混用。"
-            ),
+            detail="AI API Key 无效或已过期，请检查 Cloud Run 环境变量 MOONSHOT_API_KEY / DEEPSEEK_API_KEY。",
         )
 
 
@@ -340,10 +334,8 @@ def generate_content(
     class_level: str = "",
 ) -> dict:
     """调用阿里云百炼 Qwen-Max，返回解析后的内容字典。"""
-    if not DASHSCOPE_API_KEY:
-        # 与 generate_weekly_content 保持一致：未配置 Key 时回退 Mock，
-        # 避免旧 /generate 接口 503 而 /generate-weekly 正常的不一致体验。
-        logger.warning("AI Key 缺失，回退 Mock 生成（/generate 旧接口）")
+    if not MOONSHOT_API_KEY:
+        logger.warning("MOONSHOT_API_KEY 缺失，回退 Mock 生成（/generate 旧接口）")
         return _normalize_content_payload(
             _mock_content(theme, phil, activities),
             theme=theme, phil=phil, activities=activities,
@@ -391,5 +383,5 @@ def generate_content(
             child_initiative=child_initiative, child_desc=child_desc,
         )
     except Exception as e:
-        _raise_if_invalid_dashscope_key(e)
-        raise HTTPException(status_code=502, detail=f"调用阿里云百炼 API 失败：{e}")
+        _raise_if_invalid_key(e)
+        raise HTTPException(status_code=502, detail=f"调用 AI API 失败：{e}")
