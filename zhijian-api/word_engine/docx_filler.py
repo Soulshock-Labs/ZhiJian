@@ -178,7 +178,10 @@ def _build_weekly_fill_data(
     ai_acts: dict = ai_content.get("activities", {})
     for act_id in ACTIVITY_LABEL_MAP:
         content = ai_acts.get(act_id, "")
-        if act_id in activities and content:
+        # activities 为空 = 用户未显式选择，填入所有有内容的字段（模板上传流程）
+        # activities 非空 = 标准模板流程，只填选中项
+        should_fill = (not activities or act_id in activities) and bool(content)
+        if should_fill:
             fill_data[act_id] = content
         elif fill_unselected:
             fill_data[act_id] = "（本周未启用该板块，可按班级实际勾选后再生成）"
