@@ -27,7 +27,7 @@ async function request<T>(
 ): Promise<T> {
   const url = `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
   const ctrl = new AbortController();
-  const timeoutMs = init?.timeoutMs ?? 15_000;
+  const timeoutMs = init?.timeoutMs ?? 60_000;
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
 
   try {
@@ -63,7 +63,7 @@ function safeJson(text: string): unknown {
   }
 }
 
-export function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
+export function apiGet<T>(path: string, init?: RequestInit & { timeoutMs?: number }): Promise<T> {
   return request<T>(path, { ...init, method: "GET" });
 }
 
@@ -786,8 +786,9 @@ export function getWeeklyGenerationJob(
   jobId: string,
   userToken: string,
 ): Promise<WeeklyGenerationJobResponse> {
-  return apiGet<WeeklyGenerationJobResponse>(
+  return request<WeeklyGenerationJobResponse>(
     `/generation-jobs/${encodeURIComponent(jobId)}?user_token=${encodeURIComponent(userToken)}`,
+    { method: "GET", timeoutMs: 45_000 },
   );
 }
 

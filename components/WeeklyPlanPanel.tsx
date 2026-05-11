@@ -91,6 +91,10 @@ function shouldAutoPrepareDay(day: string) {
   return order >= currentTeachingWeekday();
 }
 
+function isPollingTimeout(error: unknown) {
+  return error instanceof Error && error.message.includes("请求超时");
+}
+
 export function WeeklyPlanPanel({
   open,
   onClose,
@@ -258,10 +262,23 @@ export function WeeklyPlanPanel({
         ref_doc: documentFile ?? undefined,
       });
       let res = null;
+      let pollTimeouts = 0;
       while (weeklyRunRef.current === runId) {
         await new Promise(resolve => window.setTimeout(resolve, 2000));
-        const job = await getWeeklyGenerationJob(started.job_id, userToken);
+        let job;
+        try {
+          job = await getWeeklyGenerationJob(started.job_id, userToken);
+          pollTimeouts = 0;
+        } catch (err) {
+          if (isPollingTimeout(err) && pollTimeouts < 2) {
+            pollTimeouts += 1;
+            setError("状态查询有点慢，生成仍在继续，请稍等…");
+            continue;
+          }
+          throw err;
+        }
         if (weeklyRunRef.current !== runId) return;
+        if (pollTimeouts === 0) setError(null);
         setWeeklyProgress(Math.max(0, Math.min(100, Math.round(job.progress ?? 0))));
         if (typeof job.elapsed_seconds === "number") {
           setLoadingSeconds(job.elapsed_seconds);
